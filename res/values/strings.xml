@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>    
+    <string name="app_name">服务推送客户端</string>
+    <string name="settings">设置</string>
+    <string name="onlineHelper">在线客服</string>
+    <string name="topic">我的关注</string>
+</resources>
