@@ -3,9 +3,10 @@ package com.openims.demo;
 
 
 import com.openims.R;
-import com.openims.onlineHelper.ChatActivity;
-import com.openims.service.Constants;
-import com.openims.setting.Setting;
+import com.openims.utility.Constants;
+import com.openims.utility.PushServiceUtil;
+import com.openims.view.onlineHelper.ChatActivity;
+import com.openims.view.setting.Setting;
 
 import android.app.Activity;
 import android.app.Notification;
@@ -90,7 +91,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
-		        intent.setClassName("com.openims","com.openims.onlineHelper.ChatActivity");		       
+		        intent.setClassName("com.openims","com.openims.view.onlineHelper.ChatActivity");		       
 		        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		        startActivity(intent);			
 			}
@@ -100,7 +101,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
-		        intent.setClassName("com.openims","com.openims.pubsub.MainActivity");		       
+		        intent.setClassName("com.openims","com.openims.view.pubsub.MainActivity");		       
 		        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		        startActivity(intent);			
 			}

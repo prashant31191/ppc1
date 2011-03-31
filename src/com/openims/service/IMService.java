@@ -17,11 +17,15 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.pubsub.packet.PubSub;
 
 
-import com.openims.notificationPacket.NotificationIQProvider;
-import com.openims.notificationPacket.RegPushIQ;
-import com.openims.notificationPacket.RegPushProvider;
+import com.openims.model.pushService.PushInfoManager;
+import com.openims.service.connection.ConnectivityReceiver;
+import com.openims.service.notificationPacket.NotificationIQProvider;
+import com.openims.service.notificationPacket.RegPushIQ;
+import com.openims.service.notificationPacket.RegPushProvider;
+import com.openims.utility.Constants;
 import com.openims.utility.DeviceFun;
 import com.openims.utility.LogUtil;
+import com.openims.utility.PushServiceUtil;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -32,7 +36,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.telephony.PhoneStateListener;
 import android.util.Log;
 
 
@@ -65,7 +68,7 @@ public class IMService extends Service {
     	Log.d(LOGTAG, "onCreate()...");
     	
     	initSetting();
-    	sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
+    	sharedPrefs = getSharedPreferences(PushServiceUtil.SHARED_PREFERENCE_NAME,
                 Context.MODE_PRIVATE);
     	
     	initDeviceId();
@@ -77,19 +80,20 @@ public class IMService extends Service {
                 IMService.this.start();
             }
         });
+        
     }
     @Override
     public void onStart(Intent intent, int startId) {
         Log.d(LOGTAG, "onStart()...");        
         String action = intent.getAction();
         
-        if(Constants.ACTION_SERVICE_STATUS.equals(action)){
+        if(PushServiceUtil.ACTION_SERVICE_STATUS.equals(action)){
         	getStatus();
-        }else if(Constants.ACTION_SERVICE_REGISTER.equals(action)){
+        }else if(PushServiceUtil.ACTION_SERVICE_REGISTER.equals(action)){
         	registerPush(intent);
-        }else if(Constants.ACTION_SERVICE_MESSAGE.equals(action)){
+        }else if(PushServiceUtil.ACTION_SERVICE_MESSAGE.equals(action)){
         	sendMessageChat(intent);
-        }else if(Constants.ACTION_SERVICE_PUBSUB.equals(action)){
+        }else if(PushServiceUtil.ACTION_SERVICE_PUBSUB.equals(action)){
         	sendTopic(intent);
         }
     }
@@ -231,34 +235,34 @@ public class IMService extends Service {
         Log.i(LOGTAG, "xmppPort=" + xmppPort);
 
         sharedPrefs = this.getSharedPreferences(
-                Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+                PushServiceUtil.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         Editor editor = sharedPrefs.edit();
-        editor.putString(Constants.API_KEY, apiKey);
-        editor.putString(Constants.VERSION, version);
-        editor.putString(Constants.XMPP_HOST, xmppHost);
-        editor.putInt(Constants.XMPP_PORT, Integer.parseInt(xmppPort));
-        editor.putString(Constants.XMPP_USERNAME, userName);
-        editor.putString(Constants.XMPP_PASSWORD, password);        
+        editor.putString(PushServiceUtil.API_KEY, apiKey);
+        editor.putString(PushServiceUtil.VERSION, version);
+        editor.putString(PushServiceUtil.XMPP_HOST, xmppHost);
+        editor.putInt(PushServiceUtil.XMPP_PORT, Integer.parseInt(xmppPort));
+        editor.putString(PushServiceUtil.XMPP_USERNAME, userName);
+        editor.putString(PushServiceUtil.XMPP_PASSWORD, password);        
 
         editor.commit();
     }
     private void initDeviceId(){
     	deviceId = DeviceFun.getDeviceID();
     	Editor editor = sharedPrefs.edit();
-        editor.putString(Constants.DEVICE_ID, deviceId);
+        editor.putString(PushServiceUtil.DEVICE_ID, deviceId);
         editor.commit();
         
         if (deviceId == null 
         		|| deviceId.trim().length() == 0
                 || deviceId.matches("0+")) {
             if (sharedPrefs.contains("EMULATOR_DEVICE_ID")) {
-                deviceId = sharedPrefs.getString(Constants.EMULATOR_DEVICE_ID,
+                deviceId = sharedPrefs.getString(PushServiceUtil.EMULATOR_DEVICE_ID,
                         "");
             } else {
                 deviceId = (new StringBuilder("EMU")).append(
                         (new Random(System.currentTimeMillis())).nextLong())
                         .toString();
-                editor.putString(Constants.EMULATOR_DEVICE_ID, deviceId);
+                editor.putString(PushServiceUtil.EMULATOR_DEVICE_ID, deviceId);
                 editor.commit();
             }
         }
@@ -297,32 +301,32 @@ public class IMService extends Service {
     
     private void registerPush(Intent intent){
     	Bundle bundle = intent.getExtras();
-    	String user = bundle.getString(Constants.PUSH_USER);
-    	String pushName = bundle.getString(Constants.PUSH_NAME);
-    	String packageName = bundle.getString(Constants.PUSH_PACKAGENAME);
-    	String className = bundle.getString(Constants.PUSH_CLASSNAME);
-    	String regType = bundle.getString(Constants.PUSH_TYPE);
+    	String user = bundle.getString(PushServiceUtil.PUSH_USER);
+    	String pushName = bundle.getString(PushServiceUtil.PUSH_NAME);
+    	String packageName = bundle.getString(PushServiceUtil.PUSH_PACKAGENAME);
+    	String className = bundle.getString(PushServiceUtil.PUSH_CLASSNAME);
+    	String regType = bundle.getString(PushServiceUtil.PUSH_TYPE);
     	
     	// IM service has not connected
     	if(xmppManager.isAuthenticated() == false){
     		sendRegisterBroadcast(packageName,className,null,
-    				Constants.PUSH_STATUS_UNCONNECT,
-    				Constants.PUSH_TYPE_REG,this);
+    				PushServiceUtil.PUSH_STATUS_UNCONNECT,
+    				PushServiceUtil.PUSH_TYPE_REG,this);
     		return;
     	}
     	PushInfoManager pushInfo = new PushInfoManager(this);
-    	if(regType.equals(Constants.PUSH_TYPE_REG)){
+    	if(regType.equals(PushServiceUtil.PUSH_TYPE_REG)){
     		if(pushInfo.isRegPush(pushName)){
         		sendRegisterBroadcast(packageName,className,null,
-        				Constants.PUSH_STATUS_HAVEREGISTER,
-        				Constants.PUSH_TYPE_REG,this);
+        				PushServiceUtil.PUSH_STATUS_HAVEREGISTER,
+        				PushServiceUtil.PUSH_TYPE_REG,this);
         		return;
         	}    		
     	}else{
     		if(!pushInfo.isRegPush(pushName)){
         		sendRegisterBroadcast(packageName,className,null,
-        				Constants.PUSH_STATUS_NOTREGISTER,
-        				Constants.PUSH_TYPE_UNREG,this);
+        				PushServiceUtil.PUSH_STATUS_NOTREGISTER,
+        				PushServiceUtil.PUSH_TYPE_UNREG,this);
         		return;
         	}
     	}
@@ -335,9 +339,9 @@ public class IMService extends Service {
     	regPushIQ.setUserName(user);
     	regPushIQ.setPushServiceName(pushName);
     	
-    	if(regType.equals(Constants.PUSH_TYPE_REG)){
+    	if(regType.equals(PushServiceUtil.PUSH_TYPE_REG)){
     		regPushIQ.setRegOrUnreg(true);
-    	}else if(regType.equals(Constants.PUSH_TYPE_UNREG)){
+    	}else if(regType.equals(PushServiceUtil.PUSH_TYPE_UNREG)){
     		regPushIQ.setRegOrUnreg(false);
     	}
     	
@@ -362,11 +366,11 @@ public class IMService extends Service {
 		.append("pushID:").append(pushID).append("status:").append(status);
 		Log.d(LOGTAG, TAG + stringBuilder);
 		
-		Intent intentSend = new Intent(Constants.ACTION_REGISTRATION);
+		Intent intentSend = new Intent(PushServiceUtil.ACTION_REGISTRATION);
 		intentSend.setClassName(packageName, className);    	
-		intentSend.putExtra(Constants.PUSH_STATUS, status);
-		intentSend.putExtra(Constants.PUSH_ID, pushID);
-		intentSend.putExtra(Constants.PUSH_TYPE, type);
+		intentSend.putExtra(PushServiceUtil.PUSH_STATUS, status);
+		intentSend.putExtra(PushServiceUtil.PUSH_ID, pushID);
+		intentSend.putExtra(PushServiceUtil.PUSH_TYPE, type);
 		context.sendBroadcast(intentSend);
 	}
     private class WaitThread extends Thread {      
@@ -392,23 +396,23 @@ public class IMService extends Service {
         public void run() {
             Log.i(LOGTAG, TAG + "WaitThread.run()..."); 
             try {
-				sleep(Constants.PUSH_TIMEOUT_TIME);
+				sleep(PushServiceUtil.PUSH_TIMEOUT_TIME);
 			} catch (InterruptedException e) {				
 				e.printStackTrace();
 			}
 			PushInfoManager pushInfo = new PushInfoManager(IMService.this);
 			
-			if(type.equals(Constants.PUSH_TYPE_REG)){
+			if(type.equals(PushServiceUtil.PUSH_TYPE_REG)){
 				if(pushInfo.isRegPush(pushName) == false){
 					Log.e(LOGTAG, TAG + "register time out");
 					sendRegisterBroadcast(packageName,className,null,
-		    				Constants.PUSH_STATUS_FAIL,type,context);
+		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
 				}
-	    	}else if(type.equals(Constants.PUSH_TYPE_UNREG)){
+	    	}else if(type.equals(PushServiceUtil.PUSH_TYPE_UNREG)){
 	    		if(pushInfo.isRegPush(pushName) == true){
 					Log.e(LOGTAG, TAG + "unregister time out");
 					sendRegisterBroadcast(packageName,className,null,
-		    				Constants.PUSH_STATUS_FAIL,type,context);
+		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
 				}
 	    	}
 			
@@ -430,8 +434,8 @@ public class IMService extends Service {
     
     private void sendMessageChat(Intent intent){
     	Bundle bundle = intent.getExtras();
-    	String to = bundle.getString(Constants.MESSAGE_TOWHOS);
-    	String mesContent = bundle.getString(Constants.MESSAGE_CONTENT);
+    	String to = bundle.getString(PushServiceUtil.MESSAGE_TOWHOS);
+    	String mesContent = bundle.getString(PushServiceUtil.MESSAGE_CONTENT);
     	Message msg = new Message(to, Message.Type.chat);
         msg.setBody(mesContent);
                
@@ -440,16 +444,16 @@ public class IMService extends Service {
     	xmppManager.sendPacket(msg); 
     }
     private void sendTopic(Intent intent){
-    	String topic = intent.getStringExtra(Constants.MESSAGE_TOWHOS);
-    	String message = intent.getStringExtra(Constants.MESSAGE_CONTENT);
+    	String topic = intent.getStringExtra(PushServiceUtil.MESSAGE_TOWHOS);
+    	String message = intent.getStringExtra(PushServiceUtil.MESSAGE_CONTENT);
     	xmppManager.sendTopic(topic, message);
     }
     private void getStatus(){
     	if(xmppManager.isAuthenticated()){
-    		xmppManager.broadcastStatus(Constants.PUSH_STATUS_LOGIN_SUC);
+    		xmppManager.broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_SUC);
     	}else{
     		//connect();
-    		xmppManager.broadcastStatus(Constants.PUSH_STATUS_LOGIN_FAIL);
+    		xmppManager.broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL);
     	}
     }
 }

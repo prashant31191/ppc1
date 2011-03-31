@@ -82,14 +82,20 @@ import org.jivesoftware.smackx.pubsub.packet.PubSubNamespace;
 import org.jivesoftware.smackx.pubsub.provider.SubscriptionProvider;
 import org.jivesoftware.smackx.search.UserSearch;
 
-import com.openims.notificationPacket.NotificationIQ;
-import com.openims.notificationPacket.NotificationIQProvider;
-import com.openims.notificationPacket.NotificationPacketListener;
-import com.openims.notificationPacket.RegPushIQ;
-import com.openims.notificationPacket.RegPushPacketListener;
-import com.openims.notificationPacket.RegPushProvider;
-import com.openims.pubsub.SubListener;
+import com.openims.service.chat.ChatPacketListener;
+import com.openims.service.connection.PersistentConnectionListener;
+import com.openims.service.connection.ReconnectionThread;
+import com.openims.service.fileTransfer.FileReceiver;
+import com.openims.service.notificationPacket.NotificationIQ;
+import com.openims.service.notificationPacket.NotificationIQProvider;
+import com.openims.service.notificationPacket.NotificationPacketListener;
+import com.openims.service.notificationPacket.RegPushIQ;
+import com.openims.service.notificationPacket.RegPushPacketListener;
+import com.openims.service.notificationPacket.RegPushProvider;
+import com.openims.service.pubsub.SubListener;
+import com.openims.utility.Constants;
 import com.openims.utility.LogUtil;
+import com.openims.utility.PushServiceUtil;
 
 import android.content.Context;
 import android.content.Intent;
@@ -134,10 +140,10 @@ public class XmppManager{
         taskTracker = imservice.getTaskTracker();
         sharedPrefs = imservice.getSharedPreferences();
         
-        xmppHost = sharedPrefs.getString(Constants.XMPP_HOST, "localhost");
-        xmppPort = sharedPrefs.getInt(Constants.XMPP_PORT, 5222);
-        username = sharedPrefs.getString(Constants.XMPP_USERNAME, "");
-        password = sharedPrefs.getString(Constants.XMPP_PASSWORD, "");
+        xmppHost = sharedPrefs.getString(PushServiceUtil.XMPP_HOST, "localhost");
+        xmppPort = sharedPrefs.getInt(PushServiceUtil.XMPP_PORT, 5222);
+        username = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, "");
+        password = sharedPrefs.getString(PushServiceUtil.XMPP_PASSWORD, "");
         
         connectionListener = new PersistentConnectionListener(this);
         notificationPacketListener = new NotificationPacketListener(this);
@@ -196,7 +202,7 @@ public class XmppManager{
     	if(this.isAuthenticated())
     	connection.sendPacket(packet);
     	else
-    		broadcastStatus(Constants.PUSH_STATUS_LOGIN_FAIL);
+    		broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL);
     }
     public void startReconnectionThread() {
         /*synchronized (reconnection) {
@@ -293,13 +299,13 @@ public class XmppManager{
     }
 
     private boolean isRegistered() {
-        return sharedPrefs.contains(Constants.XMPP_USERNAME)
-                && sharedPrefs.contains(Constants.XMPP_PASSWORD);
+        return sharedPrefs.contains(PushServiceUtil.XMPP_USERNAME)
+                && sharedPrefs.contains(PushServiceUtil.XMPP_PASSWORD);
     }
     private void removeAccount() {
         Editor editor = sharedPrefs.edit();
-        editor.remove(Constants.XMPP_USERNAME);
-        editor.remove(Constants.XMPP_PASSWORD);
+        editor.remove(PushServiceUtil.XMPP_USERNAME);
+        editor.remove(PushServiceUtil.XMPP_PASSWORD);
         editor.commit();
     }   
     
@@ -384,7 +390,7 @@ public class XmppManager{
                     initPubSub();
 
                 } catch (XMPPException e) {
-                	broadcastStatus(Constants.PUSH_STATUS_CONNECTION_FAIL);
+                	broadcastStatus(PushServiceUtil.PUSH_STATUS_CONNECTION_FAIL);
                     Log.e(LOGTAG, "XMPP connection failed", e);
                 }                
 
@@ -436,7 +442,7 @@ public class XmppManager{
                                     Log.e(LOGTAG,
                                             "Unknown error while registering XMPP account! "
                                                     + response.getError().getCondition());
-                                    broadcastStatus(Constants.PUSH_STATUS_REGISTER_FAIL);
+                                    broadcastStatus(PushServiceUtil.PUSH_STATUS_REGISTER_FAIL);
                                 }
                             } else if (response.getType() == IQ.Type.RESULT) {
                                 xmppManager.setUsername(newUsername);
@@ -445,14 +451,14 @@ public class XmppManager{
                                 Log.d(LOGTAG, "password=" + newPassword);
 
                                 Editor editor = sharedPrefs.edit();
-                                editor.putString(Constants.XMPP_USERNAME,
+                                editor.putString(PushServiceUtil.XMPP_USERNAME,
                                         newUsername);
-                                editor.putString(Constants.XMPP_PASSWORD,
+                                editor.putString(PushServiceUtil.XMPP_PASSWORD,
                                         newPassword);
                                 editor.commit();
                                 
                                 Log.i(LOGTAG,"Account registered successfully");
-                                broadcastStatus(Constants.PUSH_STATUS_REGISTER_SUC);                                
+                                broadcastStatus(PushServiceUtil.PUSH_STATUS_REGISTER_SUC);                                
                             }
                         }
                         xmppManager.runTask();
@@ -500,14 +506,14 @@ public class XmppManager{
                             xmppManager.getUsername(),
                             xmppManager.getPassword(), XMPP_RESOURCE_NAME);
                     Log.d(LOGTAG, "Loggedn in successfully");
-                    broadcastStatus(Constants.PUSH_STATUS_LOGIN_SUC); 
+                    broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_SUC); 
                     
                     initAfterLogin();
 
                 } catch (XMPPException e) {
                     Log.e(LOGTAG, "LoginTask.run()... xmpp error");
                     Log.e(LOGTAG, "Failed to login to xmpp server. Caused by: "+ e.getMessage());
-                    broadcastStatus(Constants.PUSH_STATUS_LOGIN_FAIL);                    
+                    broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL);                    
                     
                     String INVALID_CREDENTIALS_ERROR_CODE = "401";
                     String errorMessage = e.getMessage();
@@ -521,20 +527,20 @@ public class XmppManager{
                     Log.e(LOGTAG, "LoginTask.run()... other error");
                     Log.e(LOGTAG, "Failed to login to xmpp server. Caused by: "
                             + e.getMessage());
-                    broadcastStatus(Constants.PUSH_STATUS_LOGIN_FAIL);                    
+                    broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL);                    
                 }
 
             } else {
                 Log.i(LOGTAG, "Logged in already");
-                broadcastStatus(Constants.PUSH_STATUS_LOGIN_SUC);                
+                broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_SUC);                
             }
             xmppManager.runTask();
         }
     }
     
     public void broadcastStatus(String inf){
-    	Intent intentSend = new Intent(Constants.ACTION_STATUS);
-		intentSend.putExtra(Constants.PUSH_STATUS, inf);
+    	Intent intentSend = new Intent(PushServiceUtil.ACTION_STATUS);
+		intentSend.putExtra(PushServiceUtil.PUSH_STATUS, inf);
 		context.sendBroadcast(intentSend);
 		
     }
@@ -768,7 +774,7 @@ public class XmppManager{
     	if(message.equals("hello"))
     		return;
     	if(!this.isAuthenticated()){
-    		broadcastStatus(Constants.PUSH_STATUS_LOGIN_FAIL);
+    		broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL);
     		return;
     	}
         		
@@ -797,7 +803,7 @@ public class XmppManager{
 		} catch (XMPPException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			broadcastStatus(Constants.PUSH_STATUS_SENDFAIL);
+			broadcastStatus(PushServiceUtil.PUSH_STATUS_SENDFAIL);
 			// ∑¢ÀÕ ß∞‹
 		}
     }

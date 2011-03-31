@@ -8,34 +8,25 @@
     <application android:icon="@drawable/icon" android:label="@string/app_name">
 
         <activity android:name="com.openims.demo.MainActivity"
-        		  android:label="@string/app_name">
+        		  android:label="@string/welcome">
         		  <intent-filter>
         		  	<action android:name="android.intent.action.MAIN" /> 
         		  	<category android:name="android.intent.category.LAUNCHER" />
         		  </intent-filter>
     	</activity>
-    	<activity android:name="com.openims.onlineHelper.ChatActivity"
+    	<activity android:name="com.openims.view.onlineHelper.ChatActivity"
         		  android:label="@string/onlineHelper"
         		  android:launchMode="singleInstance">
-        		  <intent-filter>
-        		  	<action android:name="android.intent.action.MAIN" /> 
-        		  	<category android:name="android.intent.category.LAUNCHER"/>
-        		  </intent-filter>
     	</activity>
-    	<activity android:name="com.openims.pubsub.MainActivity"
+    	<activity android:name="com.openims.view.pubsub.MainActivity"
         		  android:label="@string/topic"
         		  android:launchMode="singleInstance">
-        		  <intent-filter>
-        		  	<action android:name="android.intent.action.MAIN" /> 
-        		  	<category android:name="android.intent.category.LAUNCHER"/>
-        		  </intent-filter>
     	</activity>
-    	<activity android:name="com.openims.setting.Setting"
+    	<activity android:name="com.openims.view.setting.Setting"
                   android:label="@string/app_name">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
+        
+        <!-- the core service -->
         <service android:enabled="true"
 			android:name="com.openims.service.IMService"
 			android:label="IMService">
@@ -53,25 +44,11 @@
 			</intent-filter>
 			<intent-filter>
 				<action android:name="com.openims.service.IMService.PUBSUB" />
-			</intent-filter>
-			
+			</intent-filter>			
 		</service>
-		<service android:enabled="true"
-			android:name="com.openims.service.RegisterPushService"
-			android:label="RegisterPushService">
-			<intent-filter>
-				<action android:name="com.openims.service.RegisterPushService" />
-			</intent-filter>
-		</service>
-		<service android:enabled="true"
-			android:name="com.openims.service.UnRegisterPushService"
-			android:label="UnRegisterPushService">
-			<intent-filter>
-				<action android:name="com.openims.service.UnRegisterPushService" />
-			</intent-filter>
-		</service>
+		
 		<!-- For Push Client -->
-		<receiver android:name="com.openims.demo.PushServiceReceiver">    	
+		<receiver android:name="com.openims.view.PushServiceReceiver">    	
 		    <intent-filter>
 		        <action android:name="com.openims.pushService.RECEIVE" />
 		        <category android:name="com.openims.demo" />
@@ -86,7 +63,7 @@
 		    </intent-filter>
 		</receiver>
 		<!-- start service -->
-		<receiver android:name="com.openims.setting.SystemReceiver">
+		<receiver android:name="com.openims.view.setting.SystemReceiver">
         	<intent-filter>
         		<action android:name="android.intent.action.BOOT_COMPLETED"/>
         	</intent-filter>

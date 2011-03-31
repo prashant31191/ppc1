@@ -3,7 +3,7 @@ package com.openims.test;
 import android.content.Context;
 import android.util.Log;
 
-import com.openims.service.PushInfoManager;
+import com.openims.model.pushService.PushInfoManager;
 import com.openims.utility.LogUtil;
 
 public class TestDb{
