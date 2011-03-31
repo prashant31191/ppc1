@@ -19,6 +19,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
@@ -129,6 +130,9 @@ public class MainActivity extends Activity {
 //		"cn.com.smit.onlineHelper");
 //regIntent.putExtra(PushServiceUtil.PUSH_CLASSNAME, 
 //		"cn.com.smit.onlineHelper.PushServiceReceiver");
+		Bundle b = new Bundle();
+		//Handler handler = new Handler(this);
+		//b.putParcelable("d", handler);
 
 		startService(regIntent);	
     }
