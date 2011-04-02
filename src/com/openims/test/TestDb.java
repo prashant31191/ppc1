@@ -17,7 +17,7 @@ public class TestDb{
 		
 		PushInfoManager pushInfoManager = new PushInfoManager(context);
 		boolean b =false;
-		pushInfoManager.CreateTable();
+		//pushInfoManager.CreateTable();
 		b = pushInfoManager.insertPushInfotoDb("chenyz@smit", 
 				"com.pushWidget", "com.openims", "com.openims.rec");
 		Log.i(LOGTAG,TAG+"return b=true:"+String.valueOf(b));

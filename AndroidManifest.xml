@@ -7,8 +7,7 @@
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
 
-        <activity android:name="com.openims.demo.MainActivity"
-        		  android:label="@string/welcome">
+        <activity android:name="com.openims.demo.MainActivity" android:label="@string/app_name">
         		  <intent-filter>
         		  	<action android:name="android.intent.action.MAIN" /> 
         		  	<category android:name="android.intent.category.LAUNCHER" />
@@ -25,6 +24,13 @@
     	<activity android:name="com.openims.view.setting.Setting"
                   android:label="@string/app_name">
         </activity>
+        <activity android:name="com.openims.view.pcAssistant.AssistantActivity" 
+    			  android:label="@string/pcAssistant">
+        		  <intent-filter>
+        		  	<action android:name="android.intent.action.MAIN" /> 
+        		  	<category android:name="android.intent.category.LAUNCHER" />
+        		  </intent-filter>
+    	</activity>
         
         <!-- the core service -->
         <service android:enabled="true"
@@ -68,6 +74,16 @@
         		<action android:name="android.intent.action.BOOT_COMPLETED"/>
         	</intent-filter>
         </receiver>
+        
+        <!-- below is for test -->
+		<activity android:name="com.openims.test.TestActivity"
+        		  android:label="测试水蜜桃">
+        		  <intent-filter>
+        		  	<action android:name="android.intent.action.MAIN" /> 
+        		  	<category android:name="android.intent.category.LAUNCHER" />
+        		  </intent-filter>
+    	</activity>    	
+    	<!-- end test -->
 
     </application>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -81,4 +97,9 @@
 		android:normalScreens="true" 
 		android:smallScreens="true"
 		android:anyDensity="true" />
+		
+	<!-- below is for test -->
+	<uses-permission android:name="android.permission.READ_CONTACTS"/>
+	<!-- end test -->	
+
 </manifest>

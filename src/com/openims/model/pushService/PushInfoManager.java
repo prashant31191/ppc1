@@ -15,9 +15,9 @@ public class PushInfoManager{
 	private static final String LOGTAG = LogUtil.makeLogTag(PushInfoManager.class);
 	private static final String TAG = LogUtil.makeTag(PushInfoManager.class);
 		
-	private static final String DATABASE_NAME = "pushInfo.db";
+	private static final String DATABASE_NAME = "pushRegInfo.db";
 	private static final int DATABASE_VERSION = 1;
-	private static final String TABLE_NAME = "pushInfo";
+	private static final String TABLE_NAME = "pushRegInfo";
 	
 	private static final String USER = "user";
 	private static final String PUSHNAME = "pushName";
@@ -149,7 +149,7 @@ public class PushInfoManager{
 		}
 	}
 	
-	public void CreateTable() {
+	private void reCreateTable() {
 		Log.d(LOGTAG,TAG+"CreateTable");
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
 		
