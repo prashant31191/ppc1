@@ -69,6 +69,7 @@ public class PushServiceUtil{
     public static final String XMPP_PORT = "XMPP_PORT";
     public static final String XMPP_USERNAME = "XMPP_USERNAME";
     public static final String XMPP_PASSWORD = "XMPP_PASSWORD";
+    public static final String XMPP_RESOURCE = "XMPP_RESOURCE";
     // PREFERENCE KEYS
     public static final String API_KEY = "API_KEY";
     public static final String VERSION = "VERSION";

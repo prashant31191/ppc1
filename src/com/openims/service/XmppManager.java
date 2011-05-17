@@ -2,7 +2,6 @@ package com.openims.service;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -11,14 +10,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
-
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.ReconnectionManager;
-import org.jivesoftware.smack.Roster;
-import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
@@ -40,9 +34,9 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.GroupChatInvitation;
 import org.jivesoftware.smackx.PrivateDataManager;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.filetransfer.FileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
-import org.jivesoftware.smackx.filetransfer.FileTransfer;
 import org.jivesoftware.smackx.packet.ChatStateExtension;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 import org.jivesoftware.smackx.packet.LastActivity;
@@ -69,7 +63,6 @@ import org.jivesoftware.smackx.provider.XHTMLExtensionProvider;
 import org.jivesoftware.smackx.pubsub.AccessModel;
 import org.jivesoftware.smackx.pubsub.ConfigureForm;
 import org.jivesoftware.smackx.pubsub.FormType;
-import org.jivesoftware.smackx.pubsub.ItemPublishEvent;
 import org.jivesoftware.smackx.pubsub.LeafNode;
 import org.jivesoftware.smackx.pubsub.Node;
 import org.jivesoftware.smackx.pubsub.PayloadItem;
@@ -77,10 +70,16 @@ import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.PublishModel;
 import org.jivesoftware.smackx.pubsub.SimplePayload;
 import org.jivesoftware.smackx.pubsub.Subscription;
-import org.jivesoftware.smackx.pubsub.listener.ItemEventListener;
 import org.jivesoftware.smackx.pubsub.packet.PubSubNamespace;
 import org.jivesoftware.smackx.pubsub.provider.SubscriptionProvider;
 import org.jivesoftware.smackx.search.UserSearch;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Handler;
+import android.util.Log;
 
 import com.openims.service.chat.ChatPacketListener;
 import com.openims.service.connection.PersistentConnectionListener;
@@ -92,17 +91,10 @@ import com.openims.service.notificationPacket.NotificationPacketListener;
 import com.openims.service.notificationPacket.RegPushIQ;
 import com.openims.service.notificationPacket.RegPushPacketListener;
 import com.openims.service.notificationPacket.RegPushProvider;
+import com.openims.service.notificationPacket.UserQueryIQ;
 import com.openims.service.pubsub.SubListener;
-import com.openims.utility.Constants;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.os.Handler;
-import android.util.Log;
 
 public class XmppManager{
 	private static final String LOGTAG = LogUtil.makeLogTag(XmppManager.class);
@@ -113,6 +105,7 @@ public class XmppManager{
 	private int xmppPort;	    
     private String username;
     private String password;
+    private	String resource = null;
     
     private XMPPConnection connection;
     private Context context;
@@ -144,6 +137,7 @@ public class XmppManager{
         xmppPort = sharedPrefs.getInt(PushServiceUtil.XMPP_PORT, 5222);
         username = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, "");
         password = sharedPrefs.getString(PushServiceUtil.XMPP_PASSWORD, "");
+        resource = sharedPrefs.getString(PushServiceUtil.XMPP_RESOURCE, "");
         
         connectionListener = new PersistentConnectionListener(this);
         notificationPacketListener = new NotificationPacketListener(this);
@@ -156,6 +150,17 @@ public class XmppManager{
         topicMap = new HashMap<String,LeafNode>();
         
         configure(ProviderManager.getInstance());
+    }
+    public String getResource(){
+    	if(resource == null || resource.length()==0){
+    		resource = newRandomUUID();
+    		 Editor editor = sharedPrefs.edit();
+             editor.putString(PushServiceUtil.XMPP_RESOURCE,
+            		 resource);
+             editor.commit();
+    	}
+    		
+    	return this.resource;
     }
     public void connect() {
         Log.d(LOGTAG, "connect()...");
@@ -504,7 +509,7 @@ public class XmppManager{
                 try {
                     xmppManager.getConnection().login(
                             xmppManager.getUsername(),
-                            xmppManager.getPassword(), XMPP_RESOURCE_NAME);
+                            xmppManager.getPassword(), getResource());
                     Log.d(LOGTAG, "Loggedn in successfully");
                     broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_SUC); 
                     
@@ -849,6 +854,14 @@ public class XmppManager{
     		e.printStackTrace();
     		return;
     	}
+    	// TODO 要求服务器，保证覆盖唯一的    	
+    	UserQueryIQ iq = new UserQueryIQ();
+    	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
+    	iq.setUserAccount(username);
+    	iq.setResource(getResource());
+    	iq.setDeviceName("loveTCC");
+    	iq.setOpCodeSave();
+    	this.sendPacket(iq);
         
     }
     public void configure(ProviderManager pm) {
