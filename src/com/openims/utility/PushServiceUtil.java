@@ -62,6 +62,7 @@ public class PushServiceUtil{
     // some default push id for special purpose
     public static final String DEFAULTID_WARNING = "WARNING";
     public static final String DEFAULTID_PENDINGINTENT = "PENDINGINTENT";
+    public static final String DEFAULTID_DEFAULT = "DEFAULT";
     
     // for preferences file
     public static final String SHARED_PREFERENCE_NAME = "client_preferences";
@@ -69,6 +70,7 @@ public class PushServiceUtil{
     public static final String XMPP_PORT = "XMPP_PORT";
     public static final String XMPP_USERNAME = "XMPP_USERNAME";
     public static final String XMPP_PASSWORD = "XMPP_PASSWORD";
+    public static final String XMPP_RESOURCE = "XMPP_RESOURCE";
     // PREFERENCE KEYS
     public static final String API_KEY = "API_KEY";
     public static final String VERSION = "VERSION";

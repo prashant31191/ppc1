@@ -35,7 +35,7 @@ public class TestActivity extends Activity {
             		Log.d(LOGTAG,TAG+"start push content database test");
             		PushContentDBTest ptest = new PushContentDBTest(TestActivity.this);
             		//ptest.testRecreateTable();
-            		ptest.testInsert(20);
+            		ptest.testInsert(1000);
             		ptest.testQuery();
             		ptest.testDelete();
             		ptest.testDelete();

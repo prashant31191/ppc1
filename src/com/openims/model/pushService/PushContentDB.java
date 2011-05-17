@@ -27,13 +27,13 @@ public class PushContentDB {
 	private static final int DATABASE_VERSION = 1;
 	private static final String TABLE_NAME = "pushContent";
 	
-	private static final String INDEX = "indexPrimary";
-	private static final String SIZE = "size";
-	private static final String CONTENT = "content";
-	private static final String LOCAL_PATH = "localPath";
-	private static final String TIME = "time";
-	private static final String TYPE = "type";
-	private static final String FLAG = "flag";
+	public static final String INDEX = "_id";
+	public static final String SIZE = "size";
+	public static final String CONTENT = "content";
+	public static final String LOCAL_PATH = "localPath";
+	public static final String TIME = "time";
+	public static final String TYPE = "type";
+	public static final String FLAG = "flag";
 	
 	private static final String CREATE_TABLE = "CREATE TABLE "+TABLE_NAME+"("+
 	INDEX+" INTEGER PRIMARY KEY," +

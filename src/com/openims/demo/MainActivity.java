@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
 	private final static String Tag = "chenyz";
 	
 	
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d("DemoAppActivity", "onCreate()...");

@@ -71,6 +71,7 @@ public class IMService extends Service {
     	sharedPrefs = getSharedPreferences(PushServiceUtil.SHARED_PREFERENCE_NAME,
                 Context.MODE_PRIVATE);
     	
+    	// 初始化设备的ID
     	initDeviceId();
     	
     	xmppManager = new XmppManager(this);
@@ -418,7 +419,10 @@ public class IMService extends Service {
 			
         }
     }
-    
+    /**
+     * 读取law文件里面的信息
+     * @createtime 2011年5月17日9:50:28
+     */
     private Properties loadProperties() {
         Properties props = new Properties();
         try {

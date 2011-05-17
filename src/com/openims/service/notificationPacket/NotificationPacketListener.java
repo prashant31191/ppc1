@@ -78,6 +78,8 @@ public class NotificationPacketListener implements PacketListener {
                 	warning(ntTitle,ntUri);
                 }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_PENDINGINTENT)){
                 	pendingIntent(ntUri,ntTitle,ntMessage,ticker);
+                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_DEFAULT)){
+                	pendingIntent(ntUri,ntTitle,ntMessage,ticker);
                 }else{
                 	sendPushInf(ntPushID,ntTitle,ntMessage,ntUri,ticker);
                 }
