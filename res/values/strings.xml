@@ -6,4 +6,6 @@
     <string name="onlineHelper">在线客服</string>
     <string name="topic">我的关注</string>
     <string name="pcAssistant">PC Assistant</string>
+    <string name="pushInfo">推送信息</string>
+    <string name="about">关于</string>
 </resources>
