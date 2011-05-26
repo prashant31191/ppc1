@@ -31,6 +31,7 @@ public class NotificationIQ extends IQ {
     private String uri;
     private String ticker;
 
+    //TODO 建议增加时间戳，比较有一个时效性的体现
     public NotificationIQ() {
     }
 

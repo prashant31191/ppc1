@@ -8,4 +8,12 @@
     <string name="pcAssistant">PC Assistant</string>
     <string name="pushInfo">推送信息</string>
     <string name="about">关于</string>
+    <string name="testApp">软件测试</string>
+    <string name="pushcontent_uread">未读</string>
+    <string name="pushcontent_read">已读</string>
+    <string name="view">查看</string>
+    <string name="download">下载</string>
+    <string name="position">123456</string>
+    <string name="beginDownload">开始下载</string>
+    
 </resources>
