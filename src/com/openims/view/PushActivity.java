@@ -15,11 +15,38 @@ import com.openims.utility.PushServiceUtil;
 
 public class PushActivity extends FragmentActivity {
 	
-	private static final String LOGTAG = LogUtil
-    .makeLogTag(PushActivity.class);
-	private static final String CLASSNAME = "PushActivity";
-	private static final String tagPushInf = "PushInf";
+	private static final String TAG = LogUtil.makeLogTag(PushActivity.class);
+	private static final String TAG_PUSH = "PushInf";
+	private static final String TAG_SETTING = "setting";
+	private static final String TAG_ABOUT = "about";
 	
+	private Fragment settingFragment = null;
+	private Fragment pushContentFragment = null;
+	private Fragment aboutFragment = null;
+	
+	
+	
+	public Fragment getSettingFragment() {
+		if(settingFragment == null){
+			settingFragment = new SettingFragment();
+		}
+		return settingFragment;
+	}
+
+	public Fragment getPushContentFragment() {
+		if(pushContentFragment == null){
+			pushContentFragment = new PushContentListFragment();
+		}
+		return pushContentFragment;
+	}
+
+	public Fragment getAboutFragment() {
+		if(aboutFragment == null){
+			aboutFragment = new AboutFragment();
+		}
+		return aboutFragment;
+	}
+
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,9 +54,8 @@ public class PushActivity extends FragmentActivity {
         
         if (savedInstanceState == null) {
             // Do first time initialization -- add initial fragment.
-            Fragment newFragment = new PushContentListFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(R.id.details, newFragment,tagPushInf).commit();
+            ft.add(R.id.details, getPushContentFragment(),TAG_PUSH).commit();
         }
         // register broadcast for update UI
         IntentFilter filter = new IntentFilter();
@@ -42,16 +68,16 @@ public class PushActivity extends FragmentActivity {
 		String tag = "unknown";
 		switch(id){
 		case R.id.btnsetting:
-			newFragment = new SettingFragment();
-			tag = "setting";
+			newFragment = getSettingFragment();
+			tag = TAG_SETTING;
 			break;
 		case R.id.btnpushInfo:
-			newFragment = new PushContentListFragment();			
-			tag = tagPushInf;
+			newFragment = getPushContentFragment();			
+			tag = TAG_PUSH;
 			break;
 		case R.id.btnabout:
-			newFragment = new AboutFragment();
-			tag = tagPushInf;
+			newFragment = getAboutFragment();
+			tag = TAG_ABOUT;
 			break;
 		}
 		if(newFragment != null){
@@ -64,7 +90,7 @@ public class PushActivity extends FragmentActivity {
 	
 	private void updateUI(){
 		PushContentListFragment push = (PushContentListFragment)getSupportFragmentManager()
-		.findFragmentByTag(tagPushInf);
+		.findFragmentByTag(TAG_PUSH);
 		if(push != null)
 			push.updateList();
 		

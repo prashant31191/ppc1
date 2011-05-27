@@ -32,6 +32,13 @@
         		  	<category android:name="android.intent.category.LAUNCHER" />
         		  </intent-filter>
     	</activity>
+    	<activity android:name=".view.PushActivity"
+				  android:label="@string/app_name">
+				  <intent-filter>
+				  	<action android:name="android.intent.action.MAIN"></action>
+				  	<category android:name="android.intent.category.LAUNCHER" />
+				  </intent-filter>
+		</activity>
         
         <!-- the core service -->
         <service android:enabled="true"
@@ -69,6 +76,7 @@
 		        <category android:name="com.openims.demo" />
 		    </intent-filter>
 		</receiver>
+		
 		<!-- start service -->
 		<receiver android:name="com.openims.view.setting.SystemReceiver">
         	<intent-filter>
@@ -83,18 +91,20 @@
         		  	<action android:name="android.intent.action.MAIN" /> 
         		  	<category android:name="android.intent.category.LAUNCHER" />
         		  </intent-filter>
-    	</activity>    	
-    	<!-- end test -->
-		<activity android:name=".view.PushActivity"
-				  android:label="@string/app_name">
-				  <intent-filter>
-				  	<action android:name="android.intent.action.MAIN"></action>
-				  	<category android:name="android.intent.category.LAUNCHER" />
-				  </intent-filter>
-		</activity>
+    	</activity>  
+    	<activity android:name=".demo.NewQA">
+    			<intent-filter>
+        		  	<action android:name="android.intent.action.MAIN" /> 
+        		  	<category android:name="android.intent.category.LAUNCHER" />
+        		  </intent-filter>
+		</activity>  	
+    	<!-- end test -->    	
+		
 		<uses-library android:name="android.test.runner"></uses-library>
+		
 
     </application>
+    
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -105,11 +115,8 @@
 	<supports-screens android:largeScreens="true"
 		android:normalScreens="true" 
 		android:smallScreens="true"
-		android:anyDensity="true" />
-		
-	<!-- below is for test -->
-	<uses-permission android:name="android.permission.READ_CONTACTS"/>
-	<!-- end test -->
+		android:anyDensity="true" />		
+
 	<uses-sdk android:maxSdkVersion="11" android:targetSdkVersion="7" android:minSdkVersion="3"></uses-sdk>	
 
 </manifest>

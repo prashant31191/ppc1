@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>    
+<resources>  
+ 	
+    <string name="cancel">取消</string>     
     <string name="app_name">水蜜桃</string>
     <string name="welcome">欢迎你</string>
     <string name="settings">设置</string>
@@ -7,7 +9,8 @@
     <string name="topic">我的关注</string>
     <string name="pcAssistant">PC Assistant</string>
     <string name="pushInfo">推送信息</string>
-    <string name="about">关于</string>
+    <string name="about">关于</string>    
+    <string name="delsuccess">删除成功</string>    
     <string name="testApp">软件测试</string>
     <string name="pushcontent_uread">未读</string>
     <string name="pushcontent_read">已读</string>
@@ -15,5 +18,7 @@
     <string name="download">下载</string>
     <string name="position">123456</string>
     <string name="beginDownload">开始下载</string>
+    <string name="delete">删除</string>    
+   
     
 </resources>

@@ -1,7 +1,12 @@
 package com.openims.view;
 
+import java.io.File;
+
 import android.app.Activity;
+import android.content.Intent;
+import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ListFragment;
@@ -13,6 +18,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.PopupWindow.OnDismissListener;
 
 import com.openims.R;
 import com.openims.downloader.DownloadTask;
@@ -22,6 +29,9 @@ import com.openims.downloader.DownloadThreadFactory;
 import com.openims.model.pushService.PushContentDB;
 import com.openims.utility.FileOperation;
 import com.openims.utility.LogUtil;
+import com.openims.utility.PushServiceUtil;
+import com.openims.widgets.ActionItem;
+import com.openims.widgets.QuickAction;
 
 /**
  * 这是用来显示推送过来的所有的用户内容，用list来显示
@@ -34,22 +44,23 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 			.makeLogTag(PushContentListFragment.class);
 	private static final String PRE = "PushContentListFragment:";
 
-	private String read;
-	private Cursor cursor;
-	private int nContent;
-	private String download;
-	
-	private PushCursorAdapter adapter;
-	private DownloadThreadFactory downloadFactory = new DownloadThreadFactory();
-	private DownloadThread thread = downloadFactory.getThread(null);
-	
-	 private String picPath = "sdcard/pushFile/picture/";
-	    private String videoPath = "sdcard/pushFile/video/";
-	    private String audioPath = "sdcard/pushFile/audio/";
-	    
-	private Handler mainHandler = new Handler();
 
-	private PushContentDB pushContentDB;
+	private PushCursorAdapter pushAdapter = null;
+	private PushContentDB pushContentDB = null;
+	
+	private DownloadThreadFactory downloadFactory = null;
+	private DownloadThread thread = null;
+	private Handler mainHandler = null;
+	
+	private String picPath = "sdcard/pushFile/picture/";
+	private String videoPath = "sdcard/pushFile/video/";
+	private String audioPath = "sdcard/pushFile/audio/";
+	
+	// pop up menu		 	
+	private ActionItem deleteAction = null;
+	private ActionItem viewAction = null;		
+	private ActionItem cancelAction = null;	
+	
 	@Override
 	public void onAttach(Activity activity) {
 		Log.e(TAG, PRE + "onAttach");
@@ -59,38 +70,106 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		thread.start();
+		if(downloadFactory == null){
+			downloadFactory = new DownloadThreadFactory();
+			thread = downloadFactory.getThread(null);
+			thread.start();
+		}
+		if(mainHandler == null){
+			mainHandler = new Handler();
+		}
+		if(pushContentDB == null)
+			pushContentDB = new PushContentDB(this.getActivity());	
+		if(pushAdapter == null)
+		pushAdapter = new PushCursorAdapter(this.getActivity(),
+				pushContentDB.queryItems(),true,this);
 		
-		pushContentDB = new PushContentDB(this.getActivity());
-		read = getActivity().getResources().getString(R.string.pushcontent_read);
-		cursor = pushContentDB.queryItems();
-
-		adapter = new PushCursorAdapter(this.getActivity(),
-				cursor,true,this);
-		this.setListAdapter(adapter);
+		this.setListAdapter(pushAdapter);
 		
-		nContent = cursor.getColumnIndex(PushContentDB.CONTENT);
-		download = this.getActivity().getResources().getString(R.string.download);
+		// delay init			
+		//thread.start();	
 		
 	}
 	
-	
+	private String getResString(int id){
+		try{
+			return this.getActivity().getResources().getString(id);
+		}catch(NotFoundException e){
+			e.printStackTrace();
+		}
+		return "null";
+		
+	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {		
-		
-		TextView tv = (TextView)v.findViewById(R.id.tv_pushcontent_status);
-		if(read.endsWith(tv.getText().toString()) == false){
-			pushContentDB.updateStatus(id, read);			
-			cursor.requery();	//FIXME update cursor 但是不是最好的方法，可以自己同步数据吧
-			
+	public void onListItemClick(ListView l, View view, int position, final long id) {	
+					
+		TextView tv = (TextView)view.findViewById(R.id.tv_pushcontent_status);
+		if(pushAdapter.getRead().endsWith(tv.getText().toString()) == false){
+			pushContentDB.updateStatus(id, pushAdapter.getRead());			
+			pushAdapter.getCursor().requery();	//FIXME update cursor 但是不是最好的方法，可以自己同步数据吧
+			return;
 		}
+		
+		final QuickAction mQuickAction 	= new QuickAction(view);
+		final String text				= "title";		
+		Log.i(TAG,PRE + "onListItemClick ID : " + id);
+		getDeleteAction().setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mQuickAction.dismiss();
+				pushContentDB.deleteItem(String.valueOf(id));
+				Toast.makeText(getActivity(),getResString(R.string.delsuccess), 
+						Toast.LENGTH_LONG).show();		    	
+				pushAdapter.getCursor().requery();
+			}
+		});
+
+		getViewAction().setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(getActivity(), "view " + text, Toast.LENGTH_SHORT).show();
+		    	
+				mQuickAction.dismiss();
+			}
+		});
+		
+		getCancelAction().setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(getActivity(), "Cancel " + text, Toast.LENGTH_SHORT).show();
+		    	
+				mQuickAction.dismiss();
+			}
+		});
+		
+		mQuickAction.addActionItem(deleteAction);
+		mQuickAction.addActionItem(viewAction);
+		mQuickAction.addActionItem(cancelAction);
+		
+		mQuickAction.setAnimStyle(QuickAction.ANIM_AUTO);
+		
+		mQuickAction.setOnDismissListener(new OnDismissListener() {
+			@Override
+			public void onDismiss() {
+				
+			}
+		});
+		
+		mQuickAction.show();
 		
 	}
 	
+	
 	public void updateList(){
-		cursor.requery();
+		pushAdapter.getCursor().requery();
+	}
+	public void viewImage(String path){
+		Intent intent = new Intent();  
+		intent.setAction(android.content.Intent.ACTION_VIEW);  
+		File file = new File(path);  
+		intent.setDataAndType(Uri.fromFile(file), "image/*"); 	
+		startActivity(intent); 
 	}
 
 	@Override
@@ -139,8 +218,8 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	@Override
 	public void onDestroy() {
 		Log.e(TAG, PRE + "onDestroy");
-		if(adapter != null){
-			adapter.cleanUp();
+		if(pushAdapter != null){
+			pushAdapter.cleanUp();
 		}
 		cleanUp();
 		super.onDestroy();
@@ -161,34 +240,69 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		}
 	}
 	@Override
-	public void onClick(final View v) {		
-		Integer coursor_position = (Integer)v.getTag();
+	public void onClick(final View v) {	
 		
-		Log.e(TAG, PRE + "onClick = " + coursor_position);
+		Integer cursor_position = (Integer)v.getTag();
+		Cursor cursor = pushAdapter.getCursor();
+		Log.e(TAG, PRE + "onClick = " + cursor_position);
+		
 		String text = ((Button)v).getText().toString();			
-		cursor.moveToPosition(coursor_position);
-		String url = cursor.getString(nContent);
-		if(download.endsWith(text)){
+		cursor.moveToPosition(cursor_position);
+		String url = cursor.getString(pushAdapter.getnColContent());
+		
+		if(pushAdapter.getDownload().endsWith(text)){
 			// down load file
 			FileOperation.makedir(picPath);
 			String fileName = FileOperation.getFileName(url);
+			
 			TaskListener listener = new TaskListener();
-			listener.setId(cursor.getInt(cursor.getColumnIndex(PushContentDB.INDEX)));
-			Integer position = (Integer)v.getTag(R.string.position);
-			listener.setPosition(position);
+			Integer id = (Integer)v.getTag(R.string.position);
+			listener.setId(id);
+			
+			listener.setPosition(cursor_position);
 			listener.setDownloadPath(picPath + fileName);
-			adapter.getTaskListenerMap().put(coursor_position, listener);
+			pushAdapter.getTaskListenerMap().put(id, listener);
+			
 			DownloadTask task = new DownloadTask(url,picPath + fileName,
 					mainHandler,listener);
 			
 			thread.enqueueDownload(task);
 			((Button)v).setText(R.string.beginDownload);
 			
-		} else {
+		} else if(pushAdapter.getCheckout().endsWith(text)) {
 			// view information
+			if(PushServiceUtil.DEFAULTID_PICTURE.endsWith(
+					cursor.getString(pushAdapter
+							.getnColType() ) ) ){
+				viewImage(cursor.getString(pushAdapter.getnColPath()));
+			}
 		}
 	}
 
+	public ActionItem getDeleteAction() {
+		if(deleteAction == null){
+			deleteAction = new ActionItem();
+			deleteAction.setTitle(getActivity().getResources().getString(R.string.delete));
+			deleteAction.setIcon(getResources().getDrawable(R.drawable.ic_add));			
+		}
+		return deleteAction;
+	}
+	public ActionItem getViewAction() {
+		if(viewAction == null){
+			viewAction = new ActionItem();
+			viewAction.setTitle(getActivity().getResources().getString(R.string.view));
+			viewAction.setIcon(getResources().getDrawable(R.drawable.ic_accept));			
+		}
+		return viewAction;
+	}
+	public ActionItem getCancelAction() {
+		if(cancelAction == null){
+			cancelAction = new ActionItem();
+			cancelAction.setTitle(getActivity().getResources().getString(R.string.cancel));
+			cancelAction.setIcon(getResources().getDrawable(R.drawable.ic_accept));					
+		}
+		return cancelAction;
+	}
 	public class TaskListener implements DownloadTaskListener {
 
 		private int id = 0; // database key column
@@ -222,7 +336,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 				if(bFinish==true){
 					btn.setText(R.string.view);
 				}else{
-					btn.setText(download + ":" + nFinishSize);
+					btn.setText(pushAdapter.getDownload() + ":" + nFinishSize);
 				}
 					
 			}else{
