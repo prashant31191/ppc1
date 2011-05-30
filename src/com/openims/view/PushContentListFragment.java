@@ -362,12 +362,6 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 
 		public void setDownloadPath(String downloadPath) {
 			this.downloadPath = downloadPath;
-		}	
-		
-		
-		
+		}		
 	}
-
-	
-
 }

@@ -18,7 +18,9 @@
     <string name="download">下载</string>
     <string name="position">123456</string>
     <string name="beginDownload">开始下载</string>
-    <string name="delete">删除</string>    
+    <string name="delete">删除</string>
+    <string name="show_menu">显示菜单</string>
+    <string name="hide_menu">隐藏菜单</string>    
    
     
 </resources>
