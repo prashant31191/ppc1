@@ -5,9 +5,6 @@ android:layout_height="fill_parent" android:layout_width="fill_parent"
 android:id="@+id/relativeLayout1">
 
 
-	
-
-
 	<FrameLayout  android:id="@+id/details" 
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"

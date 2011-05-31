@@ -72,31 +72,20 @@ public class DownloadTask implements Runnable {
                  */
                 InputStream is = ucon.getInputStream();
                 BufferedInputStream bis = new BufferedInputStream(is);
-                
-                /*
-                 * Read bytes to the Buffer until there is nothing more to read(-1).
-                 */
-                ByteArrayBuffer baf = new ByteArrayBuffer(50);
-                int current = 0;
-                
-                while ((current = bis.read()) != -1) {
-                        baf.append((byte) current);
-                        nFinishSize++;
-                        // 通知UI更新
-                        if(nFinishSize%1024 == 0){
-                        	mainThreadHandler.post(new Runnable(){  
-                        		@Override
-    							public void run() {
-    								listener.finish(nFinishSize, nTotalSize);							
-    							}
-                            	
-                            });
-                        }							
-                }
-
-                /* Convert the Bytes read to a String. */
                 FileOutputStream fos = new FileOutputStream(file);
-                fos.write(baf.toByteArray());
+                byte[] data = new byte[1024]; 
+                nFinishSize = 0;
+                while( bis.read(data, 0, 1024) != -1){
+                	fos.write(data, 0, 1024);
+                	nFinishSize += 1024;
+                	mainThreadHandler.post(new Runnable(){  
+                		@Override
+						public void run() {
+							listener.finish(nFinishSize, nTotalSize);							
+						}                    	
+                    });
+                }
+              
                 fos.close();
                 Log.d(TAG, "download ready in"
                                 + ((System.currentTimeMillis() - startTime) / 1000)

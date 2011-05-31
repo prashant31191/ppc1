@@ -102,7 +102,10 @@ public class PushActivity extends FragmentActivity {
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		     //ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 		     //ft.addToBackStack(null);  //这个是做什么用的？
-		     ft.replace(R.id.details, newFragment,tag).commit();
+			Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+		    if(fragment == null){
+		    	ft.replace(R.id.details, newFragment,tag).commit();
+		    }
 		}
 	}
 	

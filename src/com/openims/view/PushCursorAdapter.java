@@ -120,7 +120,7 @@ public class PushCursorAdapter extends CursorAdapter{
 		
 		TextView tvTime = (TextView)view.findViewById(
 				R.id.tv_pushcontent_time);
-		tvTime.setText(cursor.getString(getnColContent()));		
+		tvTime.setText(cursor.getString(getnColTime()));		
 		
 		int id = (int)getItemId(cursor.getPosition());
 		Button btn = (Button)view.findViewById(R.id.btn_pushcontent_action);

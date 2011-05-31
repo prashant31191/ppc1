@@ -3,6 +3,7 @@ package com.openims.view;
 import java.io.File;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
@@ -11,9 +12,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
@@ -31,6 +34,7 @@ import com.openims.utility.FileOperation;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.openims.widgets.ActionItem;
+import com.openims.widgets.BigToast;
 import com.openims.widgets.QuickAction;
 
 /**
@@ -112,15 +116,24 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		}
 		
 		final QuickAction mQuickAction 	= new QuickAction(view);
+		mQuickAction.animateTrack(false);
 		final String text				= "title";		
 		Log.i(TAG,PRE + "onListItemClick ID : " + id);
+		final int width = l.getMeasuredWidth();
 		getDeleteAction().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				mQuickAction.dismiss();
 				pushContentDB.deleteItem(String.valueOf(id));
-				Toast.makeText(getActivity(),getResString(R.string.delsuccess), 
-						Toast.LENGTH_LONG).show();		    	
+				Toast t = BigToast.makeText(getActivity(),getResString(R.string.delsuccess), 
+						Toast.LENGTH_LONG);	
+				WindowManager windowManager = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+				
+				int n = (windowManager.getDefaultDisplay().getWidth() - width)/2;				
+				t.setGravity(Gravity.RIGHT|Gravity.BOTTOM, 0, 0);
+				t.setMargin(0.35f, 0.2f);
+				t.show();
+				
 				pushAdapter.getCursor().requery();
 			}
 		});
@@ -128,7 +141,10 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		getViewAction().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(getActivity(), "view " + text, Toast.LENGTH_SHORT).show();
+				
+				Toast t = BigToast.makeText(getActivity(),"view " + text, 
+						Toast.LENGTH_LONG);	
+				t.show();
 		    	
 				mQuickAction.dismiss();
 			}
@@ -172,6 +188,9 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		startActivity(intent); 
 	}
 
+	public void toast(){
+		
+	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -274,6 +293,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 			if(PushServiceUtil.DEFAULTID_PICTURE.endsWith(
 					cursor.getString(pushAdapter
 							.getnColType() ) ) ){
+				Log.i(TAG, PRE + "URL:" + cursor.getString(pushAdapter.getnColPath()));
 				viewImage(cursor.getString(pushAdapter.getnColPath()));
 			}
 		}

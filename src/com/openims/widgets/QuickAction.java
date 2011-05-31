@@ -13,6 +13,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 
@@ -51,6 +52,7 @@ public class QuickAction extends CustomPopupWindow {
 	private int animStyle;
 	private boolean animateTrack;
 	private ViewGroup mTrack;
+	private ScrollView scroller;
 	private ArrayList<ActionItem> actionList;
 	
 	/**
@@ -69,6 +71,7 @@ public class QuickAction extends CustomPopupWindow {
 		
 		mArrowDown 	= (ImageView) root.findViewById(R.id.arrow_down);
 		mArrowUp 	= (ImageView) root.findViewById(R.id.arrow_up);
+		scroller		= (ScrollView) root.findViewById(R.id.scroller);
 		
 		setContentView(root);
 		
@@ -76,8 +79,8 @@ public class QuickAction extends CustomPopupWindow {
 		
 		mTrackAnim.setInterpolator(new Interpolator() {
 			public float getInterpolation(float t) {
-	              // Pushes past the target area, then snaps back into place.
-	                // Equation for graphing: 1.2-((x*1.6)-1.1)^2
+	            // Pushes past the target area, then snaps back into place.
+	            // Equation for graphing: 1.2-((x*1.6)-1.1)^2
 				final float inner = (t * 1.55f) - 1.1f;
 				
 	            return 1.2f - inner * inner;
@@ -120,44 +123,67 @@ public class QuickAction extends CustomPopupWindow {
 	 * Show popup window
 	 */
 	public void show () {
-		preShow();
-
-		int[] location 		= new int[2];
 		
+preShow();
+		
+		int xPos, yPos;
+		
+		int[] location 		= new int[2];
+	
 		anchor.getLocationOnScreen(location);
 
 		Rect anchorRect 	= new Rect(location[0], location[1], location[0] + anchor.getWidth(), location[1] 
 		                	+ anchor.getHeight());
 
+		createActionList();
+		
 		root.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		root.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		
-		int rootWidth 		= root.getMeasuredWidth();
+	
 		int rootHeight 		= root.getMeasuredHeight();
-
-		int screenWidth 	= windowManager.getDefaultDisplay().getWidth();
-		//int screenHeight 	= windowManager.getDefaultDisplay().getHeight();
-
-		int xPos 			= (screenWidth - rootWidth) / 2;
-		int yPos	 		= anchorRect.top - rootHeight;
-
-		boolean onTop		= true;
+		int rootWidth		= root.getMeasuredWidth();
 		
-		// display on bottom
-		if (rootHeight > anchor.getTop()) {
-			yPos 	= anchorRect.bottom;
-			onTop	= false;
+		int screenWidth 	= windowManager.getDefaultDisplay().getWidth();
+		int screenHeight	= windowManager.getDefaultDisplay().getHeight();
+		
+		//automatically get X coord of popup (top left)
+		if ((anchorRect.left + rootWidth) > screenWidth) {
+			xPos = anchorRect.left - (rootWidth-anchor.getWidth());
+		} else {
+			if (anchor.getWidth() > rootWidth) {
+				xPos = anchorRect.centerX() - (rootWidth/2);
+			} else {
+				xPos = anchorRect.left;
+			}
 		}
+		
+		int dyTop			= anchorRect.top;
+		int dyBottom		= screenHeight - anchorRect.bottom;
 
-		showArrow(((onTop) ? R.id.arrow_down : R.id.arrow_up), anchorRect.centerX());
+		boolean onTop		= (dyTop > dyBottom) ? true : false;
+
+		if (onTop) {
+			if (rootHeight > dyTop) {
+				yPos 			= 15;
+				LayoutParams l 	= scroller.getLayoutParams();
+				l.height		= dyTop - anchor.getHeight();
+			} else {
+				yPos = anchorRect.top - rootHeight;
+			}
+		} else {
+			yPos = anchorRect.bottom;
+			
+			if (rootHeight > dyBottom) { 
+				LayoutParams l 	= scroller.getLayoutParams();
+				l.height		= dyBottom;
+			}
+		}
+		
+		showArrow(((onTop) ? R.id.arrow_down : R.id.arrow_up), anchorRect.centerX()-xPos);
 		
 		setAnimationStyle(screenWidth, anchorRect.centerX(), onTop);
 		
-		createActionList();
-		
-		window.showAtLocation(this.anchor, Gravity.NO_GRAVITY, xPos, yPos);
-		
-		if (animateTrack) mTrack.startAnimation(mTrackAnim);
+		window.showAtLocation(anchor, Gravity.NO_GRAVITY, xPos, yPos);
 	}
 	
 	/**
