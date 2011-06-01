@@ -18,17 +18,17 @@ public class TestDb{
 		PushInfoManager pushInfoManager = new PushInfoManager(context);
 		boolean b =false;
 		//pushInfoManager.CreateTable();
-		b = pushInfoManager.insertPushInfotoDb("chenyz@smit", 
+		b = pushInfoManager.insertPushInfotoDb("chenyz@smit","andrew", 
 				"com.pushWidget", "com.openims", "com.openims.rec");
 		Log.i(LOGTAG,TAG+"return b=true:"+String.valueOf(b));
 		
-		b = pushInfoManager.isRegPush("com.pushWidget");
+		b = pushInfoManager.isRegPush("com.pushWidget","andrew");
 		Log.i(LOGTAG,TAG+"return b=false:"+String.valueOf(b));			
 		
-		b = pushInfoManager.updatePushID("com.pushWidget", "pushid123");
+		b = pushInfoManager.updatePushID("com.pushWidget","andrew", "pushid123");
 		Log.i(LOGTAG,TAG+"return b=ture:"+String.valueOf(b));
 		
-		b = pushInfoManager.isRegPush("com.pushWidget");
+		b = pushInfoManager.isRegPush("com.pushWidget","andrew");
 		Log.i(LOGTAG,TAG+"return b=true:"+String.valueOf(b));	
 		
 		StringBuilder packageName = new StringBuilder();

@@ -79,6 +79,7 @@ public class PushCursorAdapter extends CursorAdapter{
 		boolean bDownLoad = false;
 		String type = cursor.getString(getnColType());
 		ImageView imageView = (ImageView)view.findViewById(R.id.iv_pushcontent_type);
+		
 		if(PushServiceUtil.DEFAULTID_TEXT.endsWith(type)){
 			imageView.setImageResource(R.drawable.text);
 		}else if(PushServiceUtil.DEFAULTID_URL.endsWith(type)){
@@ -88,6 +89,9 @@ public class PushCursorAdapter extends CursorAdapter{
 			bDownLoad = true;
 		}else if(PushServiceUtil.DEFAULTID_VIDEO.endsWith(type)){
 			imageView.setImageResource(R.drawable.video);
+			bDownLoad = true;
+		}else if(PushServiceUtil.DEFAULTID_AUDIO.endsWith(type)){
+			imageView.setImageResource(R.drawable.music);
 			bDownLoad = true;
 		}else if(PushServiceUtil.DEFAULTID_STORY.endsWith(type)){
 			imageView.setImageResource(R.drawable.story);

@@ -89,9 +89,6 @@ public class PushContentDB {
 	}
 	// and/insert
 	public boolean insertItem(PushContent pushContent){
-		// set latest time
-		java.util.Date today = new java.util.Date();
-		pushContent.setTime(today.toLocaleString());
 		
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
 		String sql = "insert into " + TABLE_NAME + " ("+

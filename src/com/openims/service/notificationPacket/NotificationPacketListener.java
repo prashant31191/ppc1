@@ -15,6 +15,9 @@
  */
 package com.openims.service.notificationPacket;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
@@ -72,8 +75,9 @@ public class NotificationPacketListener implements PacketListener {
                 String ntMessage = notification.getMessage();
                 String ntUri = notification.getUri();
                 String ticker = notification.getTicker();
-                
-                //TODO 增加时间戳字段 2011-5-23 17:17:22
+                long t = Long.valueOf(notification.getTime());  
+                String time = new Date(t).toLocaleString();
+
                 if(ntPushID == null){
                 	Log.e(LOGTAG, "PushID == null");
                 	return;
@@ -84,20 +88,17 @@ public class NotificationPacketListener implements PacketListener {
                 }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_PENDINGINTENT)){
                 	// 发送到title bar， 可以打开网页
                 	pendingIntent(ntUri,ntTitle,ntMessage,ticker);
-                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_TEXT)){
+                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_TEXT)
+                		|| ntPushID.equals(PushServiceUtil.DEFAULTID_STORY)){
                 	// 保存到数据库
-                	saveContent(ntPushID,ntTitle,ntMessage);
+                	saveContent(ntPushID,ntTitle,ntMessage,time);
                 }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_URL)){                	
                 	openUrl(ntUri);
-                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_PICTURE)){
+                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_VIDEO)
+                		|| ntPushID.equals(PushServiceUtil.DEFAULTID_PICTURE)
+                		|| ntPushID.equals(PushServiceUtil.DEFAULTID_AUDIO)){
                 	// 保存到数据库
-                	saveContent(ntPushID,ntTitle,ntUri);
-                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_VIDEO)){
-                	// 保存到数据库
-                	saveContent(ntPushID,ntTitle,ntUri);
-                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_STORY)){
-                	// 保存到数据库
-                	saveContent(ntPushID,ntTitle,ntMessage);
+                	saveContent(ntPushID,ntTitle,ntUri,time);
                 }else{
                 	sendPushInf(ntPushID,ntTitle,ntMessage,ntUri,ticker);
                 }
@@ -174,13 +175,14 @@ public class NotificationPacketListener implements PacketListener {
     /**
      * 保存到数据库
      */
-    private void saveContent(String type,String title,String message){
+    private void saveContent(String type,String title,String message,String time){
     	PushContent push = new PushContent();
     	String read = serviceContext.getResources().getString(R.string.pushcontent_uread);
     	push.setStatus(read);
     	push.setType(type);
     	push.setContent(message);
     	push.setFlag(title);
+    	push.setTime(time);
     	push.setSize("10K");
     	PushContentDB pushDB = new PushContentDB(serviceContext);
     	pushDB.insertItem(push);

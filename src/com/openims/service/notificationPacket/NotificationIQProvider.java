@@ -55,6 +55,9 @@ public class NotificationIQProvider implements IQProvider {
                 if ("uri".equals(parser.getName())) {
                     notification.setUri(parser.nextText());
                 }
+                if ("time".equals(parser.getName())) {
+                    notification.setTime(parser.nextText());
+                }
             } else if (eventType == 3
                     && "openims".equals(parser.getName())) {
                 done = true;

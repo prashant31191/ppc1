@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ListFragment;
+import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -290,11 +291,25 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 			
 		} else if(pushAdapter.getCheckout().endsWith(text)) {
 			// view information
-			if(PushServiceUtil.DEFAULTID_PICTURE.endsWith(
-					cursor.getString(pushAdapter
-							.getnColType() ) ) ){
+			String type = cursor.getString(pushAdapter.getnColType());
+			if(PushServiceUtil.DEFAULTID_PICTURE.endsWith(type) ){
 				Log.i(TAG, PRE + "URL:" + cursor.getString(pushAdapter.getnColPath()));
 				viewImage(cursor.getString(pushAdapter.getnColPath()));
+			} else if(PushServiceUtil.DEFAULTID_TEXT.equalsIgnoreCase(type)){
+				View view = getListView().getChildAt(
+						cursor_position - getListView().getFirstVisiblePosition());
+				if(view != null){
+					TextView c = (TextView)view.findViewById(R.id.tv_pushcontent_content);
+					boolean b = c.getFreezesText();
+					if(c.getEllipsize() != null){						
+						c.setSingleLine(false);
+						c.setEllipsize(null);
+					} else {						
+						c.setSingleLine(true);
+						c.setEllipsize(TruncateAt.MIDDLE);
+					}
+					
+				}
 			}
 		}
 	}

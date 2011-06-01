@@ -15,13 +15,13 @@ public class PushServiceUtil{
     public static final String ACTION_STATUS = "com.openims.CONNECT_STATUS";
     public static final String ACTION_UI_PUSHCONTENT = "com.openims.ui.pushContent";
     
-    public static final int PUSH_TIMEOUT_TIME = 50000; // as long as possible
+    public static final int PUSH_TIMEOUT_TIME = 5000; // as long as possible
        
     // push register intent parameter
-    public static final String PUSH_USER = "user";
+    public static final String PUSH_DEVELOPER = "developer";
     public static final String PUSH_PACKAGENAME = "callBackPackageName";
     public static final String PUSH_CLASSNAME = "callBackClassName";
-    public static final String PUSH_NAME = "pushName";
+    public static final String PUSH_NAME_KEY = "pushNameKey";
     public static final String PUSH_ID = "PushServiceID";
     // push register status
     public static final String PUSH_STATUS = "PushServiceStatus";
@@ -67,6 +67,7 @@ public class PushServiceUtil{
     public static final String DEFAULTID_URL = "URL";
     public static final String DEFAULTID_PICTURE = "PICTURE";
     public static final String DEFAULTID_VIDEO = "VIDEO";
+    public static final String DEFAULTID_AUDIO = "AUDIO";
     public static final String DEFAULTID_STORY = "STORY";
     
     

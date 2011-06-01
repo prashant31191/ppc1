@@ -42,8 +42,8 @@ import android.util.Log;
 public class IMService extends Service {
 
     private static final String LOGTAG = LogUtil.makeLogTag(IMService.class);
-    public static final String SERVICE_NAME = "com.openims.service.IMService";
     private static final String TAG = LogUtil.makeTag(IMService.class);
+    public static final String SERVICE_NAME = "com.openims.service.IMService";
     
     private BroadcastReceiver connectivityReceiver;
     
@@ -302,8 +302,8 @@ public class IMService extends Service {
     
     private void registerPush(Intent intent){
     	Bundle bundle = intent.getExtras();
-    	String user = bundle.getString(PushServiceUtil.PUSH_USER);
-    	String pushName = bundle.getString(PushServiceUtil.PUSH_NAME);
+    	String developer = bundle.getString(PushServiceUtil.PUSH_DEVELOPER);
+    	String pushNameKey = bundle.getString(PushServiceUtil.PUSH_NAME_KEY);
     	String packageName = bundle.getString(PushServiceUtil.PUSH_PACKAGENAME);
     	String className = bundle.getString(PushServiceUtil.PUSH_CLASSNAME);
     	String regType = bundle.getString(PushServiceUtil.PUSH_TYPE);
@@ -317,28 +317,30 @@ public class IMService extends Service {
     	}
     	PushInfoManager pushInfo = new PushInfoManager(this);
     	if(regType.equals(PushServiceUtil.PUSH_TYPE_REG)){
-    		if(pushInfo.isRegPush(pushName)){
+    		if(pushInfo.isRegPush(pushNameKey,xmppManager.getUsername())){
         		sendRegisterBroadcast(packageName,className,null,
         				PushServiceUtil.PUSH_STATUS_HAVEREGISTER,
         				PushServiceUtil.PUSH_TYPE_REG,this);
+        		Log.i(LOGTAG, TAG + "已经注册" + pushNameKey + " " + xmppManager.getUsername());
         		return;
         	}    		
     	}else{
-    		if(!pushInfo.isRegPush(pushName)){
+    		if(!pushInfo.isRegPush(pushNameKey,xmppManager.getUsername())){
         		sendRegisterBroadcast(packageName,className,null,
         				PushServiceUtil.PUSH_STATUS_NOTREGISTER,
         				PushServiceUtil.PUSH_TYPE_UNREG,this);
+        		Log.i(LOGTAG, TAG + "已经销注 " + pushNameKey + " " + xmppManager.getUsername());
         		return;
         	}
     	}
     	
     	// write information to database
-    	pushInfo.insertPushInfotoDb(user, pushName, packageName, className);
+    	pushInfo.insertPushInfotoDb(xmppManager.getUsername(),developer, pushNameKey, packageName, className);
     	
     	// send packet
     	RegPushIQ regPushIQ = new RegPushIQ();
-    	regPushIQ.setUserName(user);
-    	regPushIQ.setPushServiceName(pushName);
+    	regPushIQ.setUserName(developer);
+    	regPushIQ.setPushServiceName(pushNameKey);
     	
     	if(regType.equals(PushServiceUtil.PUSH_TYPE_REG)){
     		regPushIQ.setRegOrUnreg(true);
@@ -349,7 +351,7 @@ public class IMService extends Service {
     	xmppManager.sendPacket(regPushIQ);
     	
     	// 等待超时！
-    	Thread thread = new Thread(new WaitThread(pushName,
+    	Thread thread = new Thread(new WaitThread(pushNameKey,
     			packageName,className,regType,this));
     	thread.start();
     	
@@ -404,13 +406,13 @@ public class IMService extends Service {
 			PushInfoManager pushInfo = new PushInfoManager(IMService.this);
 			
 			if(type.equals(PushServiceUtil.PUSH_TYPE_REG)){
-				if(pushInfo.isRegPush(pushName) == false){
+				if(pushInfo.isRegPush(pushName,xmppManager.getUsername()) == false){
 					Log.e(LOGTAG, TAG + "register time out");
 					sendRegisterBroadcast(packageName,className,null,
 		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
 				}
 	    	}else if(type.equals(PushServiceUtil.PUSH_TYPE_UNREG)){
-	    		if(pushInfo.isRegPush(pushName) == true){
+	    		if(pushInfo.isRegPush(pushName,xmppManager.getUsername()) == true){
 					Log.e(LOGTAG, TAG + "unregister time out");
 					sendRegisterBroadcast(packageName,className,null,
 		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);

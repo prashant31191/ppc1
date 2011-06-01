@@ -16,11 +16,12 @@ public class PushInfoManager{
 	private static final String TAG = LogUtil.makeTag(PushInfoManager.class);
 		
 	private static final String DATABASE_NAME = "pushRegInfo.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private static final String TABLE_NAME = "pushRegInfo";
 	
 	private static final String USER = "user";
-	private static final String PUSHNAME = "pushName";
+	private static final String DEVELOPER = "developer";
+	private static final String PUSH_NAME_KEY = "pushNameKey";
 	private static final String PUSHID = "pushID";
 	private static final String REC_PACKAGENAME = "packageName";
 	private static final String REC_CLASSNAME = "className";
@@ -29,8 +30,9 @@ public class PushInfoManager{
 	
 	private static final String CREATE_TABLE = "CREATE TABLE "+TABLE_NAME+"("+
 	USER+" text not null," +
+	DEVELOPER + " text not null, " +
 	PUSHID+" text," + 
-	PUSHNAME+" text not null,"+
+	PUSH_NAME_KEY+" text not null,"+
 	REC_PACKAGENAME+" text not null,"+
 	REC_CLASSNAME+" text not null,"+
 	TYPE+" text,"+
@@ -43,14 +45,16 @@ public class PushInfoManager{
 	}
 	
 	public boolean insertPushInfotoDb(String user,
+									  String developer,
 									  String pushName,								  
 									  String packageName,
 									  String className){
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
 		String sql = "insert into " + TABLE_NAME + " ("+
-		USER +","+PUSHNAME +","+REC_PACKAGENAME+","+REC_CLASSNAME+
-		") values('" + 
-		user+"','"+ 
+		USER +","+ DEVELOPER +","+ PUSH_NAME_KEY +","+REC_PACKAGENAME+","+REC_CLASSNAME+
+		") values('" + 		
+		user+"','"+
+		developer+"','"+
 		pushName+ "','"+		
 		packageName+ "','"+
 		className+ "'"+
@@ -86,9 +90,9 @@ public class PushInfoManager{
 			return false;
 		}
 	}
-	public boolean updatePushID(String pushName,String pushID){
+	public boolean updatePushID(String pushName,String user,String pushID){
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
-		String where = PUSHNAME + "='"+pushName+"'";
+		String where = PUSH_NAME_KEY + "='"+pushName+"' AND " + USER + "='" + user + "'";
 		ContentValues values = new ContentValues();
 		values.put(PUSHID, pushID);
 		int n = db.update(TABLE_NAME, values, where, null);
@@ -98,9 +102,9 @@ public class PushInfoManager{
 		}else
 			return true;
 	}
-	public boolean deletePushInfoInDb(String pushName){
+	public boolean deletePushInfoInDb(String pushName,String user){
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
-		String where = PUSHNAME + "='"+pushName+"'";
+		String where = PUSH_NAME_KEY + "='"+pushName+"' AND " + USER + "='" + user + "'";
 		int n = db.delete(TABLE_NAME, where,null);
 		if(n == 1){
 			Log.d(LOGTAG,TAG+"Del push inf succuss where pushName:"+pushName);
@@ -110,11 +114,11 @@ public class PushInfoManager{
 		return false;
 	}
 	
-	public boolean isRegPush(String pushName){
+	public boolean isRegPush(String pushName,String user){
 		
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
 		String col[]={PUSHID};
-		String where = PUSHNAME + "='"+pushName+"'";
+		String where = PUSH_NAME_KEY + "='"+pushName+"' AND " + USER + "='" + user + "'";
 		Cursor cursor = db.query(TABLE_NAME, col, where, null, null, null, null);
 		int n = cursor.getCount();
 		cursor.moveToFirst();
@@ -146,6 +150,13 @@ public class PushInfoManager{
 		}
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			try {
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+			db.execSQL(CREATE_TABLE);
+			Log.d(LOGTAG,TAG+"Recreat table success");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

@@ -122,22 +122,15 @@ public class MainActivity extends Activity {
 					PushServiceUtil.PUSH_TYPE_UNREG);
 		}
 				
-		regIntent.putExtra(PushServiceUtil.PUSH_USER,
-				"yzchen@smit.com.cn");
-		regIntent.putExtra(PushServiceUtil.PUSH_NAME,
-		"pushTest@smit.com.cn");
+		regIntent.putExtra(PushServiceUtil.PUSH_DEVELOPER,
+				"mtv");
+		regIntent.putExtra(PushServiceUtil.PUSH_NAME_KEY,
+		"V1p0Ue5W3zpFqUmzd1W988N0Ci7aPMV3");
 		regIntent.putExtra(PushServiceUtil.PUSH_PACKAGENAME, 
 				"com.openims");
 		regIntent.putExtra(PushServiceUtil.PUSH_CLASSNAME, 
 				"com.openims.demo.PushServiceReceiver");
-//		regIntent.putExtra(PushServiceUtil.PUSH_PACKAGENAME, 
-//		"cn.com.smit.onlineHelper");
-//regIntent.putExtra(PushServiceUtil.PUSH_CLASSNAME, 
-//		"cn.com.smit.onlineHelper.PushServiceReceiver");
-		Bundle b = new Bundle();
-		//Handler handler = new Handler(this);
-		//b.putParcelable("d", handler);
-
+		
 		startService(regIntent);	
     }
 
