@@ -20,7 +20,7 @@ import com.openims.R;
 import com.openims.model.pushService.PushContentDB;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
-import com.openims.view.PushContentListFragment.TaskListener;
+import com.openims.view.PushContentListFragment.DownloadAsyncTask;
 
 public class PushCursorAdapter extends CursorAdapter{
 
@@ -44,9 +44,13 @@ public class PushCursorAdapter extends CursorAdapter{
 	
 	private OnClickListener clickListener = null;	
 	private Context context;
-	private Map<Integer,TaskListener> taskListenerMap = null;
+	private Map<Integer,DownloadAsyncTask> taskMap = null;
 	
-
+	// the status of action button
+	public static final int STATUS_VIEW = 0;
+	public static final int STATUS_DOWNLOAD = 1;
+	public static final int STATUS_DOWNLOAD_CANCEL = 2;
+	
 	/**
 	 * 初始化
 	 * @param context
@@ -131,22 +135,23 @@ public class PushCursorAdapter extends CursorAdapter{
 		btn.setOnClickListener(clickListener);
 		btn.setTag(cursor.getPosition()); // 记录当前cursor的位置		
 		btn.setTag(R.string.position, id); // 响应消息是可以知道那里过来的		
-		
+		btn.setTag(R.string.btn_type, STATUS_VIEW);
 		Log.i(TAG,PRE + "cursor Position" + cursor.getPosition());
 		Log.i(TAG,PRE + "item id:" + id);
 		
-		TaskListener listener = getTaskListenerMap().get(id);// 以数据库的ID作为唯一的标准
-		if(listener != null){
+		DownloadAsyncTask task = getTaskMap().get(id);// 以数据库的ID作为唯一的标准
+		if(task != null){
 			// 重新写，因为删除操作会改变position，显示不正常
-			listener.setPosition(cursor.getPosition()); 
-			if(listener.getbFinish()){
+			task.setPosition(cursor.getPosition()); 
+			if(task.isFinish()){
 				btn.setText(R.string.view);
 			}else{
-				btn.setText(getDownload() + ":" + listener.getnFinishSize());
+				btn.setText(getDownload() + ":" + task.getFinishSize());
 			}
 			
 		}else if(cursor.getString(getnColPath()).endsWith("null") && bDownLoad){			
 			btn.setText(getDownload());
+			btn.setTag(R.string.btn_type, STATUS_DOWNLOAD);
 		}else {
 			btn.setText(R.string.view);
 		}
@@ -178,11 +183,11 @@ public class PushCursorAdapter extends CursorAdapter{
 	     }
 	 }
 
-	public Map<Integer, TaskListener> getTaskListenerMap() {
-		if(taskListenerMap == null){
-			taskListenerMap= new HashMap<Integer,TaskListener>();
+	public Map<Integer, DownloadAsyncTask> getTaskMap() {
+		if(taskMap == null){
+			taskMap= new HashMap<Integer,DownloadAsyncTask>();
 		}
-		return taskListenerMap;
+		return taskMap;
 	}	
 	public String getUread() {
 		if(uread == null){

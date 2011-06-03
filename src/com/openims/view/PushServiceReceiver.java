@@ -1,6 +1,5 @@
 package com.openims.view;
 
-import com.openims.utility.Constants;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.setting.Setting;

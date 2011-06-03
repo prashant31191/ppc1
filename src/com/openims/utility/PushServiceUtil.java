@@ -85,4 +85,7 @@ public class PushServiceUtil{
     public static final String EMULATOR_DEVICE_ID = "EMULATOR_DEVICE_ID";
     
     public static final String PUBSUB_ADDRES = "pubsub";
+    
+    public static final float HORIZONTAL_MARGIN = 0.35f;
+    public static final float VERTICAL_MARGIN = 0.2f;
 }

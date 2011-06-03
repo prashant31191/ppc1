@@ -8,7 +8,6 @@ import android.util.Log;
 import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.IMService;
 import com.openims.service.XmppManager;
-import com.openims.utility.Constants;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 

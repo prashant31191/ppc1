@@ -3,7 +3,6 @@ package com.openims.demo;
 
 
 import com.openims.R;
-import com.openims.utility.Constants;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.onlineHelper.ChatActivity;
 import com.openims.view.setting.Setting;

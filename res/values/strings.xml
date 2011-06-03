@@ -20,7 +20,10 @@
     <string name="beginDownload">开始下载</string>
     <string name="delete">删除</string>
     <string name="show_menu">显示菜单</string>
-    <string name="hide_menu">隐藏菜单</string>    
+    <string name="hide_menu">隐藏菜单</string>
+    <string name="finishDownload">下载完成</string>
+    <string name="downloadFail">下载失败</string>
+    <string name="btn_type">type</string>    
    
     
 </resources>

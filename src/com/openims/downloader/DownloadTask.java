@@ -56,23 +56,21 @@ public class DownloadTask implements Runnable {
 	
 
 	public void downloadFromUrl(String imageURL, String fileName) {  //this is the downloader method
+       
+		FileOutputStream fos = null;
         try {
-                URL url = new URL(imageURL);
-                File file = new File(fileName);                
-
+        	URL url = new URL(imageURL);
+            File file = new File(fileName);
+            fos = new FileOutputStream(file);
+            
                 long startTime = System.currentTimeMillis();
-                Log.d(TAG, LOG + "begining");
                 Log.d(TAG, LOG + "url:" + url);
                 Log.d(TAG, LOG + "file name:" + fileName);
-                /* Open a connection to that URL. */
+                
                 URLConnection ucon = url.openConnection();
-
-                /*
-                 * Define InputStreams to read from the URLConnection.
-                 */
                 InputStream is = ucon.getInputStream();
                 BufferedInputStream bis = new BufferedInputStream(is);
-                FileOutputStream fos = new FileOutputStream(file);
+                
                 byte[] data = new byte[1024]; 
                 nFinishSize = 0;
                 while( bis.read(data, 0, 1024) != -1){
@@ -84,9 +82,8 @@ public class DownloadTask implements Runnable {
 							listener.finish(nFinishSize, nTotalSize);							
 						}                    	
                     });
-                }
-              
-                fos.close();
+                }              
+                
                 Log.d(TAG, "download ready in"
                                 + ((System.currentTimeMillis() - startTime) / 1000)
                                 + " sec");
@@ -99,6 +96,15 @@ public class DownloadTask implements Runnable {
                 });
         } catch (IOException e) {
                 Log.d(TAG, LOG + "Error: " + e);
+        } finally{
+        	
+			try {
+				if(fos != null)
+					fos.close();
+			} catch (IOException e) {
+				Log.d(TAG, LOG + "Error: " + e);
+				e.printStackTrace();
+			}
         }
 	}
 	

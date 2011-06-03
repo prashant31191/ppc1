@@ -6,23 +6,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
+
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.provider.ProviderManager;
-import org.jivesoftware.smackx.pubsub.packet.PubSub;
-
-
 import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.connection.ConnectivityReceiver;
-import com.openims.service.notificationPacket.NotificationIQProvider;
 import com.openims.service.notificationPacket.RegPushIQ;
-import com.openims.service.notificationPacket.RegPushProvider;
-import com.openims.utility.Constants;
 import com.openims.utility.DeviceFun;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
