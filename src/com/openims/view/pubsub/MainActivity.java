@@ -3,7 +3,6 @@ package com.openims.view.pubsub;
 import java.util.ArrayList;
 
 import com.openims.R;
-import com.openims.utility.Constants;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.PushServiceReceiver;

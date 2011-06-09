@@ -3,6 +3,7 @@ package com.openims.model.pushService;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -33,7 +34,9 @@ public class PushContentDB {
 	public static final String LOCAL_PATH = "localPath";
 	public static final String TIME = "time";
 	public static final String TYPE = "type";
+	public static final String STATUS = "status";
 	public static final String FLAG = "flag";
+
 	
 	private static final String CREATE_TABLE = "CREATE TABLE "+TABLE_NAME+"("+
 	INDEX+" INTEGER PRIMARY KEY," +
@@ -42,6 +45,7 @@ public class PushContentDB {
 	LOCAL_PATH+" text,"+
 	TIME+" text not null,"+
 	TYPE+" text,"+
+	STATUS+" text,"+
 	FLAG+" text "+ ");";
 	
 	private static DatabaseHelper databaseHelper;
@@ -85,10 +89,13 @@ public class PushContentDB {
 	}
 	// and/insert
 	public boolean insertItem(PushContent pushContent){
+		
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
 		String sql = "insert into " + TABLE_NAME + " ("+
 		INDEX +","+SIZE +","+CONTENT +","+LOCAL_PATH+","+TIME+
-		","+TYPE +","+FLAG+
+		","+TYPE +
+		","+STATUS +
+		","+FLAG+
 		") values(" +
 		null+",'"+ 
 		pushContent.getSize()+"','"+ 
@@ -96,6 +103,7 @@ public class PushContentDB {
 		pushContent.getLocalPath()+ "','"+
 		pushContent.getTime()+ "','"+
 		pushContent.getType()+ "','"+
+		pushContent.getStatus()+ "','"+
 		pushContent.getFlag()+ "'"+
 		");";
 		Log.d(LOGTAG,TAG+sql);
@@ -162,6 +170,8 @@ public class PushContentDB {
 					pushContent.setTime(cursor.getString(i));
 				}else if(FLAG.equals(columnName)){
 					pushContent.setFlag(cursor.getString(i));
+				}else if(STATUS.equals(columnName)){
+					pushContent.setStatus(cursor.getString(i));
 				}
 			}
 			list.add(pushContent);
@@ -179,5 +189,22 @@ public class PushContentDB {
 		Cursor cursor = db.query(TABLE_NAME, null, null,
 				null, null, null, null,null);
 		return cursor;
+	}
+	
+	// 更新状态
+	public boolean updateStatus(long id, String status){
+		SQLiteDatabase db = databaseHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(STATUS, status);
+		db.update(TABLE_NAME, values, INDEX+"="+id, null);
+		return true;
+	}
+	// 更新路径
+	public boolean updatePath(long id, String path){
+		SQLiteDatabase db = databaseHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(LOCAL_PATH, path);
+		db.update(TABLE_NAME, values, INDEX+"="+id, null);
+		return true;
 	}
 }

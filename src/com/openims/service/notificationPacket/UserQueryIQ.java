@@ -15,7 +15,8 @@ public class UserQueryIQ extends IQ {
 	private String userAccount;		// 查询的用户账号
 	private String deviceName;		// 可以提交设备的名称
 	private String deviceId;		// 可以提交设备的唯一id
-	private String opCode;			// 可以是save or query
+	private String opCode;			// 可以是save or query or queryOfflinePush
+
 	private String resource;
 	
 	// 以下是接收到的数据
@@ -27,6 +28,8 @@ public class UserQueryIQ extends IQ {
 	
 	public static final String OPCODE_SAVE = "save";
 	public static final String OPCODE_QUERY = "query";
+	public static final String OPCODE_QUERY_OFFLINE_PUSH = "queryOfflinePush";
+
 	
 	public static String getElementName(){
     	return "openims";
@@ -95,7 +98,9 @@ public class UserQueryIQ extends IQ {
 	public void setOpCodeQuery(){
 		this.opCode = OPCODE_QUERY;
 	}
-	
+	public void setOpCodeQueryOfflinePush(){
+		this.opCode = OPCODE_QUERY_OFFLINE_PUSH;
+	}
 	public List<String> getResources() {
 		return resources;
 	}

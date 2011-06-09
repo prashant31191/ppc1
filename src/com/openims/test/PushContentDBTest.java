@@ -6,9 +6,9 @@ import java.util.List;
 import android.content.Context;
 import android.util.Log;
 
+import com.openims.R;
 import com.openims.model.pushService.PushContent;
 import com.openims.model.pushService.PushContentDB;
-import com.openims.model.pushService.PushInfoManager;
 import com.openims.utility.LogUtil;
 
 public class PushContentDBTest {
@@ -27,14 +27,15 @@ public class PushContentDBTest {
 	}
 	// test insert 
 	public void testInsert(int num){
-		
+		String uread = context.getResources().getString(R.string.pushcontent_uread);
 		for(int i=0;i<num;i++){
 			PushContent pc = new PushContent();
 			pc.setSize("10K"+String.valueOf(i));
 			pc.setContent("hello I love you");
 			pc.setLocalPath("sdcard/img");
 			pc.setTime("2011-4-1 11:22:55");
-			pc.setType("img");
+			pc.setType("img");			
+			pc.setStatus(uread);
 			pc.setFlag("111");
 			PushContentDB db = new PushContentDB(context);
 			boolean b = db.insertItem(pc);

@@ -18,9 +18,9 @@ package com.openims.service.notificationPacket;
 import org.jivesoftware.smack.packet.IQ;
 
 /** 
- * This class represents a notifcatin IQ packet.
+ * This class represents a notification IQ packet.
  *
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author chenyzpower@gmail.com
  */
 public class NotificationIQ extends IQ {
 
@@ -30,6 +30,7 @@ public class NotificationIQ extends IQ {
     private String message;
     private String uri;
     private String ticker;
+    private String time;	// time stamp
 
     public NotificationIQ() {
     }
@@ -92,5 +93,14 @@ public class NotificationIQ extends IQ {
     public String getTicker(){
     	return ticker;
     }
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
+    
 
 }

@@ -98,7 +98,6 @@ import com.openims.utility.PushServiceUtil;
 
 public class XmppManager{
 	private static final String LOGTAG = LogUtil.makeLogTag(XmppManager.class);
-	private static final String XMPP_RESOURCE_NAME = "SMIT";
 	private static final String TAG = LogUtil.makeTag(XmppManager.class);
 	
 	private String xmppHost;
@@ -859,10 +858,17 @@ public class XmppManager{
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
     	iq.setUserAccount(username);
     	iq.setResource(getResource());
-    	iq.setDeviceName("loveTCC");
+    	iq.setDeviceName("HTC");
     	iq.setOpCodeSave();
     	this.sendPacket(iq);
         
+    	UserQueryIQ iqQuery = new UserQueryIQ();
+    	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
+    	iq.setUserAccount(username);
+    	iq.setResource(getResource());
+    	iq.setDeviceName("HTC");
+    	iqQuery.setOpCodeQueryOfflinePush();
+    	this.sendPacket(iqQuery);
     }
     public void configure(ProviderManager pm) {
     	 

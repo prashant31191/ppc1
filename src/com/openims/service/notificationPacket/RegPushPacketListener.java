@@ -8,7 +8,6 @@ import android.util.Log;
 import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.IMService;
 import com.openims.service.XmppManager;
-import com.openims.utility.Constants;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 
@@ -45,10 +44,10 @@ public class RegPushPacketListener implements PacketListener {
         	if(regPushIQ.getRegOrUnreg() == false){
         		type = PushServiceUtil.PUSH_TYPE_UNREG;
         		pushInfo.getPushInfo(pushID, packageNameBuilder, classNameBuilder);
-        		pushInfo.deletePushInfoInDb(pushName);
+        		pushInfo.deletePushInfoInDb(pushName,xmppManager.getUsername());
         		// TODO-ANDREW it's not good enough. Unsafty
         	}else{
-        		if( pushInfo.updatePushID(pushName, pushID)== false)
+        		if( pushInfo.updatePushID(pushName,xmppManager.getUsername(), pushID)== false)
             		return; // have timeout
         		pushInfo.getPushInfo(pushID, packageNameBuilder, classNameBuilder);
         	}         	

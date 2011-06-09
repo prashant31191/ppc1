@@ -3,7 +3,6 @@ package com.openims.demo;
 
 
 import com.openims.R;
-import com.openims.utility.Constants;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.onlineHelper.ChatActivity;
 import com.openims.view.setting.Setting;
@@ -31,6 +30,7 @@ public class MainActivity extends Activity {
 
 	//ServiceManager serviceManager;
 	private final static String Tag = "chenyz";
+	
 	
 	
     @Override
@@ -101,9 +101,11 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
-		        intent.setClassName("com.openims","com.openims.view.pubsub.MainActivity");		       
-		        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		        startActivity(intent);			
+		        intent.setClassName("com.openims","com.openims.view.PushActivity");		       
+		        //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		        startActivity(intent);
+		        
+		    	
 			}
 		});
     }
@@ -119,22 +121,15 @@ public class MainActivity extends Activity {
 					PushServiceUtil.PUSH_TYPE_UNREG);
 		}
 				
-		regIntent.putExtra(PushServiceUtil.PUSH_USER,
-				"yzchen@smit.com.cn");
-		regIntent.putExtra(PushServiceUtil.PUSH_NAME,
-		"pushTest@smit.com.cn");
+		regIntent.putExtra(PushServiceUtil.PUSH_DEVELOPER,
+				"mtv");
+		regIntent.putExtra(PushServiceUtil.PUSH_NAME_KEY,
+		"V1p0Ue5W3zpFqUmzd1W988N0Ci7aPMV3");
 		regIntent.putExtra(PushServiceUtil.PUSH_PACKAGENAME, 
 				"com.openims");
 		regIntent.putExtra(PushServiceUtil.PUSH_CLASSNAME, 
 				"com.openims.demo.PushServiceReceiver");
-//		regIntent.putExtra(PushServiceUtil.PUSH_PACKAGENAME, 
-//		"cn.com.smit.onlineHelper");
-//regIntent.putExtra(PushServiceUtil.PUSH_CLASSNAME, 
-//		"cn.com.smit.onlineHelper.PushServiceReceiver");
-		Bundle b = new Bundle();
-		//Handler handler = new Handler(this);
-		//b.putParcelable("d", handler);
-
+		
 		startService(regIntent);	
     }
 

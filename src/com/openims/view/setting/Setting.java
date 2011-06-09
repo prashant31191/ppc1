@@ -3,7 +3,6 @@ package com.openims.view.setting;
 import com.openims.R;
 import com.openims.R.layout;
 import com.openims.service.IMService;
-import com.openims.utility.Constants;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 

@@ -1,9 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>    
-    <string name="app_name">水蜜桃</string>
+<resources>  
+ 	
+    
+    <string name="testApp">软件测试</string>   
+    <string name="app_name">推送服务</string>
     <string name="welcome">欢迎你</string>
     <string name="settings">设置</string>
     <string name="onlineHelper">在线客服</string>
     <string name="topic">我的关注</string>
     <string name="pcAssistant">PC Assistant</string>
+    <string name="pushInfo">推送信息</string>
+    <string name="about">关于</string>  
+      
+    <!-- push content action -->
+    <string name="view">查看</string>
+    <string name="delete">删除</string>
+    <string name="download">下载</string>
+    <string name="cancel">取消</string>
+    <string name="delsuccess">删除成功</string>    
+    <string name="stopDownload">停止下载</string>  
+    
+    <!-- push content status -->
+    <string name="pushcontent_uread">未读</string>
+    <string name="pushcontent_read">已读</string>    
+    <string name="pushcontent_beginDownload">开始下载</string>
+    <string name="pushcontent_finishDownload">下载完成</string>
+    <string name="pushcontent_downloadFail">下载失败</string>
+    <string name="pushcontent_stopFail">无法停止下载</string> 
+    
+    
+    <string name="show_menu">显示菜单</string>
+    
+    <!-- no for view -->
+    <string name="btn_type">type</string>   
+    <string name="position">123456</string> 
+   
+    
 </resources>
