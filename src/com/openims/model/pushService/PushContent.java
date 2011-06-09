@@ -7,7 +7,7 @@ public class PushContent {
 	private String localPath;
 	private String time;
 	private String type;
-	private String status;
+	private String status; // read unread downloading downloadfail stopdownload
 	private String flag;
 
 	public String getIndex() {

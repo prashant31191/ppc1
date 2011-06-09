@@ -73,7 +73,10 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	private ActionItem deleteAction = null;
 	private ActionItem viewAction = null;		
 	private ActionItem cancelAction = null;	
-	private ActionItem downloadAction = null;	
+	private ActionItem downloadAction = null;
+	private ActionItem stopDownloadAction = null;
+	
+	private boolean close = true;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -117,7 +120,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		
 		// set unread to read 
 		TextView tv = (TextView)view.findViewById(R.id.tv_pushcontent_status);
-		if(pushAdapter.getRead().endsWith(tv.getText().toString()) == false){
+		if(pushAdapter.getUread().endsWith(tv.getText().toString())){
 			pushContentDB.updateStatus(id, pushAdapter.getRead());			
 			pushAdapter.getCursor().requery(); // TODO can be better
 			showToast(R.string.pushcontent_read,Toast.LENGTH_SHORT);	
@@ -141,19 +144,10 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		mQuickAction.addActionItem(getDeleteAction());
 		
 		// add difference action in difference situation
-		if(pushAdapter.getCheckout().endsWith(text)){
-			getViewAction().setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					mQuickAction.dismiss();
-					Integer cursorPosition = (Integer)actionBtn.getTag();
-					btnView(cursorPosition);
-					
-				}
-			});
-			mQuickAction.addActionItem(getViewAction());
+		int type = (Integer)actionBtn.getTag(R.string.btn_type);
+		
+		if(type == PushCursorAdapter.STATUS_DOWNLOAD){
 			
-		} else if (pushAdapter.getDownload().endsWith(text)){
 			getDownloadAction().setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -166,9 +160,28 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 			});
 			mQuickAction.addActionItem(getDownloadAction());
 			
+		} else if(type == PushCursorAdapter.STATUS_VIEW) {
+			getViewAction().setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mQuickAction.dismiss();
+					Integer cursorPosition = (Integer)actionBtn.getTag();
+					btnView(cursorPosition);
+					
+				}
+			});
+			mQuickAction.addActionItem(getViewAction());
+		} else if(type == PushCursorAdapter.STATUS_DOWNLOAD_CANCEL){
+			getStopDownloadAction().setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					int id = (Integer)actionBtn.getTag(R.string.position);
+					btnStopDownload(id);					
+				}
+			});
+			mQuickAction.addActionItem(getStopDownloadAction());
+			
 		}
-		
-		
 		getCancelAction().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -190,6 +203,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		mQuickAction.show();
 		
 	}
+	
 	/**
 	 * show notify
 	 */
@@ -263,6 +277,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		Log.e(TAG, PRE + "onActivityCreated");
+		close = false;
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -293,12 +308,14 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	@Override
 	public void onDestroyView() {
 		Log.e(TAG, PRE + "onDestroyView");
+		close = true;
 		super.onDestroyView();
 	}
 
 	@Override
 	public void onDestroy() {
 		Log.e(TAG, PRE + "onDestroy");
+		close = true;
 		if(pushAdapter != null){
 			pushAdapter.cleanUp();
 		}
@@ -336,17 +353,20 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 			btnView(cursorPosition);
 		} else if(type == PushCursorAdapter.STATUS_DOWNLOAD_CANCEL){
 			int id = (Integer)v.getTag(R.string.position);
-			DownloadAsyncTask task = (DownloadAsyncTask)pushAdapter.getTaskMap().get(id);
-			if(task != null){
-				if(task.cancel(true)){
-					showToast(R.string.delsuccess,Toast.LENGTH_LONG);
-				}else{
-					showToast(R.string.downloadFail,Toast.LENGTH_LONG);
-				}
-			}
+			btnStopDownload(id);
 		}
 	}
 
+	public void btnStopDownload(int id){
+		DownloadAsyncTask task = (DownloadAsyncTask)pushAdapter.getTaskMap().get(id);
+		if(task != null){
+			if(task.cancel(true)){
+				showToast(R.string.stopDownload,Toast.LENGTH_LONG);
+			}else{
+				showToast(R.string.pushcontent_stopFail,Toast.LENGTH_LONG);
+			}
+		}
+	}
 	private void btnDownload(int position, final Button v){
 		Cursor cursor = pushAdapter.getCursor();
 		cursor.moveToPosition(position);
@@ -369,9 +389,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		pushAdapter.getTaskMap().put(id, task);
 		task.setId(id);
 		task.setPosition(position);
-		task.execute(url,basePath + fileName);		
-
-		((Button)v).setText(R.string.beginDownload);
+		task.execute(url,basePath + fileName);			
 	}
 	public class DownloadAsyncTask extends AsyncTask<String,Integer,Integer>{
 		private static final String PRE = "DownloadAsyncTask:";
@@ -442,34 +460,50 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 
 		@Override
 		protected void onCancelled() {
-			View view = getListView().getChildAt(
+			/*View view = getListView().getChildAt(
 					position - getListView().getFirstVisiblePosition());
 			if(view != null){
 				Button btn = (Button)view.findViewById(R.id.btn_pushcontent_action);
-				btn.setText(R.string.cancel);
+				btn.setText(R.string.stopDownload);
 				btn.setTag(R.string.btn_type,PushCursorAdapter.STATUS_DOWNLOAD);
-			}
+			}*/
+			pushContentDB.updateStatus(id, pushAdapter.getDownloadStop());
+			pushAdapter.deleteTaskMap(id);
+			pushAdapter.getCursor().requery();
 			super.onCancelled();
 		}
 
 		@Override
 		protected void onPostExecute(Integer result) {
 			finish = true;
+			if(close){
+				return;
+			}
 			View view = getListView().getChildAt(
 					position - getListView().getFirstVisiblePosition());
 			if(view != null){
-				Button btn = (Button)view.findViewById(R.id.btn_pushcontent_action);
+				//Button btn = (Button)view.findViewById(R.id.btn_pushcontent_action);
+				//TextView v = (TextView)view.findViewById(R.id.tv_pushcontent_status);
 				switch(result){
 				case FAIL:
-					btn.setText(R.string.downloadFail);
-					showToast(R.string.downloadFail, Toast.LENGTH_SHORT);
-					btn.setTag(R.string.btn_type,PushCursorAdapter.STATUS_DOWNLOAD);
+					pushContentDB.updateStatus(id, pushAdapter.getDownloadFail());
+					pushAdapter.deleteTaskMap(id);
+					//v.setText(pushAdapter.getDownloadFail());
+					//btn.setText(R.string.download);
+					//btn.setTag(R.string.btn_type,PushCursorAdapter.STATUS_DOWNLOAD);
+					pushAdapter.getCursor().requery();
+					showToast(R.string.pushcontent_downloadFail, Toast.LENGTH_SHORT);
+					
 					break;
 				case SUCCESS:
 					pushContentDB.updatePath(id, downloadPath);
-					btn.setText(R.string.view);
-					btn.setTag(R.string.btn_type,PushCursorAdapter.STATUS_VIEW);
-					showToast(R.string.finishDownload, Toast.LENGTH_SHORT);
+					pushContentDB.updateStatus(id, pushAdapter.getDownloadFinish());
+					
+					//btn.setText(R.string.view);
+					//btn.setTag(R.string.btn_type,PushCursorAdapter.STATUS_VIEW);					
+					//v.setText(R.string.pushcontent_finishDownload);
+					pushAdapter.getCursor().requery();
+					showToast(R.string.pushcontent_finishDownload, Toast.LENGTH_SHORT);
 					break;
 				}
 			}
@@ -478,19 +512,38 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 
 		@Override
 		protected void onPreExecute() {
-			Log.i(TAG, PRE + "onPreExecute");
+			View view = getListView().getChildAt(
+					position - getListView().getFirstVisiblePosition());
+			if(view != null){
+				Log.i(TAG, PRE + "onPreExecute");
+				TextView v = (TextView)view.findViewById(R.id.tv_pushcontent_status);
+				v.setText(R.string.pushcontent_beginDownload);
+				Button btn = (Button)view.findViewById(R.id.btn_pushcontent_action);
+				btn.setText(R.string.stopDownload);
+				btn.setTag(R.string.btn_type, PushCursorAdapter.STATUS_DOWNLOAD_CANCEL);
+			}
 			super.onPreExecute();
 		}
 
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			finishSize = values[0];
-			View view = getListView().getChildAt(
-					position - getListView().getFirstVisiblePosition());
-			if(view != null){
-				Button btn = (Button)view.findViewById(R.id.btn_pushcontent_action);				
-				btn.setText(pushAdapter.getDownload() + ":" + finishSize);				
+			try{
+				if(close == false){
+					View view = getListView().getChildAt(
+							position - getListView().getFirstVisiblePosition());
+					if(view != null){
+						TextView tvSize = (TextView)view.findViewById(R.id.tv_pushcontent_size);
+						tvSize.setText("总大小: " + totalSize +
+								" 已经下载: " + finishSize);
+					}		
+				}
+								
+			}catch(IllegalStateException e){
+				e.printStackTrace();
+				Log.e(TAG,PRE + "view had destory");
 			}
+			
 			super.onProgressUpdate(values);
 		}
 
@@ -569,4 +622,14 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		}
 		return downloadAction;
 	}
+	public ActionItem getStopDownloadAction() {
+		if(stopDownloadAction == null){
+			stopDownloadAction = new ActionItem();
+			stopDownloadAction.setTitle(getActivity().getResources()
+					.getString(R.string.stopDownload));
+			stopDownloadAction.setIcon(getResources().getDrawable(R.drawable.ic_accept));
+		}
+		return stopDownloadAction;
+	}
+	
 }

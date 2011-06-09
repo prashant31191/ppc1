@@ -67,7 +67,7 @@
 			android:layout_below="@+id/tv_pushcontent_content"
 			android:layout_toLeftOf="@+id/tv_pushcontent_time"/>
 		<Button android:layout_width="wrap_content" 
-			android:id="@+id/btn_pushcontent_action" 	
+			android:id="@+id/btn_pushcontent_action" 			
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true" 
 			android:layout_marginRight="5px"

@@ -31,6 +31,9 @@ public class PushCursorAdapter extends CursorAdapter{
 	
 	private String uread = null;
 	private String read = null;
+	private String downloadFail = null;
+	private String downloadFinish = null;
+	private String downloadStop = null;
 	private String download = null;
 	private String checkout = null;	
 	
@@ -114,7 +117,7 @@ public class PushCursorAdapter extends CursorAdapter{
 		TextView  tvStatus = (TextView)view.findViewById(
 				R.id.tv_pushcontent_status);
 		String status = cursor.getString(getnColStatus());
-		tvStatus.setText(status);
+		tvStatus.setText(status); // TODO 增加下载中会是一个bug
 		
 		if(status!=null && getUread().endsWith(status)){
 			tvStatus.setTextColor(0xFFFF0000);
@@ -146,7 +149,10 @@ public class PushCursorAdapter extends CursorAdapter{
 			if(task.isFinish()){
 				btn.setText(R.string.view);
 			}else{
-				btn.setText(getDownload() + ":" + task.getFinishSize());
+				tvSize.setText("总大小: " + cursor.getString(getnColSize()) +
+						" 已经下载: " + task.getFinishSize());
+				btn.setText(R.string.stopDownload);
+				btn.setTag(R.string.btn_type, STATUS_DOWNLOAD_CANCEL);
 			}
 			
 		}else if(cursor.getString(getnColPath()).endsWith("null") && bDownLoad){			
@@ -189,6 +195,10 @@ public class PushCursorAdapter extends CursorAdapter{
 		}
 		return taskMap;
 	}	
+	public boolean deleteTaskMap(Integer id){
+		getTaskMap().remove(id);
+		return true;
+	}
 	public String getUread() {
 		if(uread == null){
 			uread = context.getResources().getString(R.string.pushcontent_uread);
@@ -196,21 +206,42 @@ public class PushCursorAdapter extends CursorAdapter{
 		return uread;
 	}
 	
-	
-	
-	
 	public String getRead() {
 		if(read == null){
 			read = context.getResources().getString(R.string.pushcontent_read);		
 		}
 		return read;
 	}
+	
+	public String getDownloadFail() {
+		if(downloadFail == null){
+			downloadFail = context.getResources().getString(
+					R.string.pushcontent_downloadFail);		
+		}
+		return downloadFail;
+	}
+
+	public String getDownloadFinish() {
+		if(downloadFinish == null){
+			downloadFinish = context.getResources().getString(
+					R.string.pushcontent_finishDownload);		
+		}
+		return downloadFinish;
+	}	
+
 	public String getDownload() {
 		if(download == null){
 			download = context.getResources().getString(R.string.download);		
 		}
 		return download;
 	}
+	
+	public String getDownloadStop() {
+		if(downloadStop == null){
+			downloadStop = context.getResources().getString(R.string.stopDownload);		
+		}
+		return downloadStop;
+	}	
 
 	public String getCheckout() {
 		if(checkout == null){
