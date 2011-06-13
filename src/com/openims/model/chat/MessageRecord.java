@@ -61,12 +61,19 @@ public class MessageRecord {
 	static public String getMessageRecordTableName(String myId, String yourId){
 		return "TB_" + myId + "_" + yourId;
 	}
-	
+	/**
+	 * 
+	 * @param startId include startId
+	 * @param nNum  if nNum == -1 return all
+	 * @param bSmall
+	 * @return
+	 */
 	public Cursor queryItems(int startId,int nNum,boolean bSmall){
 		
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		String where;
 		String orderBy;
+		String limit;
 		if(bSmall){
 			where = ID + "<=" + startId;
 			orderBy = ID + " DESC";
@@ -74,9 +81,14 @@ public class MessageRecord {
 			where = ID + ">=" + startId;
 			orderBy = ID + " ASC";
 		}
+		if(nNum == -1){
+			limit = null;
+		}else{
+			limit = String.valueOf(nNum);
+		}
 		
 		return db.query(tableName,null,where,null,null,null,
-				orderBy,String.valueOf(nNum));
+				orderBy,limit);
 	}
 	public void insert(String from, String to, String content, String date){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();

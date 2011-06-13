@@ -52,26 +52,28 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.multi_chat_history, container, false);
 		
-		Button btnInf = (Button)v.findViewById(R.id.btn_header_userinf);
+		Button btnInf = (Button)v.findViewById(R.id.header_left);
 		btnInf.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
+				/*listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
 				adapter.getKeepOnAppendingUp().set(true);
 				adapter.notifyDataSetChanged();
-				listview.smoothScrollToPosition(0);
+				listview.smoothScrollToPosition(0);*/
+				
 			}
 		});
-		Button btnHistory = (Button)v.findViewById(R.id.btn_header_history);
+		Button btnHistory = (Button)v.findViewById(R.id.header_right);		
 		btnHistory.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+				/*listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 				adapter.getKeepOnAppending().set(true);				
-				adapter.notifyDataSetChanged();
+				adapter.notifyDataSetChanged();*/
+				getFragmentManager().popBackStack();
 			}
 		});
 		
@@ -120,6 +122,7 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {		
 		super.onActivityCreated(savedInstanceState);
+		Log.d(TAG, PRE + "onCreateView");
 		
 		MessageRecord messageRecord = new MessageRecord(activity, mTableName);		
 		Cursor c = messageRecord.queryItems(20, 10, false);
@@ -149,33 +152,38 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 		super.onStart();
 		// scroll to bottom
 		listview.setSelection(2000);
+		Log.d(TAG, PRE + "onStart");
+		
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 	}	
-
+	
 	@Override
 	public void onPause() {
 		super.onPause();
+		Log.d(TAG, PRE + "onPause");
 	}
 
 	
 	@Override
 	public void onStop() {
 		super.onStop();
+		Log.d(TAG, PRE + "onStop");
 	}
-	
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		Log.d(TAG, PRE + "onDestroy");
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
+		Log.d(TAG, PRE + "onDetach");
 	}
 
 	

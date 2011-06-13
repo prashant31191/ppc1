@@ -12,6 +12,9 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
+import android.view.View.OnClickListener;
 
 import com.openims.R;
 import com.openims.model.chat.MessageRecord;
@@ -22,26 +25,57 @@ public class MultiChatActivity extends FragmentActivity {
 	private static final String TAG = LogUtil.makeLogTag(MessageRecord.class);
 	private static final String PRE = "Class MultiChatActivity--";
 	
-	private static final String TAG_HISTORY = "history";
-	
-	private ChatHistoryFragment history = null;
+	private static final String TAG_CHAT_MAIN = "chatMain";
+
 	@Override
 	protected void onCreate(Bundle bundle) {		
 		super.onCreate(bundle);
 		Log.i(TAG, PRE + "onCreate");
+		
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		//Remove notification bar
+		/*this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);*/
+		
 		setContentView(R.layout.multi_chat);
 		
+		ChatMainFragment chatMainFragment;
 		if(bundle == null){
-			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(R.id.multi_chat_content, getHistoryFragment(),TAG_HISTORY).commit();
+			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+			chatMainFragment = new ChatMainFragment();			
+	        ft.add(R.id.multi_chat_content, chatMainFragment,TAG_CHAT_MAIN).commit();
+			
+		}else{			
+			chatMainFragment = (ChatMainFragment)getSupportFragmentManager().findFragmentByTag(TAG_CHAT_MAIN);
 		}
+		chatMainFragment.setOnClickAccountInf(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				ft.replace(R.id.multi_chat_content, new AccountInfFragment());
+			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+			    ft.addToBackStack(null);
+				ft.commit();
+			}
+			
+		});
+		chatMainFragment.setOnClickHistory(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				ft.replace(R.id.multi_chat_content, new ChatHistoryFragment());
+			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+			    ft.addToBackStack(null);
+				ft.commit();
+			}
+			
+		});
+		
+		
 	}
-	private Fragment getHistoryFragment(){
-		if(history == null){
-			history = new ChatHistoryFragment(); 
-		}
-		return history;
-	}
+
 	@Override
 	protected void onActivityResult(int arg0, int arg1, Intent arg2) {
 		Log.i(TAG, PRE + "onActivityResult");

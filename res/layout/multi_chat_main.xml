@@ -1,54 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- this is the layout on chat -->
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
-  android:layout_height="fill_parent">
+  android:layout_height="fill_parent" 
+  android:orientation="vertical">
   
 	<LinearLayout
 	  xmlns:android="http://schemas.android.com/apk/res/android"
 	  android:layout_width="fill_parent"
-	  android:layout_height="fill_parent" 
+	  android:layout_height="wrap_content" 
 	  android:orientation="horizontal">
 	    
-	    <Button android:id="@+id/btn_header_userinf" 
+	    <Button android:id="@+id/header_left" 
 	    	android:text="@string/mchat_detail_inf"  
 	    	android:layout_width="wrap_content" 
 	    	android:layout_height="wrap_content">
 	    </Button>
-	    <TextView android:id="@+id/tv_header_username" 
+	    <TextView android:id="@+id/header_title" 
 	    	android:text="xiao wang" 
 	    	android:layout_width="0px" 
 	    	android:layout_height="wrap_content"
 	    	android:layout_weight="10"
 	    	android:gravity="center">
 	    </TextView>
-	    <Button android:id="@+id/btn_header_history"
+	    <Button android:id="@+id/header_right"
 	    	android:layout_height="wrap_content" 
 	    	android:layout_width="wrap_content"    	
 	    	android:text="@string/mchat_history" >
 		</Button>
 	</LinearLayout>
+	
+	<!-- chat message show in here -->
+	<ListView android:id="@+id/listView" 
+		android:layout_height="wrap_content" 
+		android:layout_width="match_parent"
+		android:layout_weight="10">
+	</ListView>
   
-    <TextView android:text="TextViewddd" android:id="@+id/textView1"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
+    <TextView android:text="TextViewddd" 
+    	android:id="@+id/textView1"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
 		android:layout_below="@+id/mchat_header"
 		android:layout_above="@+id/mchat_input">
 	</TextView> 
 	
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@+id/mchat_input"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"		
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"
 		android:orientation="horizontal"
 		android:layout_alignParentBottom="true">
 	
-		<EditText android:id="@+id/editText1" android:layout_height="wrap_content" 
+		<EditText android:id="@+id/mchat_input" 
+			android:layout_height="wrap_content" 
 			android:layout_width="200px"
-			android:layout_weight="9"
-			 android:text="EditText">
+			android:lines="1"
+			android:layout_weight="10"
+			android:text="EditText">
 		</EditText>
-		<Button android:text="@string/mchat_send" android:id="@+id/btn_send"
-			android:layout_weight="1"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
+		<Button android:id="@+id/mchat_send"
+			android:text="@string/mchat_send" 			
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true">
 		</Button>
 	</LinearLayout>	
