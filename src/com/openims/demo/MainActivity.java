@@ -91,8 +91,9 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
-		        intent.setClassName("com.openims","com.openims.view.onlineHelper.ChatActivity");		       
-		        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				//intent.setClassName("com.openims","com.openims.view.onlineHelper.ChatActivity");		       
+		        intent.setClassName("com.openims", "com.openims.view.chat.MultiChatActivity");
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		        startActivity(intent);			
 			}
 		});

@@ -39,6 +39,10 @@
 				  	<category android:name="android.intent.category.LAUNCHER" />
 				  </intent-filter>
 		</activity>
+		<activity android:name=".view.chat.MultiChatActivity" 
+				  android:launchMode="singleInstance">
+		</activity>
+		
         
         <!-- the core service -->
         <service android:enabled="true"
