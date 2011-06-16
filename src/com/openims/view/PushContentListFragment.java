@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils.TruncateAt;
@@ -62,9 +63,9 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	private DownloadThread thread = null;
 	private Handler mainHandler = null;
 	
-	private String picPath = "sdcard/pushFile/picture/";
-	private String videoPath = "sdcard/pushFile/video/";
-	private String audioPath = "sdcard/pushFile/audio/";
+	private String picPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/picture/";
+	private String videoPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/video/";
+	private String audioPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/audio/";
 	private String MEDIA_PIC = "image";
 	private String MEDIA_AUDIO = "audio";
 	private String MEDIA_VIDEO = "video";
@@ -101,7 +102,8 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		pushAdapter = new PushCursorAdapter(this.getActivity(),
 				pushContentDB.queryItems(),true,this);
 		
-		this.setListAdapter(pushAdapter);		
+		this.setListAdapter(pushAdapter);	
+		
 	}
 	
 	private String getResString(int id){
@@ -279,6 +281,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		Log.e(TAG, PRE + "onActivityCreated");
 		close = false;
 		super.onActivityCreated(savedInstanceState);
+		getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 	}
 
 	@Override
@@ -309,6 +312,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	public void onDestroyView() {
 		Log.e(TAG, PRE + "onDestroyView");
 		close = true;
+		pushContentDB.close();
 		super.onDestroyView();
 	}
 
@@ -381,7 +385,8 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		}else if(PushServiceUtil.DEFAULTID_VIDEO.endsWith(type)){
 			basePath = videoPath;
 		}
-		FileOperation.makedir(basePath);
+		boolean b = FileOperation.makedir(basePath);
+		
 		String fileName = FileOperation.getFileName(url);
 		
 		Integer id = (Integer)v.getTag(R.string.position);

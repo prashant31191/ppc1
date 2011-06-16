@@ -142,7 +142,7 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 			adapter.addData(id, toId, content, false);
 			c.moveToNext();
 		}
-		
+		messageRecord.close();
 		listview.setAdapter(adapter);	
 		
 	}
@@ -221,6 +221,7 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 				startId = adapter.getLastId();
 				startId++;
 			}
+			// TODO maybe I should save messageRecord
 			MessageRecord messageRecord = new MessageRecord(activity, mTableName);		
 			Cursor c = messageRecord.queryItems(startId, 3, isUp);			
 			c.moveToFirst();
@@ -234,6 +235,7 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 						c.getString(columnIndexContent), isUp);
 				c.moveToNext();
 			}
+			messageRecord.close();
 			listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
 			
 			

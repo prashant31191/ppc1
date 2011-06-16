@@ -1,6 +1,9 @@
 package com.openims.view.chat;
 
+import java.util.Date;
+
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -16,6 +19,7 @@ import android.widget.ListView;
 import com.openims.R;
 import com.openims.model.chat.MessageRecord;
 import com.openims.utility.LogUtil;
+import com.openims.utility.PushServiceUtil;
 
 public class ChatMainFragment extends Fragment implements OnClickListener{
 
@@ -28,12 +32,17 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 	
 	private ListView mListView;
 	private EditText mInput;
-	private ChatMainAdapter mListAdapter;
-	private String mTableName = "TB_555_77";
-	private Activity mActivity;
+	private ChatMainAdapter mListAdapter = null;
+	private String mTableName = null;//"TB_555_77";
+	private Activity mActivity = null;
 	private int columnIndexId;
 	private int columnIndexToId;
 	private int columnIndexContent;
+	
+	private int mMessageNum;
+	private int mAccountId;
+	private String mToAccount = "test@smit";
+	private String mMyAccount = "test2@smit";
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -66,32 +75,45 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {		
-		super.onActivityCreated(savedInstanceState);
+		super.onActivityCreated(savedInstanceState);		
 		
-		mListAdapter = new ChatMainAdapter(mActivity);
+		initAdapter();
 		
+		if(mTableName == null || mListAdapter == null){
+			throw new RuntimeException("call setTableName method first");
+		}		
+		mListView.setAdapter(mListAdapter);
+		mListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+	}
+	public void initAdapter(){
+		if(mActivity == null){
+			return;
+		}
 		MessageRecord messageRecord = new MessageRecord(mActivity, mTableName);		
-		Cursor c = messageRecord.queryItems(0, -1, false);
+		Cursor c = messageRecord.queryItems(-1, mMessageNum, true);
 		
-		columnIndexToId = c.getColumnIndex(MessageRecord.TO);
-		columnIndexContent = c.getColumnIndex(MessageRecord.CONTENT);
-		columnIndexId = c.getColumnIndex(MessageRecord.ID);
+		if(mListAdapter == null){
+			mListAdapter = new ChatMainAdapter(mActivity);
+			columnIndexToId = c.getColumnIndex(MessageRecord.TO);
+			columnIndexContent = c.getColumnIndex(MessageRecord.CONTENT);
+			columnIndexId = c.getColumnIndex(MessageRecord.ID);
+		}
+
 		int n = c.getCount();
 		int id;
 		String toId;
 		String content;
-		c.moveToFirst();
+		c.moveToLast();
 		for(int i=0; i<n; i++){
 			toId = c.getString(columnIndexToId);
 			content = c.getString(columnIndexContent);
 			id = c.getInt(columnIndexId);			
 			mListAdapter.addData(id, toId, content, false);
-			c.moveToNext();
+			c.moveToPrevious();
 		}
-		mListView.setAdapter(mListAdapter);
-		mListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+		messageRecord.close();
+		mListAdapter.notifyDataSetChanged();
 	}
-	
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -142,7 +164,31 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 	}
+	
+	public void setTableName(String tableName, int messageNum, int accountId){
+		mTableName = tableName;
+		mMessageNum = messageNum;
+		mAccountId = accountId;
+		if(mListAdapter != null){
+			mListAdapter.removeAll();
+		}
+		initAdapter();
+	}
 
+	public void updateList(){
+		MessageRecord messageRecord = new MessageRecord(mActivity, mTableName);		
+		Cursor c = messageRecord.queryItems(mListAdapter.getLastId()+1, -1, false);			
+		c.moveToFirst();
+		int nCount = c.getCount();		
+		for(int i=0; i<nCount; i++){
+			mListAdapter.addData(c.getInt(columnIndexId),
+					c.getString(columnIndexToId), 
+					c.getString(columnIndexContent), false);
+			c.moveToNext();
+		}
+		messageRecord.close();
+		mListAdapter.notifyDataSetChanged();
+	}
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()){
@@ -155,11 +201,26 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 				onClickHistory.onClick(v);
 			break;
 		case R.id.mchat_send:
-			mListAdapter.addData(11, "wo send", mInput.getText().toString(), false);
-			mListAdapter.notifyDataSetChanged();
+			sendMessage();
 			break;
 		}
 		
+	}
+	private void sendMessage(){
+		MessageRecord messageRecord = new MessageRecord(mActivity, mTableName);	
+		Date date = new Date(System.currentTimeMillis());
+		int newId = messageRecord.insert(mMyAccount, mToAccount, mInput.getText().toString(), date.toLocaleString());
+		Log.d(TAG, PRE + "the row ID of the newly inserted row, or -1 if an error occurred" + newId);
+		mListAdapter.addData(newId, mMyAccount, mInput.getText().toString(), false);
+		mListAdapter.notifyDataSetChanged();
+		
+		Intent intent = new Intent(PushServiceUtil.ACTION_SERVICE_MESSAGE);
+        intent.putExtra(PushServiceUtil.MESSAGE_TYPE, "chat");
+        intent.putExtra(PushServiceUtil.MESSAGE_TOWHOS, mToAccount);
+        intent.putExtra(PushServiceUtil.MESSAGE_CONTENT, mInput.getText().toString());
+        mActivity.startService(intent);
+        messageRecord.close();
+	
 	}
 
 	public void setOnClickAccountInf(OnClickListener onClickAccountInf) {

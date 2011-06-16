@@ -82,23 +82,28 @@ public class NotificationPacketListener implements PacketListener {
                 	Log.e(LOGTAG, "PushID == null");
                 	return;
                 }
-                if(ntPushID.equals(PushServiceUtil.DEFAULTID_WARNING)){
+                if(ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_WARNING)){
                 	// 对用户做震动提醒
                 	warning(ntTitle,ntUri);
-                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_PENDINGINTENT)){
+                }else if(ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_PENDINGINTENT)){
                 	// 发送到title bar， 可以打开网页
+                	if(ntUri.toLowerCase().startsWith("http://") == false){
+                		ntUri = "http://" + ntUri;
+                	}
                 	pendingIntent(ntUri,ntTitle,ntMessage,ticker);
-                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_TEXT)
+                	saveContent(ntPushID,ntTitle,ntUri,time);
+                }else if(ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_TEXT)
                 		|| ntPushID.equals(PushServiceUtil.DEFAULTID_STORY)){
                 	// 保存到数据库
                 	saveContent(ntPushID,ntTitle,ntMessage,time);
-                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_URL)){                	
+                	
+                }else if(ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_URL)){                	
                 	openUrl(ntUri);
-                }else if(ntPushID.equals(PushServiceUtil.DEFAULTID_VIDEO)
-                		|| ntPushID.equals(PushServiceUtil.DEFAULTID_PICTURE)
-                		|| ntPushID.equals(PushServiceUtil.DEFAULTID_AUDIO)){
+                }else if(ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_VIDEO)
+                		|| ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_PICTURE)
+                		|| ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_AUDIO)){
                 	// 保存到数据库
-                	saveContent(ntPushID,ntTitle,ntUri,time);
+                	saveContent(ntPushID,ntMessage,ntUri,time);
                 }else{
                 	sendPushInf(ntPushID,ntTitle,ntMessage,ntUri,ticker);
                 }
@@ -115,6 +120,7 @@ public class NotificationPacketListener implements PacketListener {
 
     	boolean bool=pushInfo.getPushInfo(pushID, 
     			packageNameBuilder, classNameBuilder);
+    	pushInfo.close();
     	if(bool==false){
     		return;
     	}
@@ -186,6 +192,7 @@ public class NotificationPacketListener implements PacketListener {
     	push.setSize("10K");
     	PushContentDB pushDB = new PushContentDB(serviceContext);
     	pushDB.insertItem(push);
+    	pushDB.close();
     	// 测试一下，给标题发点东西
     	Intent intent = new Intent(PushServiceUtil.ACTION_UI_PUSHCONTENT);    	
     	serviceContext.sendBroadcast(intent);

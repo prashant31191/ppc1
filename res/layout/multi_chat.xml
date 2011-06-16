@@ -4,10 +4,11 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical"
 	>
-	<TextView android:text="i will show header here" android:id="@+id/textView2"
-		android:layout_width="fill_parent" android:layout_height="50dip"
-		>
-	</TextView>
+  <com.openims.widgets.HorizontialListView
+  	android:id="@+id/multi_chat_user"
+  	android:layout_width="fill_parent"
+  	android:layout_height="50dip"
+  />
 
 	<FrameLayout  android:id="@+id/multi_chat_content" 
 		android:layout_weight="10" 

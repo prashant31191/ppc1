@@ -54,6 +54,7 @@ public class RegPushPacketListener implements PacketListener {
         	IMService.sendRegisterBroadcast(packageNameBuilder.toString(), 
         			classNameBuilder.toString(), 
         			pushID, PushServiceUtil.PUSH_STATUS_SUC,type,xmppManager.getContext());
+        	pushInfo.close();
         }
     }
 }

@@ -53,7 +53,11 @@ public class PushContentDB {
 	public PushContentDB(Context context){
 		databaseHelper = new DatabaseHelper(context);
 	}
-	
+	public void close(){
+		if(databaseHelper != null){
+			databaseHelper.close();
+		}
+	}
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		
 		DatabaseHelper(Context context) {
@@ -75,8 +79,7 @@ public class PushContentDB {
 	}
 	public boolean reCreateTable(){
 		Log.d(LOGTAG,TAG+"CreateTable:" + TABLE_NAME);
-		SQLiteDatabase db = databaseHelper.getWritableDatabase();
-		
+		SQLiteDatabase db = databaseHelper.getWritableDatabase();		
 		try {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
 			db.execSQL(CREATE_TABLE);
@@ -85,6 +88,7 @@ public class PushContentDB {
 			Log.e(LOGTAG,TAG+"Recreat table failure");
 			return false;
 		}
+		db.close();
 		return true;
 	}
 	// and/insert

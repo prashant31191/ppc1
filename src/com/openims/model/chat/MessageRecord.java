@@ -1,5 +1,6 @@
 package com.openims.model.chat;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -52,6 +53,11 @@ public class MessageRecord {
 		}
 		
 	}
+	public void close(){
+		if(dbHelper != null){
+			dbHelper.close();
+		}
+	}
 	/**
 	 * provider a good way to create data table name
 	 * @param myId 	 your unique id
@@ -63,7 +69,8 @@ public class MessageRecord {
 	}
 	/**
 	 * 
-	 * @param startId include startId
+	 * @param startId include startId 
+	 * 		  if startId == -1 where is null
 	 * @param nNum  if nNum == -1 return all
 	 * @param bSmall
 	 * @return
@@ -86,13 +93,17 @@ public class MessageRecord {
 		}else{
 			limit = String.valueOf(nNum);
 		}
+		if(startId == -1){
+			where = null;
+		}
 		
 		return db.query(tableName,null,where,null,null,null,
 				orderBy,limit);
 	}
-	public void insert(String from, String to, String content, String date){
+	
+	public int insert(String from, String to, String content, String date){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		String sql = "insert into " + tableName + " ("+
+		/*String sql = "insert into " + tableName + " ("+
 		FROM +","+ TO +","+ CONTENT +","+DATE+
 		") values('" + 		
 		from+"','"+
@@ -109,7 +120,13 @@ public class MessageRecord {
 			DataAccessException dataException = new DataAccessException("insert");
 			dataException.setErrorType(DataAccessException.TYPE_INSERT);
 			throw dataException; 
-		}
+		}*/
+		ContentValues values = new ContentValues();
+		values.put(FROM, from);
+		values.put(TO, to);
+		values.put(CONTENT, content);
+		values.put(DATE, date);
+		return (int)db.insert(tableName, null, values);
 		
 	}
 	public void insert(String from, String to, String content, String date,

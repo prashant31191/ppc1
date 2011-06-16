@@ -43,7 +43,11 @@ public class PushInfoManager{
 	public PushInfoManager(Context context){
 		databaseHelper = new DatabaseHelper(context);
 	}
-	
+	public void close(){
+		if(databaseHelper != null){
+			databaseHelper.close();
+		}
+	}
 	public boolean insertPushInfotoDb(String user,
 									  String developer,
 									  String pushName,								  

@@ -1,20 +1,14 @@
 package com.openims.service;
 
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-
-import org.jivesoftware.smack.packet.Message;
-import com.openims.model.pushService.PushInfoManager;
-import com.openims.service.connection.ConnectivityReceiver;
-import com.openims.service.notificationPacket.RegPushIQ;
-import com.openims.utility.DeviceFun;
-import com.openims.utility.LogUtil;
-import com.openims.utility.PushServiceUtil;
-
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,8 +17,19 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
+
+import com.openims.model.pushService.PushInfoManager;
+import com.openims.service.connection.ConnectivityReceiver;
+import com.openims.service.notificationPacket.RegPushIQ;
+import com.openims.utility.DeviceFun;
+import com.openims.utility.LogUtil;
+import com.openims.utility.PushServiceUtil;
 
 
 public class IMService extends Service {
@@ -42,6 +47,28 @@ public class IMService extends Service {
     private SharedPreferences sharedPrefs;
     
     private String deviceId;
+    
+    private ArrayList<UnReadNum> mUnReadNumList = null; 
+    
+    /** For showing and hiding our notification. */
+    NotificationManager mNM;
+    /** Keeps track of all current registered clients. */
+    ArrayList<Messenger> mClients = new ArrayList<Messenger>();
+    /** Holds last value set by a client. */
+    int mValue = 0;
+    
+    private class UnReadNum{
+    	public UnReadNum(int accountId, int unReadNum){
+    		mAccountId = accountId;
+    		mUnReadNum = unReadNum;
+    	}
+    	public int mAccountId = 0;
+    	public int mUnReadNum = 0;
+    }
+    /**
+     * Target we publish for clients to send messages to IncomingHandler.
+     */
+    final Messenger mMessenger = new Messenger(new IncomingHandler());
     
     public IMService(){
     	connectivityReceiver = new ConnectivityReceiver(this);
@@ -87,16 +114,20 @@ public class IMService extends Service {
         }
     }
 
+    
     @Override
     public void onDestroy() {
         Log.d(LOGTAG, "onDestroy()...");
         stop();
     }
 
+    /**
+     * When binding to the service, we return an interface to our messenger
+     * for sending messages to the service.
+     */
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(LOGTAG, "onBind()...");
-        return null;
+    	return mMessenger.getBinder();
     }
 
     @Override
@@ -310,6 +341,7 @@ public class IMService extends Service {
         				PushServiceUtil.PUSH_STATUS_HAVEREGISTER,
         				PushServiceUtil.PUSH_TYPE_REG,this);
         		Log.i(LOGTAG, TAG + "已经注册" + pushNameKey + " " + xmppManager.getUsername());
+        		pushInfo.close();
         		return;
         	}    		
     	}else{
@@ -318,13 +350,14 @@ public class IMService extends Service {
         				PushServiceUtil.PUSH_STATUS_NOTREGISTER,
         				PushServiceUtil.PUSH_TYPE_UNREG,this);
         		Log.i(LOGTAG, TAG + "已经销注 " + pushNameKey + " " + xmppManager.getUsername());
+        		pushInfo.close();
         		return;
         	}
     	}
     	
     	// write information to database
     	pushInfo.insertPushInfotoDb(xmppManager.getUsername(),developer, pushNameKey, packageName, className);
-    	
+    	pushInfo.close();
     	// send packet
     	RegPushIQ regPushIQ = new RegPushIQ();
     	regPushIQ.setUserName(developer);
@@ -406,6 +439,7 @@ public class IMService extends Service {
 		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
 				}
 	    	}
+			pushInfo.close();
 			
         }
     }
@@ -429,13 +463,8 @@ public class IMService extends Service {
     private void sendMessageChat(Intent intent){
     	Bundle bundle = intent.getExtras();
     	String to = bundle.getString(PushServiceUtil.MESSAGE_TOWHOS);
-    	String mesContent = bundle.getString(PushServiceUtil.MESSAGE_CONTENT);
-    	Message msg = new Message(to, Message.Type.chat);
-        msg.setBody(mesContent);
-               
-        
-        Log.i(LOGTAG, to +" send msg:" + mesContent);
-    	xmppManager.sendPacket(msg); 
+    	String mesContent = bundle.getString(PushServiceUtil.MESSAGE_CONTENT);  
+    	xmppManager.sendChatMessage(to, mesContent); 
     }
     private void sendTopic(Intent intent){
     	String topic = intent.getStringExtra(PushServiceUtil.MESSAGE_TOWHOS);
@@ -450,4 +479,87 @@ public class IMService extends Service {
     		xmppManager.broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL);
     	}
     }
+    
+    public void setOneUnreadMessage(int accountId){
+    	if(mUnReadNumList == null){
+    		mUnReadNumList = new ArrayList<UnReadNum>(20);
+    	}
+    	if(mClients.size() != 0){
+    		for (int i=mClients.size()-1; i>=0; i--) {
+	            try {
+	                mClients.get(i).send(Message.obtain(null,
+	                		PushServiceUtil.MSG_UNREAD_NUMBBER, 
+	                		accountId, 1, new Object()));
+	            } catch (RemoteException e) {
+	                // The client is dead.  Remove it from the list;
+	                // we are going through the list from back to front
+	                // so this is safe to do inside the loop.
+	                mClients.remove(i);
+	            }
+    		}
+    	}else{
+    		int i = 0;
+    		for(UnReadNum num : mUnReadNumList){
+    			if(num.mAccountId == accountId){
+    				num.mUnReadNum++;
+    				mUnReadNumList.set(i,num);
+    				break;
+    			}
+    			i++;
+    		}
+    		if(mUnReadNumList.size() == i){
+    			mUnReadNumList.add(new UnReadNum(accountId,1));
+    		}    		
+    	}
+    	
+    		
+    }
+    /**
+     * Handler of incoming messages from clients.
+     */
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case PushServiceUtil.MSG_REGISTER_CLIENT:
+                    mClients.add(msg.replyTo);
+                    break;
+                case PushServiceUtil.MSG_UNREGISTER_CLIENT:
+                    mClients.remove(msg.replyTo);
+                    break;
+                case PushServiceUtil.MSG_UNREAD_NUMBBER:
+                    mValue = msg.arg1;  
+                    if(mUnReadNumList == null){
+                    	break;
+                    }
+                    int nSize = mUnReadNumList.size();
+                    for (int i=mClients.size()-1; i>=0; i--) {                    	
+                        for ( int j=0; j<nSize; j++){
+                        	Object object = null;
+                        	if(j == nSize-1){
+                        		object = new Object();
+                        	}
+                        	try {                        	
+                                mClients.get(i).send(Message.obtain(null,
+                                		PushServiceUtil.MSG_UNREAD_NUMBBER, 
+                                		mUnReadNumList.get(j).mAccountId, 
+                                		mUnReadNumList.get(j).mUnReadNum,
+                                		object));
+                            } catch (RemoteException e) {
+                                // The client is dead.  Remove it from the list;
+                                // we are going through the list from back to front
+                                // so this is safe to do inside the loop.
+                                mClients.remove(i);
+                            }
+                        }
+                        mUnReadNumList = null;                        
+                    }
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+    
+    
 }

@@ -2,29 +2,24 @@ package com.openims.demo;
 
 
 
-import com.openims.R;
-import com.openims.utility.PushServiceUtil;
-import com.openims.view.onlineHelper.ChatActivity;
-import com.openims.view.setting.Setting;
-
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.Toast;
+
+import com.openims.R;
+import com.openims.utility.PushServiceUtil;
+import com.openims.view.chat.MultiChatActivity;
+import com.openims.view.chat.widget.IMActivity;
+import com.openims.view.setting.Setting;
 
 public class MainActivity extends Activity {
 
@@ -38,6 +33,9 @@ public class MainActivity extends Activity {
         Log.d("DemoAppActivity", "onCreate()...");
 
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(
+        		WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, 
+        		WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.main);
         
 
@@ -91,8 +89,11 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
+				intent.putExtra(MultiChatActivity.ACCOUNT_ID, 66);
 				//intent.setClassName("com.openims","com.openims.view.onlineHelper.ChatActivity");		       
-		        intent.setClassName("com.openims", "com.openims.view.chat.MultiChatActivity");
+		        //intent.setClassName("com.openims", "com.openims.view.chat.MultiChatActivity");
+				intent.setClassName("com.openims", "com.openims.view.chat.widget.IMActivity");
+				
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		        startActivity(intent);			
 			}

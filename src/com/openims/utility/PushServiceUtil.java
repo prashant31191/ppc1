@@ -88,4 +88,28 @@ public class PushServiceUtil{
     
     public static final float HORIZONTAL_MARGIN = 0.35f;
     public static final float VERTICAL_MARGIN = 0.2f;
+    
+    // service communicate with activity
+    /**
+     * Command to the service to register a client, receiving callbacks
+     * from the service.  The Message's replyTo field must be a Messenger of
+     * the client where callbacks should be sent.
+     */
+    public static final int MSG_REGISTER_CLIENT = 1;
+    
+    /**
+     * Command to the service to unregister a client, ot stop receiving callbacks
+     * from the service.  The Message's replyTo field must be a Messenger of
+     * the client as previously given with MSG_REGISTER_CLIENT.
+     */
+    public static final int MSG_UNREGISTER_CLIENT = 2;
+    
+    /**
+     * request unread message number
+     */
+    public static final int MSG_UNREAD_NUMBBER = 3;
+    
+    /**
+     * 
+     */
 }

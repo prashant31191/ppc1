@@ -87,20 +87,20 @@ public class PushCursorAdapter extends CursorAdapter{
 		String type = cursor.getString(getnColType());
 		ImageView imageView = (ImageView)view.findViewById(R.id.iv_pushcontent_type);
 		
-		if(PushServiceUtil.DEFAULTID_TEXT.endsWith(type)){
+		if(PushServiceUtil.DEFAULTID_TEXT.equalsIgnoreCase(type)){
 			imageView.setImageResource(R.drawable.text);
-		}else if(PushServiceUtil.DEFAULTID_URL.endsWith(type)){
+		}else if(PushServiceUtil.DEFAULTID_URL.equalsIgnoreCase(type)){
 			imageView.setImageResource(R.drawable.www);
-		}else if(PushServiceUtil.DEFAULTID_PICTURE.endsWith(type)){
+		}else if(PushServiceUtil.DEFAULTID_PICTURE.equalsIgnoreCase(type)){
 			imageView.setImageResource(R.drawable.picture);
 			bDownLoad = true;
-		}else if(PushServiceUtil.DEFAULTID_VIDEO.endsWith(type)){
+		}else if(PushServiceUtil.DEFAULTID_VIDEO.equalsIgnoreCase(type)){
 			imageView.setImageResource(R.drawable.video);
 			bDownLoad = true;
-		}else if(PushServiceUtil.DEFAULTID_AUDIO.endsWith(type)){
+		}else if(PushServiceUtil.DEFAULTID_AUDIO.equalsIgnoreCase(type)){
 			imageView.setImageResource(R.drawable.music);
 			bDownLoad = true;
-		}else if(PushServiceUtil.DEFAULTID_STORY.endsWith(type)){
+		}else if(PushServiceUtil.DEFAULTID_STORY.equalsIgnoreCase(type)){
 			imageView.setImageResource(R.drawable.story);
 		}else{
 			imageView.setImageResource(R.drawable.icon);

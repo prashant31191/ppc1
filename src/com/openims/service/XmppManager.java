@@ -95,7 +95,12 @@ import com.openims.service.notificationPacket.UserQueryIQ;
 import com.openims.service.pubsub.SubListener;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
-
+/**
+ * This class deal with login logout send message and broadcast
+ * it is smack centre
+ * @author ANDREW CHAN (chenyzpower@gmail.com)
+ *
+ */
 public class XmppManager{
 	private static final String LOGTAG = LogUtil.makeLogTag(XmppManager.class);
 	private static final String TAG = LogUtil.makeTag(XmppManager.class);
@@ -107,7 +112,7 @@ public class XmppManager{
     private	String resource = null;
     
     private XMPPConnection connection;
-    private Context context;
+    private IMService imservice;
     private IMService.TaskSubmitter taskSubmitter;
     private IMService.TaskTracker taskTracker;
     private SharedPreferences sharedPrefs;
@@ -127,7 +132,7 @@ public class XmppManager{
     private Map<String,LeafNode> topicMap = null;
     
     public XmppManager(IMService imservice){
-    	context = imservice;
+    	this.imservice = imservice;
     	taskSubmitter = imservice.getTaskSubmitter();
         taskTracker = imservice.getTaskTracker();
         sharedPrefs = imservice.getSharedPreferences();
@@ -202,6 +207,12 @@ public class XmppManager{
         };
         addTask(runnable);
     }
+    public void sendChatMessage(String to, String mesContent){
+    	Message msg = new Message(to, Message.Type.chat);
+        msg.setBody(mesContent);
+        Log.i(LOGTAG, to +" send msg:" + mesContent);
+    	sendPacket(msg); 
+    }
     public void sendPacket(Packet packet){
     	if(this.isAuthenticated())
     	connection.sendPacket(packet);
@@ -261,7 +272,7 @@ public class XmppManager{
     	return regPushPacketListener;
     }
     public Context getContext(){
-    	return context;
+    	return imservice;
     }
     public XMPPConnection getConnection() {
         return connection;
@@ -545,8 +556,12 @@ public class XmppManager{
     public void broadcastStatus(String inf){
     	Intent intentSend = new Intent(PushServiceUtil.ACTION_STATUS);
 		intentSend.putExtra(PushServiceUtil.PUSH_STATUS, inf);
-		context.sendBroadcast(intentSend);
+		imservice.sendBroadcast(intentSend);
 		
+    }
+    
+    public void notifyNewMessage(int accountId){
+    	imservice.setOneUnreadMessage(accountId);
     }
    
     private void initPubSub(){
@@ -858,7 +873,7 @@ public class XmppManager{
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
     	iq.setUserAccount(username);
     	iq.setResource(getResource());
-    	iq.setDeviceName("HTC");
+    	iq.setDeviceName("SMIT1800");
     	iq.setOpCodeSave();
     	this.sendPacket(iq);
         
@@ -866,7 +881,7 @@ public class XmppManager{
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
     	iq.setUserAccount(username);
     	iq.setResource(getResource());
-    	iq.setDeviceName("HTC");
+    	iq.setDeviceName("SMIT1800");
     	iqQuery.setOpCodeQueryOfflinePush();
     	this.sendPacket(iqQuery);
     }
@@ -1007,6 +1022,7 @@ public class XmppManager{
 				}
             }
     }
+    
 }
 
 /*DiscoverItems dn = leafNode.discoverItems();		
