@@ -25,15 +25,20 @@ public class ChatMainAdapter extends BaseAdapter {
     
 	//private Context context;
 	private LayoutInflater mInflater;
+	private String mMyName;
+	private int blackColor;
+	private int blueColor;
 	
 	LinkedList<String> messageList = new LinkedList<String>();
 	LinkedList<String> nameList = new LinkedList<String>();
 	LinkedList<String> portraitList = new LinkedList<String>();
 	LinkedList<Integer> idList = new LinkedList<Integer>();
 	
-	public ChatMainAdapter(Context context){
-		
+	public ChatMainAdapter(Context context, String myName){
+		mMyName = myName;
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);;
+		blackColor = context.getResources().getColor(R.color.light_black);
+		blueColor = context.getResources().getColor(R.color.main_blue);
 	}
 	public void removeAll(){
 		messageList = new LinkedList<String>();
@@ -55,9 +60,13 @@ public class ChatMainAdapter extends BaseAdapter {
 			
 	}
 	public int getFirstId(){
+		if(idList.isEmpty())
+			return 0;
 		return idList.getFirst();
 	}
 	public int getLastId(){
+		if(idList.isEmpty())
+			return 0;
 		return idList.getLast();
 	}
 	
@@ -86,7 +95,7 @@ public class ChatMainAdapter extends BaseAdapter {
 	@Override
 	public boolean areAllItemsEnabled() {
 		Log.d(TAG, PRE + "areAllItemsEnabled");
-		return false;
+		return true;
 	}
 	
 	@Override
@@ -116,8 +125,14 @@ public class ChatMainAdapter extends BaseAdapter {
         } else {
             v = convertView;
         }
-		TextView name = (TextView)v.findViewById(R.id.tv_chat_item_name_time);
-		name.setText(nameList.get(position));
+		String name = nameList.get(position);
+		TextView tvName = (TextView)v.findViewById(R.id.tv_chat_item_name_time);
+		tvName.setText(name);
+		if(name.equals(mMyName)){
+			tvName.setTextColor(blackColor);
+		}else{
+			tvName.setTextColor(blueColor);
+		}
 		TextView content = (TextView)v.findViewById(R.id.tv_chat_item_content);
 		content.setText(messageList.get(position));
 		return v;

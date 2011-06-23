@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.AbsListView.OnScrollListener;
 
@@ -52,7 +53,7 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.multi_chat_history, container, false);
 		
-		Button btnInf = (Button)v.findViewById(R.id.header_left);
+		ImageButton btnInf = (ImageButton)v.findViewById(R.id.header_left);
 		btnInf.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -65,7 +66,7 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 				
 			}
 		});
-		Button btnHistory = (Button)v.findViewById(R.id.header_right);		
+		ImageButton btnHistory = (ImageButton)v.findViewById(R.id.header_right);		
 		btnHistory.setOnClickListener(new OnClickListener() {
 			
 			@Override

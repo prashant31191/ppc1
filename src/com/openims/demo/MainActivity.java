@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
-				intent.putExtra(MultiChatActivity.ACCOUNT_ID, 66);
+				intent.putExtra(MultiChatActivity.ACCOUNT_JID, 66);
 				//intent.setClassName("com.openims","com.openims.view.onlineHelper.ChatActivity");		       
 		        //intent.setClassName("com.openims", "com.openims.view.chat.MultiChatActivity");
 				intent.setClassName("com.openims", "com.openims.view.chat.widget.IMActivity");

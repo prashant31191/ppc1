@@ -41,12 +41,18 @@ public class ChatPacketListener implements PacketListener{
             // write to database
             Date date = new Date(System.currentTimeMillis());            
             try {
+            	String fromJid = message.getFrom().substring(0, 
+            			message.getFrom().lastIndexOf("/") );
+            	
             	MessageRecord mr = new MessageRecord(xmppManager.getContext(),
-            			MessageRecord.getMessageRecordTableName("555", "77"));
-                mr.insert(message.getFrom(), message.getTo(), 
+            			MessageRecord.getMessageRecordTableName(
+            			xmppManager.getUserNameWithHostName(), fromJid));
+            	
+                mr.insert(fromJid, xmppManager.getUserNameWithHostName(), 
                 		message.getBody(), date.toLocaleString());
-                xmppManager.notifyNewMessage(77);
                 mr.close();
+                xmppManager.notifyNewMessage(fromJid);
+                
             } catch(DataAccessException e) {
             	e.printStackTrace();
             }

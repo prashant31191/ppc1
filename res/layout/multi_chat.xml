@@ -2,7 +2,8 @@
 <!-- this is the layout for chat window base parent layout -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:orientation="vertical"
+	android:orientation="vertical"	
+  	android:background="@drawable/s0_frame_activity"
 	>
   <com.openims.widgets.HorizontialListView
   	android:id="@+id/multi_chat_user"

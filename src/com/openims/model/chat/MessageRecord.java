@@ -64,8 +64,10 @@ public class MessageRecord {
 	 * @param yourId your is the object you chat with, such as your friend or group
 	 * @return table name
 	 */
-	static public String getMessageRecordTableName(String myId, String yourId){
-		return "TB_" + myId + "_" + yourId;
+	static public String getMessageRecordTableName(String myJid, String yourJid){
+		myJid = myJid.replace("@", "__");
+		yourJid = yourJid.replace("@", "__");
+		return "TB_" + myJid + "_" + yourJid;
 	}
 	/**
 	 * 

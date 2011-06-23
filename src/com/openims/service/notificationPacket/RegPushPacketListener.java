@@ -44,10 +44,10 @@ public class RegPushPacketListener implements PacketListener {
         	if(regPushIQ.getRegOrUnreg() == false){
         		type = PushServiceUtil.PUSH_TYPE_UNREG;
         		pushInfo.getPushInfo(pushID, packageNameBuilder, classNameBuilder);
-        		pushInfo.deletePushInfoInDb(pushName,xmppManager.getUsername());
+        		pushInfo.deletePushInfoInDb(pushName,xmppManager.getUserNameWithHostName());
         		// TODO-ANDREW it's not good enough. Unsafty
         	}else{
-        		if( pushInfo.updatePushID(pushName,xmppManager.getUsername(), pushID)== false)
+        		if( pushInfo.updatePushID(pushName,xmppManager.getUserNameWithHostName(), pushID)== false)
             		return; // have timeout
         		pushInfo.getPushInfo(pushID, packageNameBuilder, classNameBuilder);
         	}         	

@@ -2,6 +2,7 @@ package com.openims.service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -13,6 +14,9 @@ import java.util.concurrent.Future;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
@@ -81,7 +85,10 @@ import android.content.SharedPreferences.Editor;
 import android.os.Handler;
 import android.util.Log;
 
+import com.openims.model.chat.RosterDataBase;
 import com.openims.service.chat.ChatPacketListener;
+import com.openims.service.chat.MyRosterListener;
+import com.openims.service.chat.PresenceListener;
 import com.openims.service.connection.PersistentConnectionListener;
 import com.openims.service.connection.ReconnectionThread;
 import com.openims.service.fileTransfer.FileReceiver;
@@ -106,7 +113,8 @@ public class XmppManager{
 	private static final String TAG = LogUtil.makeTag(XmppManager.class);
 	
 	private String xmppHost;
-	private int xmppPort;	    
+	private int xmppPort;
+	private String hostName = "@smit";
     private String username;
     private String password;
     private	String resource = null;
@@ -280,8 +288,11 @@ public class XmppManager{
     public void setConnection(XMPPConnection connection) {
         this.connection = connection;
     }
-    public String getUsername() {
+    /*public String getUsername() {
         return username;
+    }*/
+    public String getUserNameWithHostName(){
+    	return username+hostName;
     }
     public void setUsername(String username) {
         this.username = username;
@@ -518,12 +529,13 @@ public class XmppManager{
 
                 try {
                     xmppManager.getConnection().login(
-                            xmppManager.getUsername(),
+                            xmppManager.username,
                             xmppManager.getPassword(), getResource());
                     Log.d(LOGTAG, "Loggedn in successfully");
                     broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_SUC); 
                     
-                    initAfterLogin();
+                    getRoster();
+                    initAfterLogin(); 
 
                 } catch (XMPPException e) {
                     Log.e(LOGTAG, "LoginTask.run()... xmpp error");
@@ -560,10 +572,12 @@ public class XmppManager{
 		
     }
     
-    public void notifyNewMessage(int accountId){
-    	imservice.setOneUnreadMessage(accountId);
+    public void notifyNewMessage(String jid){
+    	imservice.setOneUnreadMessage(jid);
     }
-   
+    public void notifyRosterUpdated(){
+    	imservice.notifyRosterUpdated();
+    }
     private void initPubSub(){
     	ProviderManager pm = ProviderManager.getInstance();
         pm.addIQProvider(
@@ -844,12 +858,17 @@ public class XmppManager{
         PacketListener packetListener2 = getRegPushPacketListener();
         connection.addPacketListener(packetListener2, packetFilter2);
         
-        PacketFilter charFilter = new MessageTypeFilter(Message.Type.chat);
+        PacketFilter chatFilter = new MessageTypeFilter(Message.Type.chat);
         ChatPacketListener chatListener = new ChatPacketListener(this);
-        connection.addPacketListener(chatListener, charFilter);
+        connection.addPacketListener(chatListener, chatFilter);
+        
+        PacketFilter presenceFilter = new PacketTypeFilter(Presence.class);
+        PresenceListener presenceListener = new PresenceListener(this);
+        connection.addPacketListener(presenceListener,presenceFilter);
+       
         
         // TODO-ANDREW test need to delete
-        NotFilter notFilter = new NotFilter(charFilter);
+        NotFilter notFilter = new NotFilter(chatFilter);
         connection.addPacketListener(new PacketListener(){
         	public void processPacket(Packet packet) {
         		Log.i(LOGTAG,TAG+"xmnl:"+packet.getXmlns()
@@ -871,7 +890,7 @@ public class XmppManager{
     	// TODO 要求服务器，保证覆盖唯一的    	
     	UserQueryIQ iq = new UserQueryIQ();
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
-    	iq.setUserAccount(username);
+    	iq.setUserAccount(username+hostName);
     	iq.setResource(getResource());
     	iq.setDeviceName("SMIT1800");
     	iq.setOpCodeSave();
@@ -879,11 +898,55 @@ public class XmppManager{
         
     	UserQueryIQ iqQuery = new UserQueryIQ();
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
-    	iq.setUserAccount(username);
+    	iq.setUserAccount(username+hostName);
     	iq.setResource(getResource());
     	iq.setDeviceName("SMIT1800");
     	iqQuery.setOpCodeQueryOfflinePush();
     	this.sendPacket(iqQuery);
+    }
+    public void getRoster(){
+    	Roster roster = connection.getRoster();
+    	roster.addRosterListener(new MyRosterListener());    	
+    	
+    	Collection<RosterGroup> crg = roster.getGroups();
+    	Iterator<RosterGroup> iterator = crg.iterator();
+    	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,username+hostName);
+    	rosterDataBase.removeAll();
+    	while(iterator.hasNext()){
+    		RosterGroup rg = (RosterGroup)iterator.next();
+    		
+    		Collection<RosterEntry> re = rg.getEntries();
+    		Iterator<RosterEntry> iteratorEntry = re.iterator();
+    		while(iteratorEntry.hasNext()){
+    			RosterEntry entry = (RosterEntry)iteratorEntry.next();   
+    			String presenceInf = roster.getPresence(entry.getUser()).getType().name();
+    			rosterDataBase.insert(entry.getUser(), entry.getName(), rg.getName(),presenceInf);
+    			
+    		}
+    	}
+    	
+    	rosterDataBase.close();
+    	/*Collection<RosterEntry> re = roster.getEntries();
+    	iterator = re.iterator();
+    	RosterGroup myGroup = null;*/
+    	/*try {
+    		myGroup = roster.createGroup("aa");
+    	} catch (IllegalArgumentException e) {
+    		e.printStackTrace();
+    	}*/
+    	//RosterEntry rosterEntry = new RosterEntry();
+    	
+    	/*while(myGroup!=null && iterator.hasNext()){
+    		RosterEntry rg = (RosterEntry)iterator.next();
+    		try {
+				myGroup.addEntry(rg);
+			} catch (XMPPException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		Log.i(LOGTAG,TAG+"user:"+rg.getUser()+";name:"
+    				+rg.getName());
+    	}*/
     }
     public void configure(ProviderManager pm) {
     	 
@@ -1034,33 +1097,6 @@ while(it.hasNext()){
 }*/
 
 //stopReconnectionThread();
-/*Roster roster = connection.getRoster();
-MyRosterListener rosterListener = new MyRosterListener();
-roster.addRosterListener(rosterListener);
 
-int n = roster.getGroupCount();
-Collection<RosterGroup> crg = roster.getGroups();
-Iterator iterator = crg.iterator();
-while(iterator.hasNext()){
-	RosterGroup rg = (RosterGroup)iterator.next();
-	Log.i(LOGTAG,TAG+rg.getName()+"number:"+String.valueOf(rg.getEntryCount()));
-}
-Collection<RosterEntry> re = roster.getEntries();
-iterator = re.iterator();
-RosterGroup myGroup = null;
-try {
-	myGroup = roster.createGroup("a");
-} catch (IllegalArgumentException e) {
-	// TODO Auto-generated catch block
-	e.printStackTrace();
-}
-//RosterEntry rosterEntry = new RosterEntry();
-
-while(myGroup!=null && iterator.hasNext()){
-	RosterEntry rg = (RosterEntry)iterator.next();
-	myGroup.addEntry(rg);
-	Log.i(LOGTAG,TAG+"user:"+rg.getUser()+";name:"
-			+rg.getName());
-}*/
 
 

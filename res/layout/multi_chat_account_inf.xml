@@ -2,32 +2,44 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="match_parent" android:orientation="vertical">
+  android:layout_height="match_parent" android:orientation="vertical"
+  android:background="@drawable/s0_frame_activity_inner">
    
   <LinearLayout
 	  xmlns:android="http://schemas.android.com/apk/res/android"
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content" 
-	  android:orientation="horizontal">
+	  android:orientation="horizontal"
+	  android:background="@drawable/s0_frame_activity_inner">
 	    
-	    <Button android:id="@+id/header_left" 
+	    <ImageButton android:id="@+id/header_left" 
 	    	android:text="@string/mchat_detail_inf"  
 	    	android:layout_width="wrap_content" 
 	    	android:layout_height="wrap_content"
-	    	android:visibility="invisible">
-	    </Button>
+	    	android:layout_marginLeft="10dip"
+	    	android:layout_gravity="center"
+	    	android:src="@drawable/btn_back_arrow"
+	    	android:background="@null"
+	    	>
+	    </ImageButton>
 	    <TextView android:id="@+id/header_title" 
 	    	android:text="xiao wang's information" 
+	    	android:textColor="@color/black"
+	    	android:textSize="18sp"
 	    	android:layout_width="0px" 
-	    	android:layout_height="wrap_content"
+	    	android:layout_height="20dip"
+	    	android:layout_gravity="center"
 	    	android:layout_weight="10"
 	    	android:gravity="center">
 	    </TextView>
-	    <Button android:id="@+id/header_right"
+	    <ImageButton android:id="@+id/header_right"
 	    	android:layout_height="wrap_content" 
 	    	android:layout_width="wrap_content"    	
-	    	android:text="back" >
-		</Button>
+	    	android:text="back"
+	    	android:src="@drawable/btn_forword_arrow"
+			android:visibility="invisible"
+			android:background="@null">
+		</ImageButton>
 	</LinearLayout>
   
   <TextView android:text="TextViewiuhihuhjniojoijoijoijoi" 

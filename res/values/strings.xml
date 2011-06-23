@@ -36,10 +36,12 @@
     <string name="position">123456</string> 
     
     <!-- multi chat window -->
+    <string name="im_name">Call me</string>
     <string name="mchat_detail_inf">详细信息</string>   
     <string name="mchat_history">历史记录</string> 
     <string name="mchat_send">发送</string> 
     <string name="mchat_say">说：</string> 
+    <string name="no_data">没有数据</string>
    
     
 </resources>

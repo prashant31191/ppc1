@@ -78,6 +78,7 @@ public class PushServiceUtil{
     public static final String XMPP_USERNAME = "XMPP_USERNAME";
     public static final String XMPP_PASSWORD = "XMPP_PASSWORD";
     public static final String XMPP_RESOURCE = "XMPP_RESOURCE";
+    public static final String XMPP_HOSTNAME = "XMPP_HOSTNAME";
     // PREFERENCE KEYS
     public static final String API_KEY = "API_KEY";
     public static final String VERSION = "VERSION";
@@ -109,7 +110,9 @@ public class PushServiceUtil{
      */
     public static final int MSG_UNREAD_NUMBBER = 3;
     
+    public static final int MSG_NEW_MESSAGE = 4;
     /**
      * 
      */
+    public static final int MSG_ROSTER_UPDATED = 5;
 }

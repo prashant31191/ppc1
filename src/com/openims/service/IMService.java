@@ -48,7 +48,7 @@ public class IMService extends Service {
     
     private String deviceId;
     
-    private ArrayList<UnReadNum> mUnReadNumList = null; 
+    private ArrayList<MessageState> mMsgStateList = null; 
     
     /** For showing and hiding our notification. */
     NotificationManager mNM;
@@ -57,13 +57,23 @@ public class IMService extends Service {
     /** Holds last value set by a client. */
     int mValue = 0;
     
-    private class UnReadNum{
-    	public UnReadNum(int accountId, int unReadNum){
-    		mAccountId = accountId;
+    private class MessageState{
+    	public MessageState(String jid, int unReadNum){
+    		mJid = jid;
     		mUnReadNum = unReadNum;
     	}
-    	public int mAccountId = 0;
+    	public String mJid = null;
     	public int mUnReadNum = 0;
+    	public int mTotalNum = 0;
+		@Override
+		public boolean equals(Object o) {
+			if(o instanceof MessageState){
+				MessageState  m = (MessageState)o;
+				return mJid.equals(m.mJid);
+			}
+			return super.equals(o);
+		}
+    	
     }
     /**
      * Target we publish for clients to send messages to IncomingHandler.
@@ -336,27 +346,27 @@ public class IMService extends Service {
     	}
     	PushInfoManager pushInfo = new PushInfoManager(this);
     	if(regType.equals(PushServiceUtil.PUSH_TYPE_REG)){
-    		if(pushInfo.isRegPush(pushNameKey,xmppManager.getUsername())){
+    		if(pushInfo.isRegPush(pushNameKey,xmppManager.getUserNameWithHostName())){
         		sendRegisterBroadcast(packageName,className,null,
         				PushServiceUtil.PUSH_STATUS_HAVEREGISTER,
         				PushServiceUtil.PUSH_TYPE_REG,this);
-        		Log.i(LOGTAG, TAG + "已经注册" + pushNameKey + " " + xmppManager.getUsername());
+        		Log.i(LOGTAG, TAG + "已经注册" + pushNameKey + " " + xmppManager.getUserNameWithHostName());
         		pushInfo.close();
         		return;
         	}    		
     	}else{
-    		if(!pushInfo.isRegPush(pushNameKey,xmppManager.getUsername())){
+    		if(!pushInfo.isRegPush(pushNameKey,xmppManager.getUserNameWithHostName())){
         		sendRegisterBroadcast(packageName,className,null,
         				PushServiceUtil.PUSH_STATUS_NOTREGISTER,
         				PushServiceUtil.PUSH_TYPE_UNREG,this);
-        		Log.i(LOGTAG, TAG + "已经销注 " + pushNameKey + " " + xmppManager.getUsername());
+        		Log.i(LOGTAG, TAG + "已经销注 " + pushNameKey + " " + xmppManager.getUserNameWithHostName());
         		pushInfo.close();
         		return;
         	}
     	}
     	
     	// write information to database
-    	pushInfo.insertPushInfotoDb(xmppManager.getUsername(),developer, pushNameKey, packageName, className);
+    	pushInfo.insertPushInfotoDb(xmppManager.getUserNameWithHostName(),developer, pushNameKey, packageName, className);
     	pushInfo.close();
     	// send packet
     	RegPushIQ regPushIQ = new RegPushIQ();
@@ -427,13 +437,13 @@ public class IMService extends Service {
 			PushInfoManager pushInfo = new PushInfoManager(IMService.this);
 			
 			if(type.equals(PushServiceUtil.PUSH_TYPE_REG)){
-				if(pushInfo.isRegPush(pushName,xmppManager.getUsername()) == false){
+				if(pushInfo.isRegPush(pushName,xmppManager.getUserNameWithHostName()) == false){
 					Log.e(LOGTAG, TAG + "register time out");
 					sendRegisterBroadcast(packageName,className,null,
 		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
 				}
 	    	}else if(type.equals(PushServiceUtil.PUSH_TYPE_UNREG)){
-	    		if(pushInfo.isRegPush(pushName,xmppManager.getUsername()) == true){
+	    		if(pushInfo.isRegPush(pushName,xmppManager.getUserNameWithHostName()) == true){
 					Log.e(LOGTAG, TAG + "unregister time out");
 					sendRegisterBroadcast(packageName,className,null,
 		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
@@ -479,38 +489,42 @@ public class IMService extends Service {
     		xmppManager.broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL);
     	}
     }
-    
-    public void setOneUnreadMessage(int accountId){
-    	if(mUnReadNumList == null){
-    		mUnReadNumList = new ArrayList<UnReadNum>(20);
+    public void notifyRosterUpdated(){
+    	for (int i=mClients.size()-1; i>=0; i--) {
+            try {
+                mClients.get(i).send(Message.obtain(null,
+                		PushServiceUtil.MSG_ROSTER_UPDATED, 0, 1));
+            } catch (RemoteException e) {               
+                mClients.remove(i);
+            }
+		}    	
+    }
+    public void setOneUnreadMessage(String jid){
+    	if(mMsgStateList == null){
+    		mMsgStateList = new ArrayList<MessageState>(20);
     	}
-    	if(mClients.size() != 0){
-    		for (int i=mClients.size()-1; i>=0; i--) {
-	            try {
-	                mClients.get(i).send(Message.obtain(null,
-	                		PushServiceUtil.MSG_UNREAD_NUMBBER, 
-	                		accountId, 1, new Object()));
-	            } catch (RemoteException e) {
-	                // The client is dead.  Remove it from the list;
-	                // we are going through the list from back to front
-	                // so this is safe to do inside the loop.
-	                mClients.remove(i);
-	            }
-    		}
-    	}else{
-    		int i = 0;
-    		for(UnReadNum num : mUnReadNumList){
-    			if(num.mAccountId == accountId){
-    				num.mUnReadNum++;
-    				mUnReadNumList.set(i,num);
-    				break;
-    			}
-    			i++;
-    		}
-    		if(mUnReadNumList.size() == i){
-    			mUnReadNumList.add(new UnReadNum(accountId,1));
-    		}    		
-    	}
+    	int i = 0;
+		MessageState m = new MessageState(jid,1);    		
+		i = mMsgStateList.indexOf(m);
+		if( i == -1){    	
+			m.mTotalNum++;
+			mMsgStateList.add(m);
+		}else{
+			m.mUnReadNum = mMsgStateList.get(i).mUnReadNum+1;
+			m.mTotalNum = mMsgStateList.get(i).mTotalNum + 1;
+			mMsgStateList.set(i, m);
+		}    
+    	
+		for (int j=mClients.size()-1; j>=0; j--) {
+            try {
+                mClients.get(j).send(Message.obtain(null,
+                		PushServiceUtil.MSG_NEW_MESSAGE, 
+                		m.mTotalNum, m.mUnReadNum, jid));
+            } catch (RemoteException e) {               
+                mClients.remove(j);
+            }
+		}
+    	
     	
     		
     }
@@ -529,30 +543,30 @@ public class IMService extends Service {
                     break;
                 case PushServiceUtil.MSG_UNREAD_NUMBBER:
                     mValue = msg.arg1;  
-                    if(mUnReadNumList == null){
+                    if(mMsgStateList == null){
                     	break;
                     }
-                    int nSize = mUnReadNumList.size();
+                    int nSize = mMsgStateList.size();
                     for (int i=mClients.size()-1; i>=0; i--) {                    	
                         for ( int j=0; j<nSize; j++){
-                        	Object object = null;
-                        	if(j == nSize-1){
-                        		object = new Object();
-                        	}
+                        	
                         	try {                        	
                                 mClients.get(i).send(Message.obtain(null,
                                 		PushServiceUtil.MSG_UNREAD_NUMBBER, 
-                                		mUnReadNumList.get(j).mAccountId, 
-                                		mUnReadNumList.get(j).mUnReadNum,
-                                		object));
+                                		mMsgStateList.get(j).mTotalNum, 
+                                		mMsgStateList.get(j).mUnReadNum,
+                                		mMsgStateList.get(j).mJid));
+                                if(j == nSize-1){
+                               	 mClients.get(i).send(Message.obtain(null,
+                                    		PushServiceUtil.MSG_UNREAD_NUMBBER, 
+                                    		mMsgStateList.get(j).mTotalNum, 
+                                    		mMsgStateList.get(j).mUnReadNum,
+                                    		null));
+                                }
                             } catch (RemoteException e) {
-                                // The client is dead.  Remove it from the list;
-                                // we are going through the list from back to front
-                                // so this is safe to do inside the loop.
                                 mClients.remove(i);
-                            }
-                        }
-                        mUnReadNumList = null;                        
+                            }                            
+                        }                    
                     }
                     break;
                 default:

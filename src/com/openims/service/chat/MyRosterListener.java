@@ -18,7 +18,7 @@ public class MyRosterListener implements RosterListener {
 	@Override
 	public void entriesAdded(Collection<String> addresses) {
 		// TODO Auto-generated method stub
-		Log.i(LOGTAG,TAG+"entriesAdded");
+		Log.e(LOGTAG,TAG+"entriesAdded");
 		Iterator<String> it = addresses.iterator();
 		while(it.hasNext()){
 			Log.i(LOGTAG,TAG+it.next());
@@ -29,7 +29,7 @@ public class MyRosterListener implements RosterListener {
 	@Override
 	public void entriesDeleted(Collection<String> addresses) {
 		// TODO Auto-generated method stub
-		Log.i(LOGTAG,TAG+"entriesDeleted");
+		Log.e(LOGTAG,TAG+"entriesDeleted");
 		Iterator<String> it = addresses.iterator();
 		while(it.hasNext()){
 			Log.i(LOGTAG,TAG+it.next());
@@ -40,7 +40,7 @@ public class MyRosterListener implements RosterListener {
 	@Override
 	public void entriesUpdated(Collection<String> addresses) {
 		// TODO Auto-generated method stub
-		Log.i(LOGTAG,TAG+"entriesUpdated");
+		Log.e(LOGTAG,TAG+"entriesUpdated");
 		Iterator<String> it = addresses.iterator();
 		while(it.hasNext()){
 			Log.i(LOGTAG,TAG+it.next());

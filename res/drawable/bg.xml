@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+android:src="@drawable/s0_friend_list_divider"
+android:tileMode="disabled" />
+    
