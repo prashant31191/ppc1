@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/backhomeid" android:layout_width="300dp"
+	android:layout_height="360dp" android:background="@drawable/vodvideo_background"
+	android:orientation="vertical">
+
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="40dp" android:orientation="horizontal">
+		<TextView android:id="@+id/apname" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="20sp"
+			android:text="@string/vodvideo_widget_name" android:textColor="@color/write" />
+	</LinearLayout>
+	
+	
+	<LinearLayout android:layout_width="300dp"
+		android:layout_height="280dp" android:orientation="vertical">
+		
+		<FrameLayout android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:id="@+id/vodvideo_loading"
+			android:visibility="visible">								
+		   <LinearLayout android:layout_width="fill_parent"
+				android:layout_height="fill_parent" android:orientation="vertical"
+				android:gravity="center_horizontal">
+			
+			<ImageView android:id="@+id/vodvideo_image_loading" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" 
+				android:background="@drawable/s0_login_loading_00">
+			</ImageView>			
+			</LinearLayout>
+		</FrameLayout>
+		
+		<FrameLayout android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:id="@+id/vodvideo_flash"
+			android:visibility="visible">
+				<LinearLayout android:layout_width="300dp"
+				android:layout_height="fill_parent" android:orientation="horizontal"
+				android:gravity="center"
+				android:paddingTop="100dp">	
+								
+				<LinearLayout android:layout_width="fill_parent"
+				android:layout_height="fill_parent" android:orientation="vertical"
+				android:gravity="center_horizontal">	
+										
+			<TextView android:id="@+id/apname" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textSize="20sp"
+				android:text="@string/vodvideo_widget_try_again" android:textColor="@color/write" />
+			
+			<Button android:id="@+id/vodvideo_button_flash" android:layout_width="100dp"
+				android:layout_height="wrap_content" android:textSize="20sp"
+				android:text="@string/vodvideo_widget_flash" android:textColor="@color/write" />
+			</LinearLayout>
+			</LinearLayout>
+		</FrameLayout>
+		
+		<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:id="@+id/vodvideo_listdragment"
+			android:visibility="visible"> 	
+		</FrameLayout>
+	</LinearLayout>
+
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="40dp" android:orientation="vertical"
+		android:gravity="center_horizontal">
+		<ImageView android:id="@+id/vodvideo_line"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:background="@drawable/s0_bar_cut_off_land" />
+		<ImageView android:id="@+id/vodvideo_more"
+			android:layout_margin="10dp" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:background="@drawable/s0_stat_button_more" />
+	</LinearLayout>
+</LinearLayout>

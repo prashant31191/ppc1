@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+<com.smit.EasyLauncher.DragLayer
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:launcher="http://schemas.android.com/apk/res/com.smit.EasyLauncher"
+
+    android:id="@+id/drag_layer"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    launcher:defaultScreen="2">
+
+   <ImageView android:id="@+id/bgimage"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="center" />
+    <!-- The workspace contains 3 screens of cells -->
+    <com.smit.EasyLauncher.Workspace
+        android:id="@+id/workspace"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scrollbars="horizontal"
+        android:fadeScrollbars="true">
+        <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
+        <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
+        <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
+        <include android:id="@+id/cell4" layout="@layout/workspace_screen" />
+        <include android:id="@+id/cell5" layout="@layout/workspace_screen" />
+    </com.smit.EasyLauncher.Workspace>
+    
+    <!--LinearLayout android:id="@+id/video_l"
+	android:paddingLeft="200dp" android:paddingTop="30dp"
+	android:layout_width="wrap_content" android:layout_height="wrap_content"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/s6_bg">
+
+	<fragment class="com.smit.DeskView.vodvideo.VODVideoFragment"
+		android:id="@+id/vodvideo_l" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+</LinearLayout-->
+    	<!--LinearLayout
+		android:id="@+id/backhomeid"
+		android:paddingLeft="730px"
+    	android:paddingTop="180px"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+	<ImageView
+		   android:id="@+id/backhome"
+		   android:layout_width="60px"
+		   android:layout_height="60px"
+		   android:background="@drawable/home_selector"
+	/>
+	</LinearLayout-->
+	<!-- delete widget -->
+	    <!--LinearLayout android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingLeft="720px"
+		android:paddingTop="170px">
+	     <ImageView
+		    	android:id="@+id/Recybk"
+		    	android:layout_width="65px"
+		    	android:layout_height="73px"
+		    	android:gravity="center"
+		        android:background="@drawable/trashcan"
+		        android:visibility="gone"
+		 />
+	    </LinearLayout-->
+ <LinearLayout android:layout_width="wrap_content" 
+        android:layout_gravity="center_horizontal" android:paddingTop="10px"
+		android:layout_height="wrap_content" android:orientation="horizontal">
+		<ImageButton android:id="@+id/page1" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/pagebg"
+			android:focusable="true" android:clickable="true" android:padding="5dp"
+			android:background="#00000000" android:layout_marginLeft="5dip" />
+		<ImageButton android:id="@+id/page2" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/pagebg"
+			android:focusable="true" android:clickable="true" android:padding="5dp"
+			android:background="#00000000" android:layout_marginLeft="5dip" />
+		<ImageButton android:id="@+id/page3" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/pagebg"
+			android:focusable="true" android:clickable="true" android:padding="5dp"
+			android:background="#00000000" android:layout_marginLeft="5dip" />
+		<ImageButton android:id="@+id/page4" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/pagebg"
+			android:focusable="true" android:clickable="true" android:padding="5dp"
+			android:background="#00000000" android:layout_marginLeft="5dip" />
+		<ImageButton android:id="@+id/page5" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/pagebg"
+			android:focusable="true" android:clickable="true" android:padding="5dp"
+			android:background="#00000000" android:layout_marginLeft="5dip" />
+	</LinearLayout>
+
+    <com.smit.EasyLauncher.DeleteZone
+        android:id="@+id/delete_zone"
+        android:layout_width="@dimen/delete_zone_size"
+        android:layout_height="@dimen/delete_zone_size"
+        android:paddingLeft="@dimen/delete_zone_padding"
+        android:layout_marginBottom="@dimen/half_status_bar_height"
+        android:layout_gravity="right|center_vertical"
+        android:scaleType="center"
+        android:src="@drawable/delete_zone_selector"
+        android:visibility="invisible"
+        launcher:direction="vertical"
+        />
+
+
+</com.smit.EasyLauncher.DragLayer>
+	 <LinearLayout android:id="@+id/all_apps_button_cluster" 
+        android:layout_width="wrap_content" 
+        android:layout_gravity="center_vertical|right"
+		android:layout_height="wrap_content" android:orientation="vertical">
+		<ImageButton android:id="@+id/bt_setting" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/bth_seting"
+			android:focusable="true" android:clickable="true" 
+			android:background="#00000000" android:layout_marginLeft="2dip" />
+		<ImageButton android:id="@+id/bt_info" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/bth_info"
+			android:focusable="true" android:clickable="true" 
+			android:background="#00000000" android:layout_marginLeft="2dip" />
+		<ImageButton android:id="@+id/bt_movie" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/bth_movie"
+			android:focusable="true" android:clickable="true"
+			android:background="#00000000" android:layout_marginLeft="2dip" />
+		<ImageButton android:id="@+id/bt_music" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/bth_music"
+			android:focusable="true" android:clickable="true"
+			android:background="#00000000" android:layout_marginLeft="2dip" />
+		<ImageButton android:id="@+id/bt_tv" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/bth_tv"
+			android:focusable="true" android:clickable="true"
+			android:background="#00000000" android:layout_marginLeft="2dip" />
+		<ImageButton android:id="@+id/bt_allapp" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/bth_allapp"
+			android:focusable="true" android:clickable="true"
+			android:background="#00000000" android:layout_marginLeft="2dip" />
+	</LinearLayout>
+</FrameLayout>
