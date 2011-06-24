@@ -29,7 +29,7 @@ abstract public class ChatHistoryAdapter extends BaseAdapter {
     
 	private AtomicBoolean keepOnAppending=new AtomicBoolean(false);
 	private AtomicBoolean keepOnAppendingUp=new AtomicBoolean(false);
-	private boolean isNotification = false;
+	
 	//private Context context;
 	private LayoutInflater mInflater;
 	private View pendingView=null;
@@ -49,12 +49,14 @@ abstract public class ChatHistoryAdapter extends BaseAdapter {
 		rotate=new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF,
 				0.5f, Animation.RELATIVE_TO_SELF,
 				0.5f);
-		rotate.setDuration(600);
+		rotate.setDuration(1000);
 		rotate.setRepeatMode(Animation.RESTART);
 		rotate.setRepeatCount(Animation.INFINITE);
 		
-		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);;
+		mInflater = (LayoutInflater) context.getSystemService(
+				Context.LAYOUT_INFLATER_SERVICE);
 	}
+	
 	public void removeAll(){
 		messageList = new LinkedList<String>();
 		nameList = new LinkedList<String>();
@@ -77,6 +79,7 @@ abstract public class ChatHistoryAdapter extends BaseAdapter {
 				idList.removeLast();
 				nameList.removeLast();
 				messageList.removeLast();
+				keepOnAppending.set(true);
 			}
 			idList.addFirst(id);
 			nameList.addFirst(name);
@@ -85,18 +88,16 @@ abstract public class ChatHistoryAdapter extends BaseAdapter {
 			
 	}
 	public int getFirstId(){
+		if(idList.isEmpty())
+			return 0;
 		return idList.getFirst();
 	}
 	public int getLastId(){
+		if(idList.isEmpty())
+			return 0;
 		return idList.getLast();
 	}
-	@Override
-	public void notifyDataSetChanged() {
-		// TODO maybe cause bug
-		isNotification = true;
-		Log.e(TAG, PRE + "notifyDataSetChanged" );
-		super.notifyDataSetChanged();
-	}
+	
 	@Override
 	public int getCount() {
 		int n = idList.size();
@@ -121,24 +122,20 @@ abstract public class ChatHistoryAdapter extends BaseAdapter {
 		}
 		if (position== 0 ) {
 			return(IGNORE_ITEM_VIEW_TYPE);
-		}
-		Log.d(TAG, PRE + "getItemViewType");
+		}		
 		return 1;
 	}
 	@Override
 	public int getViewTypeCount() {
-		Log.d(TAG, PRE + "getViewTypeCount");
 		return 2;
 	}
 	@Override
 	public boolean areAllItemsEnabled() {
-		Log.d(TAG, PRE + "areAllItemsEnabled");
-		return false;
+		return true;
 	}
 	
 	@Override
 	public boolean isEnabled(int position) {
-		//Log.d(TAG, PRE + "isEnabled");
 		return false;
 	}
 	@Override
@@ -148,14 +145,15 @@ abstract public class ChatHistoryAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public long getItemId(int position) {
-		Log.d(TAG, PRE + "getItemId");
+	public long getItemId(int position) {		
 		return idList.get(position);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Log.d(TAG, PRE + "getView position=" + position);
+		
+		// show footer waiting
 		if (position==(getCount()-1) &&
 				keepOnAppending.get()) {
 			
@@ -164,26 +162,22 @@ abstract public class ChatHistoryAdapter extends BaseAdapter {
 				new AppendTask().execute(false);
 				Log.d(TAG, PRE + "start to load data");
 			}
-
 			return(pendingView);
 		}
+		// show header waiting
 		if(position==0 && keepOnAppendingUp.get()){
 			if(pendingViewUp == null){
 				pendingViewUp=getPendingView(parent);
-				if(true/*isNotification == false*/){
-					new AppendTask().execute(true);
-					Log.d(TAG, PRE + "start to load back up data");
-				}else{
-					Log.e(TAG, PRE + "isNotification==true ignore");
-				}
-				isNotification = false;
+				new AppendTask().execute(true);
+				Log.d(TAG, PRE + "start to load back up data");				
 			}
 			return pendingViewUp;
 		}
 		if(keepOnAppendingUp.get()){
-			position = position - 1; //被提示占了一个位置，数据往后退
+			position = position - 1; 	//被提示占了一个位置，数据往后退
 			Log.d(TAG, PRE + "减少一个  position=" + position);
 		}
+		// normal situation
 		View v;
 		if (convertView == null) {
             v = mInflater.inflate(R.layout.multi_chat_message_item, null);
@@ -196,6 +190,7 @@ abstract public class ChatHistoryAdapter extends BaseAdapter {
 		content.setText(messageList.get(position));
 		return v;
 	}
+	
 	protected View getPendingView(ViewGroup parent) {
 		
 		View row=mInflater.inflate(R.layout.pending, null);
@@ -268,6 +263,7 @@ abstract public class ChatHistoryAdapter extends BaseAdapter {
 			
 			notifyDataSetChanged();
 			move(mIsUp);
+			
 		}
 	}
 	public AtomicBoolean getKeepOnAppending() {

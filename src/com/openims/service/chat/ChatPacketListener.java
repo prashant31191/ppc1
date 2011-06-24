@@ -26,20 +26,10 @@ public class ChatPacketListener implements PacketListener{
 	public void processPacket(Packet packet){
 		Message message = (Message) packet;
         if (message.getBody() != null) {
-            String fromName = StringUtils.parseBareAddress(message.getFrom());
-            Log.i(LOGTAG, TAG+"Got text [" + message.getBody() + "] from [" + fromName + "]");
-            Log.i(LOGTAG, TAG+packet.toXML());
+           
+            Log.i(LOGTAG, TAG+packet.toXML()); 
             
-            /*Intent intent1 = new Intent();
-            intent1.setClassName(PushServiceUtil.PACKAGE_NAME,
-            					 PushServiceUtil.CHAT_ACTIVITY);
-            intent1.putExtra(PushServiceUtil.MESSAGE_FROM, fromName);
-            intent1.putExtra(PushServiceUtil.MESSAGE_CONTENT, message.getBody());
-            intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            xmppManager.getContext().startActivity(intent1);*/
-            
-            // write to database
-            Date date = new Date(System.currentTimeMillis());            
+            // write to database                 
             try {
             	String fromJid = message.getFrom().substring(0, 
             			message.getFrom().lastIndexOf("/") );
@@ -49,16 +39,14 @@ public class ChatPacketListener implements PacketListener{
             			xmppManager.getUserNameWithHostName(), fromJid));
             	
                 mr.insert(fromJid, xmppManager.getUserNameWithHostName(), 
-                		message.getBody(), date.toLocaleString());
+                		message.getBody(), 
+                		String.valueOf(System.currentTimeMillis()));
                 mr.close();
                 xmppManager.notifyNewMessage(fromJid);
                 
             } catch(DataAccessException e) {
             	e.printStackTrace();
-            }
-            
-            
-            
+            }            
         }
 	}
 }

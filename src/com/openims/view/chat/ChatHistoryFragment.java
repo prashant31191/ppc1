@@ -1,5 +1,8 @@
 package com.openims.view.chat;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -13,9 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AbsListView;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AbsListView.OnScrollListener;
 
 import com.openims.R;
@@ -28,24 +31,39 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 							.makeLogTag(ChatHistoryFragment.class);
 	private static final String PRE = "ChatHistoryFragment--";
 	
-
-	private ListView listview;
-	private DEndlessAdapter adapter;
+	private static String SEPARATOR = "  ";
+	private java.text.DateFormat mDateFormat;
+	
+	private Activity mActivity;
+	
+	private ListView mListview;
+	private DEndlessAdapter mListAdapter;
+	
 	private int columnIndexId;
-	private int columnIndexToId;
+	private int columnIndexFromId;
 	private int columnIndexContent;
-	private Activity activity;
-	private String mTableName = "TB_555_77";
+	private int columnIndexDate;
+	
+	MessageRecord mMessageRecord;
+	private String mTableName;
+	private String mUserName;
 	private boolean isEnd = false;
+	
+	private int mItemNumPerTime = 5;
 	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
+		mActivity = activity;
+	}	
+	public void setDataTableName(String tableName, String userName){
+		mTableName = tableName;
+		mUserName = userName;
 	}
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);	
 	}
 	
 	@Override
@@ -53,106 +71,100 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.multi_chat_history, container, false);
 		
-		ImageButton btnInf = (ImageButton)v.findViewById(R.id.header_left);
-		btnInf.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				/*listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
-				adapter.getKeepOnAppendingUp().set(true);
-				adapter.notifyDataSetChanged();
-				listview.smoothScrollToPosition(0);*/
-				
-			}
-		});
+		initListener(v);
+		return v;
+	}	
+	
+	private void initListener(View v){
+		
 		ImageButton btnHistory = (ImageButton)v.findViewById(R.id.header_right);		
-		btnHistory.setOnClickListener(new OnClickListener() {
-			
+		btnHistory.setOnClickListener(new OnClickListener() {			
 			@Override
-			public void onClick(View v) {
-				/*listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-				adapter.getKeepOnAppending().set(true);				
-				adapter.notifyDataSetChanged();*/
+			public void onClick(View v) {				
 				getFragmentManager().popBackStack();
 			}
 		});
 		
-		listview = (ListView)v.findViewById(R.id.listView);
-		listview.setOnScrollListener(new OnScrollListener(){
+		mListview = (ListView)v.findViewById(R.id.listView);
+		mListview.setOnScrollListener(new OnScrollListener(){
 
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount) {
-				Log.d(TAG, PRE + "onScroll-- first" + firstVisibleItem 
-						+ "count:" + visibleItemCount + 
-						"total:" + totalItemCount);
-				if(firstVisibleItem + visibleItemCount==totalItemCount && 
-						totalItemCount!=0 && visibleItemCount!=0){
-					/*listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-					adapter.getKeepOnAppending().set(true);				
-					adapter.notifyDataSetChanged();*/
-				}
+					int visibleItemCount, int totalItemCount) {				
+				
 				if(firstVisibleItem == 0 && 
 						totalItemCount!=0 && 
 						visibleItemCount!=0 &&
 						isEnd == false){
-					listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
-					adapter.getKeepOnAppendingUp().set(true);
-					adapter.notifyDataSetChanged();
-					//listview.smoothScrollToPosition(0);
-				}
-				
+					mListview.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
+					mListAdapter.getKeepOnAppendingUp().set(true);
+					mListAdapter.notifyDataSetChanged();
+				}				
 			}
 
 			@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
+			public void onScrollStateChanged(AbsListView view, int scrollState) {				
+			}			
+		});		
+	}	
+	public void newMsgCome(){		
+		int nlast = mListview.getLastVisiblePosition();
+		int nCount = mListAdapter.getCount();
+		mListAdapter.getKeepOnAppending().set(true);				
+		mListAdapter.notifyDataSetChanged();
 		
-		adapter = new DEndlessAdapter(getActivity());
-		// init data for list
-		activity = getActivity();
-		
-		return v;
+		if(nlast+2 >= nCount){  // 如果在某位，自己做滑动
+			mListview.setSelection(nlast);
+		}
 	}
-	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {		
 		super.onActivityCreated(savedInstanceState);
-		Log.d(TAG, PRE + "onCreateView");
+		Log.d(TAG, PRE + "onCreateView");	
+		mDateFormat = new SimpleDateFormat("HH:mm:ss");
+		initAdapter();			
+	}
+	private void initAdapter(){
+		if(mActivity == null){
+			return;
+		}		
 		
-		MessageRecord messageRecord = new MessageRecord(activity, mTableName);		
-		Cursor c = messageRecord.queryItems(20, 10, false);
+		mMessageRecord = new MessageRecord(mActivity, mTableName);		
+		Cursor c = mMessageRecord.queryItems(-1, 20, true);
 		
-		columnIndexToId = c.getColumnIndex(MessageRecord.TO);
-		columnIndexContent = c.getColumnIndex(MessageRecord.CONTENT);
-		columnIndexId = c.getColumnIndex(MessageRecord.ID);
+		if(mListAdapter == null){
+			mListAdapter = new DEndlessAdapter(mActivity);
+			columnIndexFromId = c.getColumnIndex(MessageRecord.FROM);
+			columnIndexContent = c.getColumnIndex(MessageRecord.CONTENT);
+			columnIndexId = c.getColumnIndex(MessageRecord.ID);
+			columnIndexDate = c.getColumnIndex(MessageRecord.DATE);
+			mListview.setAdapter(mListAdapter);	
+		}
+
 		int n = c.getCount();
 		int id;
-		String toId;
+		String fromJid;
 		String content;
-		c.moveToFirst();
-		for(int i=0; i<n; i++){
-			toId = c.getString(columnIndexToId);
-			content = c.getString(columnIndexContent);
-			id = c.getInt(columnIndexId);			
-			adapter.addData(id, toId, content, false);
-			c.moveToNext();
-		}
-		messageRecord.close();
-		listview.setAdapter(adapter);	
+		Long date;
 		
+		c.moveToLast();
+		for(int i=0; i<n; i++){
+			fromJid = c.getString(columnIndexFromId);
+			content = c.getString(columnIndexContent);
+			id = c.getInt(columnIndexId);	
+			
+			date = Long.valueOf(c.getString(columnIndexDate));
+			fromJid = fromJid + SEPARATOR + mDateFormat.format(new Date(date));
+			
+			mListAdapter.addData(id, fromJid, content, false);
+			c.moveToPrevious();
+		}
 	}
-	
 	@Override
 	public void onStart() {
 		super.onStart();
 		// scroll to bottom
-		listview.setSelection(2000);
+		mListview.setSelection(2000);
 		Log.d(TAG, PRE + "onStart");
 		
 	}
@@ -179,6 +191,8 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 	public void onDestroy() {
 		super.onDestroy();
 		Log.d(TAG, PRE + "onDestroy");
+		mActivity = null;
+		mMessageRecord.close();
 	}
 
 	@Override
@@ -186,8 +200,6 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 		super.onDetach();
 		Log.d(TAG, PRE + "onDetach");
 	}
-
-	
 	
 
 	@Override
@@ -216,44 +228,54 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 			
 			int startId;
 			if(isUp){
-				startId = adapter.getFirstId();
+				startId = mListAdapter.getFirstId();
 				startId--;
 			}else{
-				startId = adapter.getLastId();
+				startId = mListAdapter.getLastId();
 				startId++;
 			}
-			// TODO maybe I should save messageRecord
-			MessageRecord messageRecord = new MessageRecord(activity, mTableName);		
-			Cursor c = messageRecord.queryItems(startId, 3, isUp);			
+			
+					
+			Cursor c = mMessageRecord.queryItems(startId, mItemNumPerTime, isUp);			
 			c.moveToFirst();
 			nCount = c.getCount();
-			if(nCount == 0){
-				isEnd = true;
+			if(nCount == 0 || mItemNumPerTime != nCount){
+				if(isUp){
+					isEnd = true;					
+				}else{
+					mListAdapter.getKeepOnAppending().set(false);
+				}
 			}
 			for(int i=0; i<nCount; i++){
-				adapter.addData(c.getInt(columnIndexId),
-						c.getString(columnIndexToId), 
+				long date = Long.valueOf(c.getString(columnIndexDate));
+				mListAdapter.addData(c.getInt(columnIndexId),
+						c.getString(columnIndexFromId)+ SEPARATOR + mDateFormat.format(new Date(date)), 
 						c.getString(columnIndexContent), isUp);
 				c.moveToNext();
 			}
-			messageRecord.close();
-			listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
-			
 			
 		}
-
 		/**
 		 * return true means there is more data
 		 */
 		@Override
 		protected boolean cacheInBackground(Boolean isUp) throws Exception {
-			SystemClock.sleep(2000);			
-			return false;
+			SystemClock.sleep(1000);
+			if(isUp){
+				return false; // 通过isEnd来判断是还有更多
+			}
+			return true;
 		}
 
 		@Override
 		protected void move(Boolean isUp) {
-			listview.setSelection(nCount);			
+			
+			if(isUp){				
+				mListview.setSelection(nCount);				
+			}else{
+				int n = mListview.getLastVisiblePosition() - mListview.getFirstVisiblePosition();
+				mListview.setSelection(mListAdapter.getCount() - nCount - n);
+			}
 		}
 		
 	}

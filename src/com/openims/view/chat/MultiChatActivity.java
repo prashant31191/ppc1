@@ -24,9 +24,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
@@ -44,23 +44,21 @@ public class MultiChatActivity extends FragmentActivity implements OnItemSelecte
 	private static final String PRE = "Class MultiChatActivity--";
 	
 	private static final String TAG_CHAT_MAIN = "chatMain";
+	private static final String TAG_HISTORY = "history";
+	private static final String TAG_ACCOUNT_INF = "information";
 	public  static final String ACCOUNT_JID = "ACCOUNT_JID";
 
 	private HorizontialListView chatUserListview;
 	private MessageBoxAdapter mMessageBoxAdapter;	
 	private ChatMainFragment mChatMainFragment;
-	private String myJid = "test2@smit";
+	private String myJid;
 	private String mChatJid;
 	
 	/** Messenger for communicating with service. */
 	private Messenger mService = null;
 	/** Flag indicating whether we have called bind on the service. */
     boolean mIsBound;
-    /**
-     * Target we publish for clients to send messages to IncomingHandler.
-     */
-    final Messenger mMessenger = new Messenger(new IncomingHandler());
-    
+    final Messenger mMessenger = new Messenger(new IncomingHandler());    
     
     
 	@Override
@@ -69,9 +67,10 @@ public class MultiChatActivity extends FragmentActivity implements OnItemSelecte
 		Log.i(TAG, PRE + "onCreate");
 		
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setSoftInputMode(
+				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		
-		setContentView(R.layout.multi_chat);
-		
+		setContentView(R.layout.multi_chat);		
 			
 		// init main chat fragment
 		if(bundle == null){
@@ -81,31 +80,8 @@ public class MultiChatActivity extends FragmentActivity implements OnItemSelecte
 			
 		}else{			
 			mChatMainFragment = (ChatMainFragment)getSupportFragmentManager().findFragmentByTag(TAG_CHAT_MAIN);
-		}
-		mChatMainFragment.setOnClickAccountInf(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-				ft.replace(R.id.multi_chat_content, new AccountInfFragment());
-			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-			    ft.addToBackStack(null);
-				ft.commit();
-			}
-			
-		});
-		mChatMainFragment.setOnClickHistory(new OnClickListener(){
-			
-			@Override
-			public void onClick(View v) {
-				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-				ft.replace(R.id.multi_chat_content, new ChatHistoryFragment());
-			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-			    ft.addToBackStack(null);
-				ft.commit();				
-			}	
-			
-		});	
+		}		
+				
 		
 		SharedPreferences sharedPrefs = getSharedPreferences(
 				PushServiceUtil.SHARED_PREFERENCE_NAME,
@@ -125,10 +101,43 @@ public class MultiChatActivity extends FragmentActivity implements OnItemSelecte
 		chatUserListview.setAdapter(mMessageBoxAdapter);
 		
 		String tableName = MessageRecord.getMessageRecordTableName(myJid, mChatJid);
-		mChatMainFragment.setTableName(tableName, 0, mChatJid,myJid);		
+		mChatMainFragment.setTableName(tableName, 0, mChatJid,myJid);
+		
+		addListener();
 		
 	}
 
+	private void addListener(){
+		
+		mChatMainFragment.setOnClickAccountInf(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				ft.replace(R.id.multi_chat_content, new AccountInfFragment(),TAG_ACCOUNT_INF);
+			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+			    ft.addToBackStack(null);
+				ft.commit();
+			}
+			
+		});
+		mChatMainFragment.setOnClickHistory(new OnClickListener(){
+			
+			@Override
+			public void onClick(View v) {
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				ChatHistoryFragment history = new ChatHistoryFragment();
+				history.setDataTableName(
+						MessageRecord.getMessageRecordTableName(myJid,mChatJid)
+						,myJid);
+				ft.replace(R.id.multi_chat_content, history,TAG_HISTORY);
+			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+			    ft.addToBackStack(null);
+				ft.commit();				
+			}	
+			
+		});	
+	}
 	
 	@Override
 	public View onCreateView(String name, Context context, AttributeSet attrs) {		
@@ -308,6 +317,11 @@ public class MultiChatActivity extends FragmentActivity implements OnItemSelecte
                 case PushServiceUtil.MSG_NEW_MESSAGE:
                 	recUnReadMessage(msg);
                 	mMessageBoxAdapter.notifyDataSetChanged();
+                	ChatHistoryFragment history = (ChatHistoryFragment)getSupportFragmentManager().
+                			findFragmentByTag(TAG_HISTORY);
+                	if(history != null){
+                		history.newMsgCome();
+                	}
                 	break;
                 default:
                     super.handleMessage(msg);

@@ -23,7 +23,7 @@
 	    	>
 	    </ImageButton>
 	    <TextView android:id="@+id/header_title" 
-	    	android:text="xiao wang's information" 
+	    	android:text="@string/mchat_detail_inf" 
 	    	android:textColor="@color/black"
 	    	android:textSize="18sp"
 	    	android:layout_width="0px" 

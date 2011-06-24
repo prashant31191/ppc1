@@ -128,10 +128,10 @@ public class ChatMainAdapter extends BaseAdapter {
 		String name = nameList.get(position);
 		TextView tvName = (TextView)v.findViewById(R.id.tv_chat_item_name_time);
 		tvName.setText(name);
-		if(name.equals(mMyName)){
-			tvName.setTextColor(blackColor);
-		}else{
+		if(name.startsWith(mMyName)){
 			tvName.setTextColor(blueColor);
+		}else{
+			tvName.setTextColor(blackColor);
 		}
 		TextView content = (TextView)v.findViewById(R.id.tv_chat_item_content);
 		content.setText(messageList.get(position));

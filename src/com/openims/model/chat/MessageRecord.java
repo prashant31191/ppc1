@@ -105,24 +105,7 @@ public class MessageRecord {
 	
 	public int insert(String from, String to, String content, String date){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		/*String sql = "insert into " + tableName + " ("+
-		FROM +","+ TO +","+ CONTENT +","+DATE+
-		") values('" + 		
-		from+"','"+
-		to+"','"+
-		content+ "','"+		
-		date+ "'"+
-		");";
-		Log.d(TAG,PRE+sql);
-		try {
-			db.execSQL(sql);
-		} catch (SQLException e) {			
-			e.printStackTrace();
-			Log.d(TAG,PRE+"execSQL error:"+e.getMessage());	
-			DataAccessException dataException = new DataAccessException("insert");
-			dataException.setErrorType(DataAccessException.TYPE_INSERT);
-			throw dataException; 
-		}*/
+		
 		ContentValues values = new ContentValues();
 		values.put(FROM, from);
 		values.put(TO, to);
