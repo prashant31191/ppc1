@@ -1,9 +1,6 @@
 package com.openims.view.chat.widget;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.jivesoftware.smack.packet.Presence;
 
@@ -13,6 +10,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -31,8 +32,10 @@ import com.openims.model.chat.RosterDataBase;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.chat.MultiChatActivity;
+import com.openims.view.chat.OnAvater;
 
-public class FriendListFragment extends Fragment implements OnClickListener, OnChildClickListener {
+public class FriendListFragment extends Fragment 
+		implements OnChildClickListener {
 
 	private static final String TAG = LogUtil
 					.makeLogTag(FriendListFragment.class);
@@ -41,6 +44,15 @@ public class FriendListFragment extends Fragment implements OnClickListener, OnC
 	private Activity mActivity;
 	private RosterExpandableListAdapter mAdapter;
 	private ExpandableListView mFriendListView;
+	
+	private ColorFilter mGreyColorFilter = new ColorMatrixColorFilter( new ColorMatrix(new float[]{0.5f,0.5f,0.5f,0,0, 
+            0.5f,0.5f,0.5f,0,0, 
+            0.5f,0.5f,0.5f,0,0, 
+            0,0,0,1,0,0, 
+            0,0,0,0,1,0 
+            })); 
+	
+	private OnAvater onAvater;
     
     private String mUsername;
     private Bitmap mDefaultHead;
@@ -186,16 +198,17 @@ public class FriendListFragment extends Fragment implements OnClickListener, OnC
 		super.onDetach();
 		Log.d(TAG, PRE + "onDetach");
 	}
-
-	@Override
-	public void onClick(View v) {
-		
-		
-	}
+	
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v,
 			int groupPosition, int childPosition, long id) {
 		RosterEntry entry = mAdapter.getChild(groupPosition, childPosition);
+		
+		RosterDataBase roster = new RosterDataBase(mActivity, mUsername);
+		roster.updateColumn(entry.Jid, RosterDataBase.NEW_MSG_TIME, 
+				String.valueOf(System.currentTimeMillis()));
+		roster.close();
+		
 		Intent intent = new Intent();
 		intent.putExtra(MultiChatActivity.ACCOUNT_JID, entry.Jid);
 		intent.setClassName("com.openims", "com.openims.view.chat.MultiChatActivity");
@@ -228,7 +241,8 @@ public class FriendListFragment extends Fragment implements OnClickListener, OnC
 		public boolean isOnline;
 	}
 	
-	 public class RosterExpandableListAdapter extends BaseExpandableListAdapter {
+	 public class RosterExpandableListAdapter extends BaseExpandableListAdapter
+	 						implements OnAvater.OnAvaterListener{
 	        	        
 	        private ArrayList<RosterGroup> groups = new ArrayList<RosterGroup>();
 	        private ArrayList<ArrayList<RosterEntry>> children = new ArrayList<ArrayList<RosterEntry>>();
@@ -319,10 +333,14 @@ public class FriendListFragment extends Fragment implements OnClickListener, OnC
 	            TextView textView = (TextView)view.findViewById(R.id.username);
 	            textView.setText(entry.Jid);
 	            ImageView head = (ImageView)view.findViewById(R.id.imageView);
-	            if(entry.isOnline){
-	            	textView.setTextColor(0xffff0000);
-	            }else{
-	            	textView.setTextColor(0xff0000ff);
+	            Drawable avater = onAvater.getAvater(entry.Jid, this);
+	            
+	            head.setImageDrawable(avater);
+	            
+	            if(entry.isOnline){	            	
+	            	head.setColorFilter(null);
+	            }else{	            	
+	            	head.setColorFilter(mGreyColorFilter);
 	            }
 	            //head.setImageBitmap(mDefaultHead);
 	            return view;
@@ -334,8 +352,19 @@ public class FriendListFragment extends Fragment implements OnClickListener, OnC
 	        public boolean hasStableIds() {
 	            return true;
 	        }
+	        
+	        @Override
+	    	public void avater(String avaterJid, Drawable avater) {
+	    		Log.e(TAG, PRE + avaterJid);
+	    		this.notifyDataSetChanged();
+	    	}
 
 	    }
+	
+	
+	public void setOnAvater(OnAvater onAvater){
+		this.onAvater = onAvater;
+	}
 
 	
 	

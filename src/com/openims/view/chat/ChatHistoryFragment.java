@@ -71,11 +71,11 @@ public class ChatHistoryFragment extends Fragment implements OnClickListener{
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.multi_chat_history, container, false);
 		
-		initListener(v);
+		addListener(v);
 		return v;
 	}	
 	
-	private void initListener(View v){
+	private void addListener(View v){
 		
 		ImageButton btnHistory = (ImageButton)v.findViewById(R.id.header_right);		
 		btnHistory.setOnClickListener(new OnClickListener() {			

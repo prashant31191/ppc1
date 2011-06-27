@@ -1,10 +1,14 @@
 package com.openims.view.chat.widget;
 
+import java.util.HashMap;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -22,17 +26,26 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.openims.R;
+import com.openims.model.MyApplication;
 import com.openims.service.IMService;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
+import com.openims.view.chat.OnAvater;
 
-public class IMWidgetFragment extends Fragment implements OnClickListener {
+public class IMWidgetFragment extends Fragment 
+						implements OnClickListener,
+						OnAvater{
 
 	private static final String TAG = LogUtil
 					.makeLogTag(IMWidgetFragment.class);
 	private static final String PRE = "IMWidgetFragment--";
 
 	private Activity mActivity;
+	
+	private MyApplication myApplication;
+	private final HashMap<String,OnAvaterListener> avaterListeners = 
+		new HashMap<String,OnAvaterListener>();
+	
 	private static final String TAG_FRIEND = "TAG_FRIEND";
 	
 	private FriendListFragment mFriendFragment;
@@ -77,13 +90,16 @@ public class IMWidgetFragment extends Fragment implements OnClickListener {
 		
 		if(savedInstanceState == null){
 			final FragmentTransaction ft = getFragmentManager().beginTransaction();
-			mFriendFragment = new FriendListFragment();			
+			mFriendFragment = new FriendListFragment();	
+			mFriendFragment.setOnAvater(this);
 	        ft.add(R.id.im_center, mFriendFragment,TAG_FRIEND).commit();
 			
 		}else{			
 			mFriendFragment = (FriendListFragment)getFragmentManager()
 				.findFragmentByTag(TAG_FRIEND);
 		}
+		
+		myApplication = (MyApplication)mActivity.getApplication();
 	}
 	
 	
@@ -174,14 +190,19 @@ public class IMWidgetFragment extends Fragment implements OnClickListener {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case PushServiceUtil.MSG_UNREAD_NUMBBER:
-                    Log.i(TAG,PRE + "Received from service: arg1--" + 
-                    		msg.arg1 + ", arg2--" + msg.arg2);
-                    
+                case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
                     break;
                 case PushServiceUtil.MSG_ROSTER_UPDATED:
                 	Log.e(TAG, PRE + "roster updated");
                 	mFriendFragment.reRoadData();
+                	break;
+                case PushServiceUtil.MSG_REQUEST_VCARD:
+                	String jid = (String)msg.obj;
+                	OnAvaterListener listener = avaterListeners.get(jid);
+                	if(listener != null){                		
+                		listener.avater(jid, myApplication.getAvater(jid));
+                		avaterListeners.remove(jid);
+                	}
                 	break;
                 default:
                     super.handleMessage(msg);
@@ -254,5 +275,30 @@ public class IMWidgetFragment extends Fragment implements OnClickListener {
             Log.d(TAG, PRE + "Unbinding.");
         }
     }
+	@Override
+	public Drawable getAvater(String avaterJid, OnAvaterListener listener) {
+		
+		Drawable d = myApplication.getAvater(avaterJid);
+		if(d != null){
+			return d;
+		}
+		// notify jia zai
+		avaterListeners.put(avaterJid, listener);
+		Resources r = getResources();
+		d = r.getDrawable(R.drawable.icon);
+		
+		Message msg = Message.obtain(null,
+        		PushServiceUtil.MSG_REQUEST_VCARD);
+        msg.replyTo = mMessenger;
+        msg.obj = avaterJid;
+        try {
+			mService.send(msg);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return d;		
+	}
+    
 	
 }

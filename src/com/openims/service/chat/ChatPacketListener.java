@@ -1,15 +1,13 @@
 package com.openims.service.chat;
 
-import java.util.Date;
-
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.util.StringUtils;
 
 import android.util.Log;
 
 import com.openims.model.chat.MessageRecord;
+import com.openims.model.chat.RosterDataBase;
 import com.openims.service.XmppManager;
 import com.openims.utility.DataAccessException;
 import com.openims.utility.LogUtil;
@@ -38,10 +36,14 @@ public class ChatPacketListener implements PacketListener{
             			MessageRecord.getMessageRecordTableName(
             			xmppManager.getUserNameWithHostName(), fromJid));
             	
-                mr.insert(fromJid, xmppManager.getUserNameWithHostName(), 
+                int id = mr.insert(fromJid, xmppManager.getUserNameWithHostName(), 
                 		message.getBody(), 
                 		String.valueOf(System.currentTimeMillis()));
                 mr.close();
+                RosterDataBase roster = new RosterDataBase(xmppManager.getContext(),
+                		xmppManager.getUserNameWithHostName());
+                roster.updateUnReadMsg(fromJid, 1, id);
+                roster.close();
                 xmppManager.notifyNewMessage(fromJid);
                 
             } catch(DataAccessException e) {

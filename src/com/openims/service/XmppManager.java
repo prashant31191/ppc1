@@ -1,6 +1,8 @@
 package com.openims.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,6 +49,7 @@ import org.jivesoftware.smackx.packet.LastActivity;
 import org.jivesoftware.smackx.packet.OfflineMessageInfo;
 import org.jivesoftware.smackx.packet.OfflineMessageRequest;
 import org.jivesoftware.smackx.packet.SharedGroupsInfo;
+import org.jivesoftware.smackx.packet.VCard;
 import org.jivesoftware.smackx.packet.DiscoverItems.Item;
 import org.jivesoftware.smackx.provider.AdHocCommandDataProvider;
 import org.jivesoftware.smackx.provider.BytestreamsProvider;
@@ -82,10 +85,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.util.Log;
 
 import com.openims.model.chat.RosterDataBase;
+import com.openims.model.chat.VCardDataBase;
 import com.openims.service.chat.ChatPacketListener;
 import com.openims.service.chat.MyRosterListener;
 import com.openims.service.chat.PresenceListener;
@@ -926,6 +932,36 @@ public class XmppManager{
     	}
     	
     	rosterDataBase.close();
+    	
+    	VCard vCard = new VCard();
+		 vCard.setFirstName("kir");
+		 vCard.setLastName("max");
+		 vCard.setEmailHome("foo@fee.bar");
+		 vCard.setJabberId("jabber@id.org");
+		 vCard.setOrganization("Jetbrains, s.r.o");
+		 vCard.setNickName("KIR");
+		 
+		
+		
+		 vCard.setField("TITLE", "Mr");
+		 vCard.setAddressFieldHome("STREET", "Some street");
+		 vCard.setAddressFieldWork("CTRY", "US");
+		 vCard.setPhoneWork("FAX", "3443233");
+    	 
+    	VCardDataBase vc = new VCardDataBase(this.getContext(),
+       			 this.getUserNameWithHostName());
+    	vc.removeAll();       	 	
+       	vc.close();
+    	 
+
+/*    	 try {
+			vCard.save(connection);
+		} catch (XMPPException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
+    	
+    	
     	/*Collection<RosterEntry> re = roster.getEntries();
     	iterator = re.iterator();
     	RosterGroup myGroup = null;*/
@@ -947,6 +983,16 @@ public class XmppManager{
     		Log.i(LOGTAG,TAG+"user:"+rg.getUser()+";name:"
     				+rg.getName());
     	}*/
+    }
+    public void getVCard(String jid) throws XMPPException{
+    	VCard vcard = new VCard();    	
+		vcard.load(this.connection,jid);
+		
+		VCardDataBase vc = new VCardDataBase(this.getContext(),
+   			 this.getUserNameWithHostName());
+		vc.removeAll();
+   	 	long n = vc.insert(jid, vcard);
+   	 	vc.close();
     }
     public void configure(ProviderManager pm) {
     	 

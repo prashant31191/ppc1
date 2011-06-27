@@ -111,8 +111,8 @@ public class PushServiceUtil{
     public static final int MSG_UNREAD_NUMBBER = 3;
     
     public static final int MSG_NEW_MESSAGE = 4;
-    /**
-     * 
-     */
+    
     public static final int MSG_ROSTER_UPDATED = 5;
+    
+    public static final int MSG_REQUEST_VCARD = 6;
 }

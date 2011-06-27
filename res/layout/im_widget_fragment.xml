@@ -64,12 +64,10 @@
 		android:layout_weight="10"
 		android:background="@color/widget_bg">
    	</FrameLayout>
-   	<TextView 
-   	     	android:id="@+id/textView4" 
+   	<TextView android:id="@+id/line" 
    	     	android:layout_width="match_parent" 
    	     	android:layout_height="1dp"   	     	
-   	     	android:background="@color/light_black"
-   	     	>
+   	     	android:background="@color/light_black">
    	</TextView>
    	
    	<LinearLayout android:id="@+id/linearLayout2" 

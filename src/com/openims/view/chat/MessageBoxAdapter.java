@@ -2,38 +2,57 @@ package com.openims.view.chat;
 
 import java.util.ArrayList;
 
+import org.jivesoftware.smack.packet.Presence;
+
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.openims.R;
 import com.openims.model.chat.RosterDataBase;
+import com.openims.view.chat.OnAvater.OnAvaterListener;
 
-public class MessageBoxAdapter extends BaseAdapter {
+public class MessageBoxAdapter extends BaseAdapter implements OnAvaterListener  {
+	
 	
 	private Context context;
 	private ArrayList<Account> accountList = new ArrayList<Account>(10);
 	private RosterDataBase mRosterDataBase;
 
-	private int columnIndexJId = -1;
-    private int columnIndexId = -1;
+	private int indexJId = -1;
+    private int indexId = -1;
     private int indexUserName = -1;
     private int indexPresence = -1;	
+    private int indexUnread = -1;
+    private int indexMsgStartId = -1;
     
+    private String mAdmin;
     private String mSelectedJid;		// 
 	
+    private OnAvater onAvater;
+    private ColorFilter mGreyColorFilter = new ColorMatrixColorFilter( new ColorMatrix(new float[]{0.5f,0.5f,0.5f,0,0, 
+            0.5f,0.5f,0.5f,0,0, 
+            0.5f,0.5f,0.5f,0,0, 
+            0,0,0,1,0,0, 
+            0,0,0,0,1,0 
+            })); 
+    
 	public class Account{
 		public Integer id;
 		public String jId;
 		public String userName;
 		public Integer unReadNum;
-		public Integer unTotalNum;
-		public Drawable headerDrawable;
+		public Integer msgStartId;
+		public boolean isOnline;
 		@Override
 		public boolean equals(Object o) {
 			if(o instanceof Account){
@@ -75,51 +94,64 @@ public class MessageBoxAdapter extends BaseAdapter {
 		}
 		return accountList.get(position);
 	}
-	public void addAccount(String jId, int unReadNum, int totalNum){
-        
-		Account account = new Account();
-		account.jId = jId;
-		int nId = accountList.indexOf(account);
-		if(nId == -1){
-			Cursor cursor = mRosterDataBase.queryByJId(jId);			
-	        if(columnIndexJId == -1){
-	        	columnIndexJId = cursor.getColumnIndex(RosterDataBase.JID);
-	    		columnIndexId = cursor.getColumnIndex(RosterDataBase.ID);
-	    		indexUserName = cursor.getColumnIndex(RosterDataBase.USER_NAME);
-	    		indexPresence = cursor.getColumnIndex(RosterDataBase.PRESENCE);
-	        }
-	        cursor.moveToFirst();
-			account.id = cursor.getInt(columnIndexId);
-			account.userName = cursor.getString(indexUserName);	
-			account.unReadNum = unReadNum;
-			account.unTotalNum = totalNum;
-			accountList.add(0, account);
-		}else{
-			account = accountList.get(nId);
-			if(totalNum!=0){
-				account.unReadNum = unReadNum;
-				account.unTotalNum = totalNum;
-			}			
-			accountList.set(nId, account);
-		}		
-	}	
+	// ·µ»Ø
+	public int initAdapter(String mAdmin){
+		this.mAdmin = mAdmin;
+		RosterDataBase roster = new RosterDataBase(context, mAdmin);
+		int startId = 0;
+		Cursor c = roster.queryHaveNewMsgRoster();
+		if(indexJId == -1){
+			indexJId = c.getColumnIndex(RosterDataBase.JID);
+    		indexId = c.getColumnIndex(RosterDataBase.ID);
+    		indexUserName = c.getColumnIndex(RosterDataBase.USER_NAME);
+    		indexPresence = c.getColumnIndex(RosterDataBase.PRESENCE);
+    		indexUnread = c.getColumnIndex(RosterDataBase.NEW_MSG_UREAD);
+    		indexMsgStartId = c.getColumnIndex(RosterDataBase.NEW_MSG_START_ID);
+        }
+		c.moveToFirst();
+		accountList.clear();
+		while(c.isAfterLast() == false){
+			Account account = new Account();
+			account.id = c.getInt(indexId);
+			account.userName = c.getString(indexUserName);	
+			account.unReadNum = c.getInt(indexUnread);
+			account.msgStartId = c.getInt(indexMsgStartId);
+			account.jId = c.getString(indexJId);
+			
+			String presence = c.getString(indexPresence);
+	    	if(presence.equals(Presence.Type.available.name())){
+	    		account.isOnline = true;
+	    	}else{
+	    		account.isOnline = false;
+	    	}
+	    	
+			accountList.add(account);
+			c.moveToNext();
+			if(account.jId.equals(mSelectedJid)){
+				startId = account.msgStartId;
+			}
+		}
+		return startId;
+	}
+	
 	public String addAccount(long accountId, int unReadNum,int a){
 
 		Cursor cursor = mRosterDataBase.queryById(accountId);
 		
-        if(columnIndexJId == -1){
-        	columnIndexJId = cursor.getColumnIndex(RosterDataBase.JID);
-    		columnIndexId = cursor.getColumnIndex(RosterDataBase.ID);
+        if(indexJId == -1){
+        	indexJId = cursor.getColumnIndex(RosterDataBase.JID);
+        	indexId = cursor.getColumnIndex(RosterDataBase.ID);
     		indexUserName = cursor.getColumnIndex(RosterDataBase.USER_NAME);
     		indexPresence = cursor.getColumnIndex(RosterDataBase.PRESENCE);
         }
         
         cursor.moveToFirst();
 		Account account = new Account();
-		account.jId = cursor.getString(columnIndexJId);;
+		account.jId = cursor.getString(indexJId);
+		
 		int nId = accountList.indexOf(account);
 		if(nId == -1){
-			account.id = cursor.getInt(columnIndexId);
+			account.id = cursor.getInt(indexId);
 			account.userName = cursor.getString(indexUserName);;
 			accountList.add(0, account);
 		}else{
@@ -127,6 +159,7 @@ public class MessageBoxAdapter extends BaseAdapter {
 			account.unReadNum = account.unReadNum + unReadNum;
 			accountList.set(nId, account);
 		}
+		
 		return account.jId;
 		
 	}	
@@ -162,7 +195,7 @@ public class MessageBoxAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Account account = accountList.get(position);
 		
-		View retval;
+		View view;
 		boolean isSelected = false;		
 		if(account.jId.equals(mSelectedJid)){
 			isSelected = true;
@@ -172,14 +205,14 @@ public class MessageBoxAdapter extends BaseAdapter {
 			if(isSelected){
 				srcId = R.layout.multi_chat_account_viewitem_select;
 			}
-			retval = LayoutInflater.from(context).inflate(
+			view = LayoutInflater.from(context).inflate(
 					srcId, null);
 		}else{
-			retval = convertView;
+			view = convertView;
 		}
 				
 		if(isSelected == false){
-			TextView title = (TextView) retval.findViewById(R.id.title);
+			TextView title = (TextView) view.findViewById(R.id.title);
 			if(account.unReadNum != 0){	
 				title.setVisibility(View.VISIBLE);
 				title.setText(String.valueOf(account.unReadNum));			
@@ -188,11 +221,31 @@ public class MessageBoxAdapter extends BaseAdapter {
 			}
 		}
 		
-		retval.setTag(account);
-		return retval;
+		ImageView head = (ImageView)view.findViewById(R.id.imageView1);
+        Drawable avater = onAvater.getAvater(account.jId, this);
+        
+        head.setImageDrawable(avater);
+        
+        if(account.isOnline){	            	
+        	head.setColorFilter(null);
+        }else{	            	
+        	head.setColorFilter(mGreyColorFilter);
+        }
+        
+        view.setTag(account);
+		return view;
 	}
 	
 	public void close(){
 		mRosterDataBase.close();
+	}
+	
+	public void setOnAvater(OnAvater onAvater){
+		this.onAvater = onAvater;
+	}
+	@Override
+	public void avater(String avaterJid, Drawable avater) {
+		initAdapter(mAdmin);
+		notifyDataSetChanged();
 	}
 }

@@ -3,11 +3,11 @@ package com.openims.view.chat.widget;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Window;
 
 import com.openims.R;
+import com.openims.model.MyApplication;
 import com.openims.utility.LogUtil;
 
 public class IMActivity extends FragmentActivity {
@@ -36,9 +36,7 @@ public class IMActivity extends FragmentActivity {
 					.findFragmentByTag(TAG_IM_MAIN);
 		}
 		
-		DisplayMetrics metrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		metrics.getClass();
+		
 	}
 	
 	@Override

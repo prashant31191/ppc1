@@ -32,6 +32,7 @@ public class ChatMainAdapter extends BaseAdapter {
 	LinkedList<String> messageList = new LinkedList<String>();
 	LinkedList<String> nameList = new LinkedList<String>();
 	LinkedList<String> portraitList = new LinkedList<String>();
+	LinkedList<Boolean> presentList = new LinkedList<Boolean>();
 	LinkedList<Integer> idList = new LinkedList<Integer>();
 	
 	public ChatMainAdapter(Context context, String myName){
@@ -52,6 +53,7 @@ public class ChatMainAdapter extends BaseAdapter {
 			idList.addLast(id);
 			nameList.addLast(name);
 			messageList.addLast(message);
+			
 		} else {			
 			idList.addFirst(id);
 			nameList.addFirst(name);
@@ -111,7 +113,10 @@ public class ChatMainAdapter extends BaseAdapter {
 
 	@Override
 	public long getItemId(int position) {
-		Log.d(TAG, PRE + "getItemId");
+		Log.d(TAG, PRE + "getItemId");		
+		if(idList.isEmpty() || position > idList.size()){
+			return 0;
+		}
 		return idList.get(position);
 	}
 

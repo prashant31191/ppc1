@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.openims.R;
 import com.openims.model.chat.MessageRecord;
+import com.openims.model.chat.RosterDataBase;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 
@@ -43,12 +44,12 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 	private ChatMainAdapter mListAdapter = null;
 	private String mTableName = null;
 	private Activity mActivity = null;
-	private int columnIndexId;
-	private int columnIndexFromId;
-	private int columnIndexContent;
-	private int columnIndexDate;
+	private int columnIndexId = -1;
+	private int columnIndexFromId = -1;
+	private int columnIndexContent = -1;
+	private int columnIndexDate = -1;
 	
-	private int mMessageNum;
+	private int mMsgStartId;
 	private String mToAccount = "test@smit";
 	private String mMyAccount = "test2@smit";
 	
@@ -92,6 +93,8 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 		
 		mDateFormat = new SimpleDateFormat("HH:mm:ss");
 		
+		
+		mListAdapter = new ChatMainAdapter(mActivity,mMyAccount);		
 		initAdapter();
 		
 		if(mTableName == null || mListAdapter == null){
@@ -101,14 +104,24 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 		mListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 	}
 	public void initAdapter(){
+		
 		if(mActivity == null){
 			return;
 		}
-		mMessageRecord = new MessageRecord(mActivity, mTableName);		
-		Cursor c = mMessageRecord.queryItems(-1, mMessageNum, true);
 		
-		if(mListAdapter == null){
-			mListAdapter = new ChatMainAdapter(mActivity,mMyAccount);
+		mMessageRecord = new MessageRecord(mActivity, mTableName);
+		
+		
+		if(mListAdapter==null){
+			return;
+		}	
+		int num = -1;
+		if(mMsgStartId==0){
+			num = 0;
+		}
+		Cursor c = mMessageRecord.queryItems(mMsgStartId, num, false);
+		
+		if(columnIndexFromId == -1){
 			columnIndexFromId = c.getColumnIndex(MessageRecord.FROM);
 			columnIndexContent = c.getColumnIndex(MessageRecord.CONTENT);
 			columnIndexId = c.getColumnIndex(MessageRecord.ID);
@@ -121,7 +134,7 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 		String content;
 		Long date;
 		
-		c.moveToLast();
+		c.moveToFirst();
 		for(int i=0; i<n; i++){
 			fromJid = c.getString(columnIndexFromId);
 			content = c.getString(columnIndexContent);
@@ -130,10 +143,11 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 			
 			fromJid = fromJid + SEPARATOR + mDateFormat.format(new Date(date));
 			mListAdapter.addData(id, fromJid, content, false);
-			c.moveToPrevious();
+			c.moveToNext();
 		}
-		
 		mListAdapter.notifyDataSetChanged();
+		mListView.setSelection(mListView.getLastVisiblePosition()); // »¬¶¯µ×²¿
+		
 	}
 	@Override
 	public void onStart() {
@@ -184,10 +198,10 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 		super.onSaveInstanceState(outState);
 	}
 	
-	public void setTableName(String tableName, int messageNum, 
+	public void setTableName(String tableName, int msgStartId, 
 			String toAccount, String myAccount){
 		mTableName = tableName;
-		mMessageNum = messageNum;
+		mMsgStartId = msgStartId;
 		mMyAccount = myAccount;
 		mToAccount = toAccount;
 		if(mListAdapter != null){
@@ -197,16 +211,30 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 			mTitleTextView.setText(mToAccount);
 		}
 		initAdapter();
+		
 	}
 
 	public void updateList(){
-		if(mListAdapter.getLastId() == 0){
-			mMessageNum = 1;
-			initAdapter();
-			return;
-		}		
+		int nStartId = mListAdapter.getLastId();
+		if(nStartId == 0){
+			nStartId = mMsgStartId;
+		}else{
+			nStartId++;
+		}
 		
-		Cursor c = mMessageRecord.queryItems(mListAdapter.getLastId()+1, -1, false);
+		Cursor c ;
+		if(nStartId != 0){
+			c = mMessageRecord.queryItems(nStartId, -1, false);
+		}else{
+			c = mMessageRecord.queryItems(-1, 1, true);
+		}
+		
+		if(columnIndexFromId == -1){
+			columnIndexFromId = c.getColumnIndex(MessageRecord.FROM);
+			columnIndexContent = c.getColumnIndex(MessageRecord.CONTENT);
+			columnIndexId = c.getColumnIndex(MessageRecord.ID);
+			columnIndexDate = c.getColumnIndex(MessageRecord.DATE);
+		}
 		
 		c.moveToFirst();
 		int nCount = c.getCount();		
@@ -244,7 +272,13 @@ public class ChatMainFragment extends Fragment implements OnClickListener{
 		int newId = mMessageRecord.insert(mMyAccount, mToAccount, 
 				mInput.getText().toString(), String.valueOf(date) );
 		
-		
+		if(mMsgStartId == 0){
+			RosterDataBase roster = new RosterDataBase(mActivity,
+            		mMyAccount);
+            roster.updateColumn(mToAccount, RosterDataBase.NEW_MSG_START_ID, newId);
+            roster.close();
+            mMsgStartId = newId;
+		}
 		Log.d(TAG, PRE + "the row ID of the newly inserted row, or -1 if an error occurred" + newId);
 		mListAdapter.addData(newId, 
 				mMyAccount+SEPARATOR+mDateFormat.format(new Date(date)), 

@@ -1,5 +1,7 @@
 package com.openims.model.chat;
 
+import org.jivesoftware.smackx.packet.VCard;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,36 +12,39 @@ import android.util.Log;
 
 import com.openims.utility.LogUtil;
 
-public class RosterDataBase {
+public class VCardDataBase {
 	
-	private static final String TAG = LogUtil.makeLogTag(RosterDataBase.class);
-	private static final String PRE = "Class RosterDataBase--";
+	private static final String TAG = LogUtil.makeLogTag(VCardDataBase.class);
+	private static final String PRE = "Class VCardDataBase--";
 		
-	private static final String DATABASE_NAME = "userInf.db";
-	private static final String TABLE_NAME = "roster";
+	private static final String DATABASE_NAME = "vcard.db";
+	private static final String TABLE_NAME = "vcard";
 	private static final int DATABASE_VERSION = 1;
 	
 	public static final String ID = "_id";
-	public static final String ADMIN = "admin";
-	public static final String ROSTER_ID = "roster_id";
-	public static final String USER_NAME = "user_name";
+	public static final String ADMIN = "admin";	
 	public static final String JID = "jid";
-	public static final String SUB = "sub";
+	public static final String USER_NAME = "user_name";
 	public static final String NICK = "nick";
-	public static final String RANK = "rank";
-	public static final String GROUP_NAME = "group_name";
-	public static final String PRESENCE = "presence";
-	public static final String VCARD = "vcard";
-	public static final String NEW_MSG_UREAD = "umradmsg";
-	public static final String NEW_MSG_START_ID= "newMsgStartId";
-	public static final String NEW_MSG_TIME = "newMsgTime";
-	public static final String MSG_BOX_SHOW = "msgBoxShow";  // 0 will ignore
+	public static final String SEX = "sex";
+	public static final String BIRTHDAY = "birthday";
+	public static final String STATE = "state";
+	public static final String PROVINCE = "province";
+	public static final String CITY = "city";
+	public static final String OFFICE = "office";
+	public static final String MOB = "mob";
+	public static final String EMAIL = "email";
+	public static final String WEIBO = "weibo";
+	public static final String NOTE = "note";
+	public static final String AvaterUrl = "avaterUrl";
+	public static final String Avater = "avater";
 	public static final String FLAG = "FLAG";
+	
 	
 	private static DatabaseHelper dbHelper;	
 	
 	private String mAdmin;
-	public RosterDataBase(Context context, String mAdmin){	
+	public VCardDataBase(Context context, String mAdmin){	
 		this.mAdmin = mAdmin;
 		dbHelper = new DatabaseHelper(context,DATABASE_NAME);		
 		
@@ -75,73 +80,49 @@ public class RosterDataBase {
 		return db.query(TABLE_NAME,null,where,null,null,null,
 				orderBy,limit);
 	}
-	
-	public int insert(String jid, String username, String groupname, String presence){
+	public long insert(String jid){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();		
 		ContentValues values = new ContentValues();
 		values.put(JID, jid);
 		values.put(ADMIN, mAdmin);
-		values.put(USER_NAME, username);
-		values.put(GROUP_NAME, groupname);
-		values.put(PRESENCE, presence);
-		values.put(NEW_MSG_UREAD, 0);
-		values.put(NEW_MSG_START_ID, 0);
-		values.put(NEW_MSG_TIME, 0);
-		values.put(MSG_BOX_SHOW, 0);
-		return (int)db.insert(TABLE_NAME, null, values);
+		values.put(USER_NAME, "vcard.getFirstName()");
+		values.put(NICK, "vcard.getNickName()");
+		values.put(SEX, "vcard.getNickName()");
+		values.put(BIRTHDAY, "null");
+		values.put(STATE, "vcard.getOrganization()");
+		values.put(PROVINCE, "null");
+		values.put(CITY, "null");
+		values.put(NOTE, "null");
+		values.put(AvaterUrl, "null");
+		values.put(Avater, "vcard.getAvatar()");
 		
-	}	
-	public int updatePresence(String jid, String presence){
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put(PRESENCE, presence);
-		return db.update(TABLE_NAME, values, ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"", null);
+		return db.insert(TABLE_NAME, null, values);
+		
 	}
-	public int updateVcard(String jid, String vcard){
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
+	public long insert(String jid, VCard vcard){
+		SQLiteDatabase db = dbHelper.getWritableDatabase();		
 		ContentValues values = new ContentValues();
-		values.put(VCARD, vcard);
-		return db.update(TABLE_NAME, values, ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"", null);
+		values.put(JID, jid);
+		values.put(ADMIN, mAdmin);
+		values.put(USER_NAME, vcard.getFirstName());
+		values.put(NICK, vcard.getNickName());
+		values.put(SEX, vcard.getNickName());
+		values.put(BIRTHDAY, "null");
+		values.put(STATE, vcard.getOrganization());
+		values.put(PROVINCE, "null");
+		values.put(CITY, "null");
+		values.put(OFFICE, vcard.getPhoneWork("CELL"));
+		values.put(MOB, vcard.getPhoneHome("CELL"));
+		values.put(EMAIL, vcard.getEmailWork());
+		values.put(WEIBO, vcard.getEmailHome());
+		values.put(NOTE, "null");
+		values.put(AvaterUrl, "null");
+		values.put(Avater, vcard.getAvatar());
+		
+		return db.insert(TABLE_NAME, null, values);
+		
 	}
-	public void clearCachData(){
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put(VCARD, 0);
-		db.update(TABLE_NAME, values, ADMIN + "=\"" + mAdmin + "\" ", null);
 	
-	}
-	/**
-	 * 
-	 * @param jid
-	 * @param unReadMsg
-	 * @return
-	 */	
-	public int updateUnReadMsg(String jid, Integer unReadMsg,Integer msgStartId){
-		Integer startId = 0;
-		long time = 0;
-		String where = ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"";
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		Cursor c = db.query(TABLE_NAME, new String[]{NEW_MSG_TIME,NEW_MSG_START_ID,NEW_MSG_UREAD},
-					where, null, null, null, null);
-		c.moveToFirst();
-		time = c.getLong(0);
-		startId = c.getInt(1);
-		
-		unReadMsg = unReadMsg + c.getInt(2);		
-		
-		ContentValues values = new ContentValues();
-		values.put(NEW_MSG_UREAD, unReadMsg);
-		
-		values.put(MSG_BOX_SHOW, 1);
-		if(startId == 0){
-			values.put(NEW_MSG_START_ID, msgStartId);
-		}
-		if(time == 0){
-			time = System.currentTimeMillis();
-			values.put(NEW_MSG_TIME, time);
-		}
-		return db.update(TABLE_NAME, values, where, null);
-	}
 	public int updateColumn(String jid, String columnName, int value){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -154,15 +135,7 @@ public class RosterDataBase {
 		values.put(columnName, value);
 		return db.update(TABLE_NAME, values, ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"", null);
 	}
-	public Cursor queryHaveNewMsgRoster(){
-		String where = ADMIN + "=\"" + mAdmin + "\" AND " 
-				+ NEW_MSG_TIME + ">" + 1;
-		String order = NEW_MSG_TIME + " DESC";
-		SQLiteDatabase db = dbHelper.getReadableDatabase();
-		Cursor cursor = db.query(TABLE_NAME, null, where,
-				null,JID,null,order);
-		return cursor;
-	}
+	
 	public void removeAll(){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();	
 		db.delete(TABLE_NAME, ADMIN + "=\"" + mAdmin + "\"", null);
@@ -196,31 +169,30 @@ public class RosterDataBase {
 	 * @return
 	 * @throws Exception
 	 */
-	private String getCreateTableSQL(boolean always){
+	private String getCreateTableSQL(){
 		
 		StringBuilder sql = new StringBuilder();
 		sql.append("CREATE TABLE ");
 		
-		if(always == false){
-			sql.append("IF NOT EXISTS ");
-		}
 		
 		sql.append(TABLE_NAME+"("+
 		ID+" INTEGER PRIMARY KEY," +
 		ADMIN+" TEXT,"+
-		ROSTER_ID+" INTEGER," + 
-		USER_NAME+" TEXT,"+
 		JID+" TEXT not null,"+
-		SUB+" INTEGER,"+
+		USER_NAME+" TEXT,"+		
 		NICK+" TEXT,"+
-		RANK+" INTEGER,"+
-		GROUP_NAME+" TEXT,"+
-		PRESENCE + " TEXT," +
-		VCARD + " BLOB," +
-		NEW_MSG_UREAD + " INTEGER," +
-		NEW_MSG_START_ID + " INTEGER," +
-		NEW_MSG_TIME + " INTEGER," +
-		MSG_BOX_SHOW + " INTEGER," +
+		SEX+" INTEGER,"+
+		BIRTHDAY+" TEXT,"+
+		STATE+" TEXT,"+
+		PROVINCE + " TEXT," +		
+		CITY + " TEXT," +
+		OFFICE + " TEXT," +
+		MOB + " TEXT," +
+		EMAIL + " TEXT," +
+		WEIBO + " TEXT," +
+		NOTE + " TEXT," +
+		AvaterUrl + " TEXT," +
+		Avater + " BLOB," +
 		FLAG+" TEXT "+ ");" );
 		Log.i(TAG,PRE +"create table--" + sql);
 		return sql.toString();
@@ -235,7 +207,7 @@ public class RosterDataBase {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			try {
-				db.execSQL(getCreateTableSQL(true));
+				db.execSQL(getCreateTableSQL());
 			} catch (SQLException e) {				
 				e.printStackTrace();
 				Log.e(TAG,TAG+"create table fail:");
@@ -249,7 +221,7 @@ public class RosterDataBase {
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			try {
 				db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-				db.execSQL(getCreateTableSQL(true));
+				db.execSQL(getCreateTableSQL());
 			} catch (SQLException e) {	
 				Log.e(TAG,PRE + "upgrade table fail");
 				e.printStackTrace();				

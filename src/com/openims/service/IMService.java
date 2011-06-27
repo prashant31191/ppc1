@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.jivesoftware.smack.XMPPException;
+
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -24,6 +26,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.openims.model.MyApplication;
 import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.connection.ConnectivityReceiver;
 import com.openims.service.notificationPacket.RegPushIQ;
@@ -34,8 +37,8 @@ import com.openims.utility.PushServiceUtil;
 
 public class IMService extends Service {
 
-    private static final String LOGTAG = LogUtil.makeLogTag(IMService.class);
-    private static final String TAG = LogUtil.makeTag(IMService.class);
+    private static final String TAG = LogUtil.makeLogTag(IMService.class);
+    private static final String PRE = LogUtil.makeTag(IMService.class);
     public static final String SERVICE_NAME = "com.openims.service.IMService";
     
     private BroadcastReceiver connectivityReceiver;
@@ -46,35 +49,15 @@ public class IMService extends Service {
     private XmppManager xmppManager;
     private SharedPreferences sharedPrefs;
     
-    private String deviceId;
-    
-    private ArrayList<MessageState> mMsgStateList = null; 
-    
+    private String deviceId;    
+   
     /** For showing and hiding our notification. */
     NotificationManager mNM;
     /** Keeps track of all current registered clients. */
     ArrayList<Messenger> mClients = new ArrayList<Messenger>();
     /** Holds last value set by a client. */
-    int mValue = 0;
-    
-    private class MessageState{
-    	public MessageState(String jid, int unReadNum){
-    		mJid = jid;
-    		mUnReadNum = unReadNum;
-    	}
-    	public String mJid = null;
-    	public int mUnReadNum = 0;
-    	public int mTotalNum = 0;
-		@Override
-		public boolean equals(Object o) {
-			if(o instanceof MessageState){
-				MessageState  m = (MessageState)o;
-				return mJid.equals(m.mJid);
-			}
-			return super.equals(o);
-		}
-    	
-    }
+    int mValue = 0;    
+   
     /**
      * Target we publish for clients to send messages to IncomingHandler.
      */
@@ -90,7 +73,7 @@ public class IMService extends Service {
     }
     @Override
     public void onCreate(){
-    	Log.d(LOGTAG, "onCreate()...");
+    	Log.d(TAG, PRE + "onCreate()...");
     	
     	initSetting();
     	sharedPrefs = getSharedPreferences(PushServiceUtil.SHARED_PREFERENCE_NAME,
@@ -110,7 +93,7 @@ public class IMService extends Service {
     }
     @Override
     public void onStart(Intent intent, int startId) {
-        Log.d(LOGTAG, "onStart()...");        
+        Log.d(TAG, PRE + "onStart()...");        
         String action = intent.getAction();
         
         if(PushServiceUtil.ACTION_SERVICE_STATUS.equals(action)){
@@ -127,7 +110,7 @@ public class IMService extends Service {
     
     @Override
     public void onDestroy() {
-        Log.d(LOGTAG, "onDestroy()...");
+        Log.d(TAG, PRE + "onDestroy()...");
         stop();
     }
 
@@ -142,18 +125,18 @@ public class IMService extends Service {
 
     @Override
     public void onRebind(Intent intent) {
-        Log.d(LOGTAG, "onRebind()...");
+        Log.d(TAG, PRE + "onRebind()...");
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d(LOGTAG, "onUnbind()...");
+        Log.d(TAG, PRE + "onUnbind()...");
         return true;
     }
     
     
     public void connect() {
-        Log.d(LOGTAG, "connect()...");
+        Log.d(TAG, PRE + "connect()...");
         taskSubmitter.submit(new Runnable() {
             public void run() {
                 IMService.this.getXmppManager().startReconnectionThread();
@@ -162,7 +145,7 @@ public class IMService extends Service {
     }
 
     public void disconnect() {
-        Log.d(LOGTAG, "disconnect()...");
+        Log.d(TAG, PRE + "disconnect()...");
         taskSubmitter.submit(new Runnable() {
             public void run() {
                 IMService.this.getXmppManager().disconnect();
@@ -231,14 +214,14 @@ public class IMService extends Service {
         public void increase() {
             synchronized (imService.getTaskTracker()) {
             	imService.getTaskTracker().count++;
-                Log.d(LOGTAG, "Incremented task count to " + count);
+                Log.d(TAG, PRE + "Incremented task count to " + count);
             }
         }
 
         public void decrease() {
             synchronized (imService.getTaskTracker()) {
             	imService.getTaskTracker().count--;
-                Log.d(LOGTAG, "Decremented task count to " + count);
+                Log.d(TAG, PRE + "Decremented task count to " + count);
             }
         }
     }
@@ -260,9 +243,9 @@ public class IMService extends Service {
         userName = props.getProperty("userName","");
         password = props.getProperty("password","");
         
-        Log.i(LOGTAG, "apiKey=" + apiKey);
-        Log.i(LOGTAG, "xmppHost=" + xmppHost);
-        Log.i(LOGTAG, "xmppPort=" + xmppPort);
+        Log.i(TAG, PRE + "apiKey=" + apiKey);
+        Log.i(TAG, PRE + "xmppHost=" + xmppHost);
+        Log.i(TAG, PRE + "xmppPort=" + xmppPort);
 
         sharedPrefs = this.getSharedPreferences(
                 PushServiceUtil.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
@@ -296,11 +279,11 @@ public class IMService extends Service {
                 editor.commit();
             }
         }
-        Log.d(LOGTAG, "deviceId=" + deviceId);
+        Log.d(TAG, PRE + "deviceId=" + deviceId);
     }
     
     private void registerConnectivityReceiver() {
-        Log.d(LOGTAG, "registerConnectivityReceiver()...");
+        Log.d(TAG, PRE + "registerConnectivityReceiver()...");
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
@@ -309,20 +292,20 @@ public class IMService extends Service {
     }
 
     private void unregisterConnectivityReceiver() {
-        Log.d(LOGTAG, "unregisterConnectivityReceiver()...");
+        Log.d(TAG, PRE + "unregisterConnectivityReceiver()...");
         
         unregisterReceiver(connectivityReceiver);
     }
     
     private void start() {
-        Log.d(LOGTAG, "start()...");        
+        Log.d(TAG, PRE + "start()...");        
         registerConnectivityReceiver();        
         //xmppManager.connect();
         connect();
     }
 
     private void stop() {
-        Log.d(LOGTAG, "stop()...");        
+        Log.d(TAG, PRE + "stop()...");        
         unregisterConnectivityReceiver();
         //xmppManager.disconnect();
         //executorService.shutdown();
@@ -350,7 +333,7 @@ public class IMService extends Service {
         		sendRegisterBroadcast(packageName,className,null,
         				PushServiceUtil.PUSH_STATUS_HAVEREGISTER,
         				PushServiceUtil.PUSH_TYPE_REG,this);
-        		Log.i(LOGTAG, TAG + "已经注册" + pushNameKey + " " + xmppManager.getUserNameWithHostName());
+        		Log.i(TAG, PRE + TAG + "已经注册" + pushNameKey + " " + xmppManager.getUserNameWithHostName());
         		pushInfo.close();
         		return;
         	}    		
@@ -359,7 +342,7 @@ public class IMService extends Service {
         		sendRegisterBroadcast(packageName,className,null,
         				PushServiceUtil.PUSH_STATUS_NOTREGISTER,
         				PushServiceUtil.PUSH_TYPE_UNREG,this);
-        		Log.i(LOGTAG, TAG + "已经销注 " + pushNameKey + " " + xmppManager.getUserNameWithHostName());
+        		Log.i(TAG, PRE + TAG + "已经销注 " + pushNameKey + " " + xmppManager.getUserNameWithHostName());
         		pushInfo.close();
         		return;
         	}
@@ -398,7 +381,7 @@ public class IMService extends Service {
 		stringBuilder.append("sendRegisterBroadcast to packageName:")
 		.append(packageName).append("className:").append(className)
 		.append("pushID:").append(pushID).append("status:").append(status);
-		Log.d(LOGTAG, TAG + stringBuilder);
+		Log.d(TAG, PRE + TAG + stringBuilder);
 		
 		Intent intentSend = new Intent(PushServiceUtil.ACTION_REGISTRATION);
 		intentSend.setClassName(packageName, className);    	
@@ -428,7 +411,7 @@ public class IMService extends Service {
         }
 
         public void run() {
-            Log.i(LOGTAG, TAG + "WaitThread.run()..."); 
+            Log.i(TAG, PRE + TAG + "WaitThread.run()..."); 
             try {
 				sleep(PushServiceUtil.PUSH_TIMEOUT_TIME);
 			} catch (InterruptedException e) {				
@@ -438,13 +421,13 @@ public class IMService extends Service {
 			
 			if(type.equals(PushServiceUtil.PUSH_TYPE_REG)){
 				if(pushInfo.isRegPush(pushName,xmppManager.getUserNameWithHostName()) == false){
-					Log.e(LOGTAG, TAG + "register time out");
+					Log.e(TAG, PRE + TAG + "register time out");
 					sendRegisterBroadcast(packageName,className,null,
 		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
 				}
 	    	}else if(type.equals(PushServiceUtil.PUSH_TYPE_UNREG)){
 	    		if(pushInfo.isRegPush(pushName,xmppManager.getUserNameWithHostName()) == true){
-					Log.e(LOGTAG, TAG + "unregister time out");
+					Log.e(TAG, PRE + TAG + "unregister time out");
 					sendRegisterBroadcast(packageName,className,null,
 		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
 				}
@@ -464,7 +447,7 @@ public class IMService extends Service {
                     this.getPackageName());
             props.load(this.getResources().openRawResource(id));
         } catch (Exception e) {
-            Log.e(LOGTAG, "Could not find the properties file.", e);
+            Log.e(TAG, PRE + "Could not find the properties file.", e);
             e.printStackTrace();
         }
         return props;
@@ -499,34 +482,37 @@ public class IMService extends Service {
             }
 		}    	
     }
-    public void setOneUnreadMessage(String jid){
-    	if(mMsgStateList == null){
-    		mMsgStateList = new ArrayList<MessageState>(20);
-    	}
-    	int i = 0;
-		MessageState m = new MessageState(jid,1);    		
-		i = mMsgStateList.indexOf(m);
-		if( i == -1){    	
-			m.mTotalNum++;
-			mMsgStateList.add(m);
-		}else{
-			m.mUnReadNum = mMsgStateList.get(i).mUnReadNum+1;
-			m.mTotalNum = mMsgStateList.get(i).mTotalNum + 1;
-			mMsgStateList.set(i, m);
-		}    
+    public void setOneUnreadMessage(String jid){    			
     	
 		for (int j=mClients.size()-1; j>=0; j--) {
             try {
                 mClients.get(j).send(Message.obtain(null,
                 		PushServiceUtil.MSG_NEW_MESSAGE, 
-                		m.mTotalNum, m.mUnReadNum, jid));
+                		0, 0, jid));
+            } catch (RemoteException e) {               
+                mClients.remove(j);
+            }
+		}    		
+    }
+    // TODO using thread
+    private void loadVCard(String jid){
+    	
+    	try {
+			this.xmppManager.getVCard(jid);
+		} catch (XMPPException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for (int j=mClients.size()-1; j>=0; j--) {
+            try {
+                mClients.get(j).send(Message.obtain(null,
+                		PushServiceUtil.MSG_REQUEST_VCARD, 
+                		0, 0, jid));
             } catch (RemoteException e) {               
                 mClients.remove(j);
             }
 		}
-    	
-    	
-    		
     }
     /**
      * Handler of incoming messages from clients.
@@ -541,39 +527,15 @@ public class IMService extends Service {
                 case PushServiceUtil.MSG_UNREGISTER_CLIENT:
                     mClients.remove(msg.replyTo);
                     break;
-                case PushServiceUtil.MSG_UNREAD_NUMBBER:
-                    mValue = msg.arg1;  
-                    if(mMsgStateList == null){
-                    	break;
-                    }
-                    int nSize = mMsgStateList.size();
-                    for (int i=mClients.size()-1; i>=0; i--) {                    	
-                        for ( int j=0; j<nSize; j++){
-                        	
-                        	try {                        	
-                                mClients.get(i).send(Message.obtain(null,
-                                		PushServiceUtil.MSG_UNREAD_NUMBBER, 
-                                		mMsgStateList.get(j).mTotalNum, 
-                                		mMsgStateList.get(j).mUnReadNum,
-                                		mMsgStateList.get(j).mJid));
-                                if(j == nSize-1){
-                               	 mClients.get(i).send(Message.obtain(null,
-                                    		PushServiceUtil.MSG_UNREAD_NUMBBER, 
-                                    		mMsgStateList.get(j).mTotalNum, 
-                                    		mMsgStateList.get(j).mUnReadNum,
-                                    		null));
-                                }
-                            } catch (RemoteException e) {
-                                mClients.remove(i);
-                            }                            
-                        }                    
-                    }
+                case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
                     break;
+                case PushServiceUtil.MSG_REQUEST_VCARD:
+                	loadVCard((String)msg.obj);
+                	break;
                 default:
                     super.handleMessage(msg);
             }
         }
     }
-    
     
 }

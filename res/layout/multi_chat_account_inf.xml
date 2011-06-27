@@ -3,7 +3,8 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="match_parent" android:orientation="vertical"
-  android:background="@drawable/s0_frame_activity_inner">
+  android:background="@drawable/s0_frame_activity_inner"
+  >
    
   <LinearLayout
 	  xmlns:android="http://schemas.android.com/apk/res/android"
@@ -42,10 +43,64 @@
 		</ImageButton>
 	</LinearLayout>
   
-  <TextView android:text="TextViewiuhihuhjniojoijoijoijoi" 
-  			android:id="@+id/textView1" 
-  			android:layout_width="wrap_content" 
-  			android:layout_height="wrap_content">
-  </TextView>
+	<TextView android:id="@+id/line" 
+   	     	android:layout_width="match_parent" 
+   	     	android:layout_height="1dp"   	     	
+   	     	android:background="@color/light_black">
+   	</TextView>
+  
+  <RelativeLayout android:id="@+id/linearLayout1" 
+  	android:layout_height="wrap_content" 
+  	android:layout_width="match_parent"
+  	android:layout_margin="5dp">
+  	
+  	<ImageView android:id="@+id/avater" 
+  		android:layout_height="wrap_content" 
+  		android:layout_width="wrap_content" 
+  		android:src="@drawable/icon">
+  	</ImageView>
+  	<TextView android:id="@+id/username" 
+  		android:text="TextView" 
+  		android:textColor="@color/black"
+  		android:layout_height="wrap_content"   		
+  		android:layout_width="wrap_content" 
+  		android:layout_toRightOf="@+id/avater">
+  	</TextView>
+  	<TextView android:id="@+id/geyan" 
+  		android:text="TextView"
+  		android:textColor="@color/black" 
+  		android:layout_height="wrap_content"   		
+  		android:layout_width="wrap_content" 
+  		android:layout_toRightOf="@+id/avater"
+  		android:layout_below="@+id/username">
+  	</TextView>
+  
+  </RelativeLayout>
+  <TextView android:id="@+id/line2" 
+   	     	android:layout_width="match_parent" 
+   	     	android:layout_height="1dp"   	     	
+   	     	android:background="@color/light_black">
+   	</TextView>
+ 
+  <ScrollView android:id="@+id/scrollView1" 
+  	android:layout_height="wrap_content" 
+  	android:layout_width="match_parent"
+  	android:padding="5dp"
+  	>
+      <LinearLayout android:layout_width="match_parent"
+      	android:id="@+id/linearLayout3" 
+      	android:layout_height="match_parent"
+      	android:orientation="vertical">
+      		<TextView android:text="" android:id="@+id/jid" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+      		<TextView android:text="@string/im_nick" android:id="@+id/nickName" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+      		<TextView android:text="@string/im_sex" android:id="@+id/sex" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+  			<TextView android:text="@string/im_state" android:id="@+id/state" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+  			<TextView android:text="@string/im_mob" android:id="@+id/phone" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+			
+			<TextView android:text="" android:id="@+id/white" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="15dp"></TextView>
+			<TextView android:text="@string/im_note" android:id="@+id/note" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
 	
+      </LinearLayout>
+  </ScrollView>
+  
 </LinearLayout>
