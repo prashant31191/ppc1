@@ -51,6 +51,12 @@
     <string name="im_city">城市：</string>
     <string name="im_mob">手机：</string>
     <string name="im_weibo">微博：</string>
-    <string name="im_note">备注：</string>  
+    <string name="im_note">备注：</string>
+    <string name="geyan_default">用户没有输入什么...</string>
+    <!-- 每次动态加载的条数 -->
+    <integer name="load_item_per_time">6</integer>
+    <!-- 加载历史记录时，初始化的条数 -->
+    <integer name="history_init_item_num">21</integer>
+    
     
 </resources>

@@ -4,6 +4,7 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical"	
   	android:background="@drawable/s0_frame_activity"
+  	android:id="@+id/layout_root"
 	>
   <com.openims.widgets.HorizontialListView
   	android:id="@+id/multi_chat_user"

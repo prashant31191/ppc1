@@ -28,7 +28,8 @@ public class PresenceListener implements PacketListener {
 		else if (presence.getType() == Presence.Type.unavailable) {
 			roster.updatePresence(from, Presence.Type.unavailable.name());
 		}
-		xmppManager.notifyRosterUpdated();
+		roster.close();
+		xmppManager.notifyRosterUpdated(from);
 	}
 
 }

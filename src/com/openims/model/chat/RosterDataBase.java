@@ -97,6 +97,17 @@ public class RosterDataBase {
 		values.put(PRESENCE, presence);
 		return db.update(TABLE_NAME, values, ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"", null);
 	}
+	public String getPresence(String jid){
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+	
+		Cursor c = db.query(TABLE_NAME, new String[]{PRESENCE}, ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"",
+				null, null, null, null);
+		String pr = null;
+		if(c.moveToFirst()){
+			pr = c.getString(0);
+		}
+		return pr;
+	}
 	public int updateVcard(String jid, String vcard){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -116,7 +127,7 @@ public class RosterDataBase {
 	 * @param unReadMsg
 	 * @return
 	 */	
-	public int updateUnReadMsg(String jid, Integer unReadMsg,Integer msgStartId){
+	public int updateUnReadMsg(String jid, long unReadMsg,long msgStartId){
 		Integer startId = 0;
 		long time = 0;
 		String where = ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"";
@@ -142,7 +153,7 @@ public class RosterDataBase {
 		}
 		return db.update(TABLE_NAME, values, where, null);
 	}
-	public int updateColumn(String jid, String columnName, int value){
+	public int updateColumn(String jid, String columnName, long value){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put(columnName, value);

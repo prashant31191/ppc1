@@ -1,5 +1,9 @@
 package com.openims.utility;
 
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+
 public class PushServiceUtil{
 	public static final String PACKAGE_NAME = "com.openims";
     // the action for service
@@ -115,4 +119,12 @@ public class PushServiceUtil{
     public static final int MSG_ROSTER_UPDATED = 5;
     
     public static final int MSG_REQUEST_VCARD = 6;
+    
+    
+    public static ColorFilter GREY_COLOR_FILTER = new ColorMatrixColorFilter( new ColorMatrix(new float[]{0.5f,0.5f,0.5f,0,0, 
+            0.5f,0.5f,0.5f,0,0, 
+            0.5f,0.5f,0.5f,0,0, 
+            0,0,0,1,0,0, 
+            0,0,0,0,1,0 
+            })); 
 }

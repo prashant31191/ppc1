@@ -77,7 +77,7 @@ public class MessageRecord {
 	 * @param bSmall
 	 * @return
 	 */
-	public Cursor queryItems(int startId,int nNum,boolean bSmall){
+	public Cursor queryItems(long startId,int nNum,boolean bSmall){
 		
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		String where;
@@ -102,8 +102,22 @@ public class MessageRecord {
 		return db.query(tableName,null,where,null,null,null,
 				orderBy,limit);
 	}
-	
-	public int insert(String from, String to, String content, String date){
+	public long getMaxId(){
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		String query = "SELECT MAX(" + ID + ") FROM "+ tableName;
+	    Cursor cursor = db.rawQuery(query, null);
+
+	    long id = 0;     
+	    if (cursor.moveToFirst())
+	    {
+	        do
+	        {           
+	            id = cursor.getLong(0);                  
+	        } while(cursor.moveToNext());           
+	    }
+	    return id;
+	}
+	public long insert(String from, String to, String content, String date){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		
 		ContentValues values = new ContentValues();
@@ -111,7 +125,7 @@ public class MessageRecord {
 		values.put(TO, to);
 		values.put(CONTENT, content);
 		values.put(DATE, date);
-		return (int)db.insert(tableName, null, values);
+		return db.insert(tableName, null, values);
 		
 	}
 	public void insert(String from, String to, String content, String date,

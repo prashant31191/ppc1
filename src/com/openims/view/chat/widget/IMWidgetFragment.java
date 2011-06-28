@@ -193,7 +193,7 @@ public class IMWidgetFragment extends Fragment
                 case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
                     break;
                 case PushServiceUtil.MSG_ROSTER_UPDATED:
-                	Log.e(TAG, PRE + "roster updated");
+                	Log.d(TAG, PRE + "roster updated");
                 	mFriendFragment.reRoadData();
                 	break;
                 case PushServiceUtil.MSG_REQUEST_VCARD:

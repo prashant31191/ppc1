@@ -36,7 +36,7 @@ public class ChatPacketListener implements PacketListener{
             			MessageRecord.getMessageRecordTableName(
             			xmppManager.getUserNameWithHostName(), fromJid));
             	
-                int id = mr.insert(fromJid, xmppManager.getUserNameWithHostName(), 
+                long id = mr.insert(fromJid, xmppManager.getUserNameWithHostName(), 
                 		message.getBody(), 
                 		String.valueOf(System.currentTimeMillis()));
                 mr.close();

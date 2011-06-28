@@ -581,8 +581,8 @@ public class XmppManager{
     public void notifyNewMessage(String jid){
     	imservice.setOneUnreadMessage(jid);
     }
-    public void notifyRosterUpdated(){
-    	imservice.notifyRosterUpdated();
+    public void notifyRosterUpdated(String jid){
+    	imservice.notifyRosterUpdated(jid);
     }
     private void initPubSub(){
     	ProviderManager pm = ProviderManager.getInstance();
@@ -990,7 +990,7 @@ public class XmppManager{
 		
 		VCardDataBase vc = new VCardDataBase(this.getContext(),
    			 this.getUserNameWithHostName());
-		vc.removeAll();
+		
    	 	long n = vc.insert(jid, vcard);
    	 	vc.close();
     }

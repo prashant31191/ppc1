@@ -45,17 +45,9 @@ public class FriendListFragment extends Fragment
 	private RosterExpandableListAdapter mAdapter;
 	private ExpandableListView mFriendListView;
 	
-	private ColorFilter mGreyColorFilter = new ColorMatrixColorFilter( new ColorMatrix(new float[]{0.5f,0.5f,0.5f,0,0, 
-            0.5f,0.5f,0.5f,0,0, 
-            0.5f,0.5f,0.5f,0,0, 
-            0,0,0,1,0,0, 
-            0,0,0,0,1,0 
-            })); 
-	
 	private OnAvater onAvater;
     
     private String mUsername;
-    private Bitmap mDefaultHead;
     
     private int columnIndexJId = 0;
     private int columnIndexGroup = 0;
@@ -340,7 +332,7 @@ public class FriendListFragment extends Fragment
 	            if(entry.isOnline){	            	
 	            	head.setColorFilter(null);
 	            }else{	            	
-	            	head.setColorFilter(mGreyColorFilter);
+	            	head.setColorFilter(PushServiceUtil.GREY_COLOR_FILTER);
 	            }
 	            //head.setImageBitmap(mDefaultHead);
 	            return view;

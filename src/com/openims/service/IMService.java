@@ -472,11 +472,11 @@ public class IMService extends Service {
     		xmppManager.broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL);
     	}
     }
-    public void notifyRosterUpdated(){
+    public void notifyRosterUpdated(String jid){
     	for (int i=mClients.size()-1; i>=0; i--) {
             try {
                 mClients.get(i).send(Message.obtain(null,
-                		PushServiceUtil.MSG_ROSTER_UPDATED, 0, 1));
+                		PushServiceUtil.MSG_ROSTER_UPDATED, 0, 1,jid));
             } catch (RemoteException e) {               
                 mClients.remove(i);
             }
@@ -495,24 +495,28 @@ public class IMService extends Service {
 		}    		
     }
     // TODO using thread
-    private void loadVCard(String jid){
-    	
-    	try {
-			this.xmppManager.getVCard(jid);
-		} catch (XMPPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		for (int j=mClients.size()-1; j>=0; j--) {
-            try {
-                mClients.get(j).send(Message.obtain(null,
-                		PushServiceUtil.MSG_REQUEST_VCARD, 
-                		0, 0, jid));
-            } catch (RemoteException e) {               
-                mClients.remove(j);
+    private void loadVCard(final String jid){
+    	taskSubmitter.submit(new Runnable() {
+            public void run() {
+            	try {
+        			xmppManager.getVCard(jid);
+        		} catch (XMPPException e) {
+        			// TODO Auto-generated catch block
+        			e.printStackTrace();
+        		}
+        		
+        		for (int j=mClients.size()-1; j>=0; j--) {
+                    try {
+                        mClients.get(j).send(Message.obtain(null,
+                        		PushServiceUtil.MSG_REQUEST_VCARD, 
+                        		0, 0, jid));
+                    } catch (RemoteException e) {               
+                        mClients.remove(j);
+                    }
+        		}
             }
-		}
+        });
+    	
     }
     /**
      * Handler of incoming messages from clients.

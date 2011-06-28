@@ -1,5 +1,7 @@
 package com.openims.view.chat;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 
 import android.app.Dialog;
@@ -9,9 +11,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -25,7 +29,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -42,7 +45,6 @@ import com.openims.service.IMService;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.chat.MessageBoxAdapter.Account;
-import com.openims.view.chat.OnAvater.OnAvaterListener;
 import com.openims.widgets.HorizontialListView;
 
 public class MultiChatActivity extends FragmentActivity 
@@ -59,13 +61,16 @@ public class MultiChatActivity extends FragmentActivity
 	private HorizontialListView chatUserListview;
 	private MessageBoxAdapter mMessageBoxAdapter;	
 	private ChatMainFragment mChatMainFragment;
-	private String myJid;
-	private String mChatJid;
 	
+	private String mMyJid;
+	private String mYourJid;
+	
+	// for update avater
 	private MyApplication myApplication;
 	private final HashMap<String,OnAvaterListener> avaterListeners = 
 		new HashMap<String,OnAvaterListener>();
 	
+	// for activity communicate with service
 	/** Messenger for communicating with service. */
 	private Messenger mService = null;
 	/** Flag indicating whether we have called bind on the service. */
@@ -78,48 +83,55 @@ public class MultiChatActivity extends FragmentActivity
 		super.onCreate(bundle);
 		Log.i(TAG, PRE + "onCreate");
 		
+		// set window property
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		
 		setContentView(R.layout.multi_chat);		
-			
-		// init main chat fragment
+		View v = this.findViewById(R.id.layout_root);
+		v.setDrawingCacheEnabled(true);
+		
+		// initial main chat fragment
 		if(bundle == null){
 			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-			mChatMainFragment = new ChatMainFragment();			
+			mChatMainFragment = new ChatMainFragment();
+			mChatMainFragment.setOnAvater(this);
 	        ft.add(R.id.multi_chat_content, mChatMainFragment,TAG_CHAT_MAIN).commit();
 			
 		}else{			
 			mChatMainFragment = (ChatMainFragment)getSupportFragmentManager().findFragmentByTag(TAG_CHAT_MAIN);
 		}		
 				
-		
+		// initial global data
 		SharedPreferences sharedPrefs = getSharedPreferences(
 				PushServiceUtil.SHARED_PREFERENCE_NAME,
 				Context.MODE_PRIVATE);
-		myJid = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, null)+"@smit";
+		mMyJid = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, null)+"@smit";
+		myApplication = (MyApplication)getApplication();
 		
-		// init chat user list
+		// initial chat user list
 		chatUserListview = (HorizontialListView)findViewById(R.id.multi_chat_user);
 		chatUserListview.setOnItemSelectedListener(this);	
 		
 		Intent intent = getIntent();		
-		mChatJid  = intent.getStringExtra(ACCOUNT_JID);
+		mYourJid  = intent.getStringExtra(ACCOUNT_JID);
 		
 		mMessageBoxAdapter = new MessageBoxAdapter(this);
 		mMessageBoxAdapter.setOnAvater(this);
-		mMessageBoxAdapter.setSelectedJid(mChatJid);
-		int nstartId = mMessageBoxAdapter.initAdapter(myJid);
+		mMessageBoxAdapter.setSelectedJid(mYourJid);
+		int nstartId = mMessageBoxAdapter.initAdapter(mMyJid);
 		
 		chatUserListview.setAdapter(mMessageBoxAdapter);
 		
-		String tableName = MessageRecord.getMessageRecordTableName(myJid, mChatJid);
-		mChatMainFragment.setTableName(tableName, nstartId, mChatJid,myJid);
+		// initial chat fragment
+		String tableName = MessageRecord.getMessageRecordTableName(mMyJid, mYourJid);
+		mChatMainFragment.setTableName(tableName, nstartId, mYourJid,mMyJid);
 		
 		addListener();
-		myApplication = (MyApplication)getApplication();
 		
+		// connect to service
+		doBindService();		
 	}
 
 	private void addListener(){
@@ -129,7 +141,10 @@ public class MultiChatActivity extends FragmentActivity
 			@Override
 			public void onClick(View v) {
 				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-				ft.replace(R.id.multi_chat_content, new AccountInfFragment(),TAG_ACCOUNT_INF);
+				ChatAccountInfFragment inf = new ChatAccountInfFragment();
+				inf.setOnAvater(MultiChatActivity.this);
+				inf.setInf(mMyJid, mYourJid);
+				ft.replace(R.id.multi_chat_content, inf,TAG_ACCOUNT_INF);
 			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 			    ft.addToBackStack(null);
 				ft.commit();
@@ -142,18 +157,36 @@ public class MultiChatActivity extends FragmentActivity
 			public void onClick(View v) {
 				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 				ChatHistoryFragment history = new ChatHistoryFragment();
+				history.setOnAvater(MultiChatActivity.this);
 				history.setDataTableName(
-						MessageRecord.getMessageRecordTableName(myJid,mChatJid)
-						,myJid);
+						MessageRecord.getMessageRecordTableName(mMyJid,mYourJid)
+						,mMyJid,mYourJid);
 				ft.replace(R.id.multi_chat_content, history,TAG_HISTORY);
 			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 			    ft.addToBackStack(null);
-				ft.commit();				
+				ft.commit();
 			}	
 			
 		});	
 	}
 	
+	private void getScreen()
+	   {
+	    View content = findViewById(R.id.layout_root);
+	    Bitmap bitmap = content.getDrawingCache();
+	    File file = new File( Environment.getExternalStorageDirectory() + "/test.png");
+	    try 
+	    {
+	        file.createNewFile();
+	        FileOutputStream ostream = new FileOutputStream(file);
+	        bitmap.compress(CompressFormat.PNG, 100, ostream);
+	        ostream.close();
+	    } 
+	    catch (Exception e) 
+	    {
+	        e.printStackTrace();
+	    }
+	}
 	@Override
 	public View onCreateView(String name, Context context, AttributeSet attrs) {		
 		View v = super.onCreateView(name, context, attrs);		
@@ -246,25 +279,20 @@ public class MultiChatActivity extends FragmentActivity
 
 	@Override
 	protected void onStart() {
-		Log.i(TAG, PRE + "onStart");
-		// connect to service
-		doBindService();
+		Log.i(TAG, PRE + "onStart");		
 		super.onStart();
 	}
 
 	@Override
 	protected void onPause() {
-		Log.i(TAG, PRE + "onPause");
-		
+		Log.i(TAG, PRE + "onPause");		
 		super.onPause();
 	}
-
 	@Override
 	protected void onRestart() {
 		Log.i(TAG, PRE + "onRestart");
 		super.onRestart();
 	}
-
 	@Override
 	protected void onResume() {
 		Log.i(TAG, PRE + "onResume");
@@ -273,23 +301,18 @@ public class MultiChatActivity extends FragmentActivity
 
 	@Override
 	protected void onStop() {
-		Log.i(TAG, PRE + "onStop");
-		doUnbindService();
+		Log.i(TAG, PRE + "onStop");		
 		super.onStop();
 	}
 
 	@Override
 	protected void onDestroy() {
 		Log.i(TAG, PRE + "onDestroy");
+		doUnbindService();
 		mMessageBoxAdapter.close();
 		super.onDestroy();
 	}
 	
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		Log.i(TAG, PRE + "onTouchEvent");
-		return super.onTouchEvent(event);
-	}
 	
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view,
@@ -298,7 +321,7 @@ public class MultiChatActivity extends FragmentActivity
 		Account account = (Account)view.getTag();
 		// delete item
 		if(mMessageBoxAdapter.getSelectedJid().equals(account.jId)){
-			RosterDataBase roster = new RosterDataBase(this, myJid);
+			RosterDataBase roster = new RosterDataBase(this, mMyJid);
 			roster.updateColumn(account.jId, RosterDataBase.NEW_MSG_TIME, 0);
 			roster.close();
 			account = mMessageBoxAdapter.deleteAccount(position);
@@ -308,17 +331,17 @@ public class MultiChatActivity extends FragmentActivity
 			}
 		}
 		
-		mChatJid = account.jId;
-		mMessageBoxAdapter.setSelectedJid(mChatJid);
-		RosterDataBase roster = new RosterDataBase(this, myJid);
+		mYourJid = account.jId;
+		mMessageBoxAdapter.setSelectedJid(mYourJid);
+		RosterDataBase roster = new RosterDataBase(this, mMyJid);
 		roster.updateColumn(account.jId, RosterDataBase.NEW_MSG_UREAD, 0);
 		roster.close();
-		mMessageBoxAdapter.initAdapter(myJid);
+		mMessageBoxAdapter.initAdapter(mMyJid);
 		mMessageBoxAdapter.notifyDataSetChanged();
 		
 		mChatMainFragment.setTableName(
-				MessageRecord.getMessageRecordTableName(myJid,mChatJid),
-				account.msgStartId,mChatJid,myJid);	
+				MessageRecord.getMessageRecordTableName(mMyJid,mYourJid),
+				account.msgStartId,mYourJid,mMyJid);	
 		// show main Fragment
 		if(getSupportFragmentManager().findFragmentByTag(TAG_HISTORY) != null ||
 		getSupportFragmentManager().findFragmentByTag(TAG_ACCOUNT_INF) != null){
@@ -347,8 +370,23 @@ public class MultiChatActivity extends FragmentActivity
                 	recUnReadMessage(msg);                	
                 	break;
                 case PushServiceUtil.MSG_ROSTER_UPDATED:                	
-                	mMessageBoxAdapter.initAdapter(myJid);
+                	mMessageBoxAdapter.initAdapter(mMyJid);
                 	mMessageBoxAdapter.notifyDataSetChanged();
+                	if(mYourJid.equals(msg.obj)){            			
+                		mChatMainFragment.updatePresence();
+                		mChatMainFragment.notifyDataSetChanged();
+                		ChatHistoryFragment history = (ChatHistoryFragment)getSupportFragmentManager()
+                					.findFragmentByTag(TAG_HISTORY);
+                		if(history != null){
+                			history.updatePresence();
+                			history.notifyDataSetChanged();
+                		}
+                		ChatAccountInfFragment inf = (ChatAccountInfFragment)getSupportFragmentManager()
+    					.findFragmentByTag(TAG_ACCOUNT_INF);
+                		if(inf != null){
+                			inf.updatePresence();
+                		}
+            		}
                 	break;
                 case PushServiceUtil.MSG_REQUEST_VCARD:
                 	String jid = (String)msg.obj;
@@ -357,8 +395,21 @@ public class MultiChatActivity extends FragmentActivity
                 		listener.avater(jid, myApplication.getAvater(jid));
                 		avaterListeners.remove(jid);
                 	}
-                	mMessageBoxAdapter.initAdapter(myJid);
+                	mMessageBoxAdapter.initAdapter(mMyJid);
             		mMessageBoxAdapter.notifyDataSetChanged();
+            		if(mYourJid.equals(jid)){            			
+            			mChatMainFragment.avater(jid, myApplication.getAvater(jid));
+            			ChatHistoryFragment history = (ChatHistoryFragment)getSupportFragmentManager()
+    									.findFragmentByTag(TAG_HISTORY);
+			    		if(history != null){
+			    			history.avater(jid, myApplication.getAvater(jid));
+			    		}
+			    		ChatAccountInfFragment inf = (ChatAccountInfFragment)getSupportFragmentManager()
+										.findFragmentByTag(TAG_ACCOUNT_INF);
+			    		if(inf != null){
+			    			inf.avater(jid, myApplication.getAvater(jid));
+			    		}
+            		}
                 	break;
                 default:
                     super.handleMessage(msg);
@@ -366,11 +417,11 @@ public class MultiChatActivity extends FragmentActivity
         }
     }
     private void recUnReadMessage(Message msg){
-    	mMessageBoxAdapter.initAdapter(myJid);
+    	mMessageBoxAdapter.initAdapter(mMyJid);
     	mMessageBoxAdapter.notifyDataSetChanged();
-    	if(mChatJid.equals(msg.obj)){
-    		RosterDataBase roster = new RosterDataBase(this, myJid);
-    		roster.updateColumn(mChatJid, RosterDataBase.NEW_MSG_UREAD, 0);
+    	if(mYourJid.equals(msg.obj)){
+    		RosterDataBase roster = new RosterDataBase(this, mMyJid);
+    		roster.updateColumn(mYourJid, RosterDataBase.NEW_MSG_UREAD, 0);
     		roster.close();
         	mChatMainFragment.updateList();
         }
@@ -457,9 +508,12 @@ public class MultiChatActivity extends FragmentActivity
 		if(avaterListeners.get(avaterJid) != null){
 			return getResources().getDrawable(R.drawable.icon); 
 		}
-		// notify jia zai
-		avaterListeners.put(avaterJid, listener);		
+		// notify service to get VCARD
 		d = getResources().getDrawable(R.drawable.icon);
+		if(mService == null){
+			return d;
+		}
+		avaterListeners.put(avaterJid, listener);
 		
 		Message msg = Message.obtain(null,
         		PushServiceUtil.MSG_REQUEST_VCARD);
