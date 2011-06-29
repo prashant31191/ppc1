@@ -1,5 +1,6 @@
 package com.smit.EasyLauncher;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Intent.ShortcutIconResource;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -67,6 +69,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -111,7 +114,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private static int sScreen = DEFAULT_SCREEN;
    // public LinkedList<WidgetInfo> mwidgetInfo=null;
 	//new LinkedList<WidgetInfo>();
-    private ImageView mailView;
+  //  private ImageView mailView;
     private static final String EXTRA_CUSTOM_WIDGET = "custom_widget";	
     
     public static final int SCREEN_H=0,SCREEN_V=1;	//横竖屏
@@ -213,7 +216,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 		}else {
 			curdir=SCREEN_H;
 		}
-
+        mDesktopItems.clear();
         mModel = new LauncherModel();
         mModel.initialize(this);
         mDragController = new DragController(this);
@@ -233,7 +236,8 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         
         mSavedState = savedInstanceState;
         restoreState(mSavedState);
-        
+        int mScreen=mWorkspace.getCurrentScreen();
+        setPagebuttonFocus(mScreen+1,true);
         if (!mRestoring) {
             mModel.startLoader(this, true, mLocaleChanged);
         }
@@ -324,7 +328,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         workspace.setHapticFeedbackEnabled(false);
         DeleteZone deleteZone = (DeleteZone) dragLayer.findViewById(R.id.delete_zone);
         mDeleteZone = deleteZone;
-        mailView=(ImageView)findViewById(R.id.iconmail);
+      //  mailView=(ImageView)findViewById(R.id.iconmail);
        
         mSetbutton=(ImageButton)findViewById(R.id.bt_setting);
         mNewsbutton=(ImageButton)findViewById(R.id.bt_info);
@@ -332,47 +336,13 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         mMusicButton=(ImageButton)findViewById(R.id.bt_music);
         mTvbutton=(ImageButton)findViewById(R.id.bt_tv);
         mAppbutton=(ImageButton)findViewById(R.id.bt_allapp);
-        
-//        if(GetCurDir()==SCREEN_H)
-//        {
-//        	Bitmap bmset = BitmapFactory.decodeResource(getResources(),
-//    				R.drawable.bt_seting);
-//        	BitmapDrawable bmsetDrawable=SetBmpRotate(bmset);
-//        	mSetbutton.setImageDrawable(bmsetDrawable);
-//        	
-//           	Bitmap bmnews = BitmapFactory.decodeResource(getResources(),
-//    				R.drawable.bt_info);
-//        	BitmapDrawable bmnewsDrawable=SetBmpRotate(bmnews);
-//        	mNewsbutton.setImageDrawable(bmnewsDrawable);
-//        	
-//           	Bitmap bmmovie = BitmapFactory.decodeResource(getResources(),
-//    				R.drawable.bt_movie);
-//        	BitmapDrawable bmmovieDrawable=SetBmpRotate(bmmovie);
-//        	mMoviebutton.setImageDrawable(bmmovieDrawable);
-//        	
-//        	Bitmap bmtv = BitmapFactory.decodeResource(getResources(),
-//    				R.drawable.bt_tv);
-//        	BitmapDrawable bmtvDrawable=SetBmpRotate(bmtv);
-//        	mTvbutton.setImageDrawable(bmtvDrawable);
-//        	
-//           	Bitmap bmmusic = BitmapFactory.decodeResource(getResources(),
-//    				R.drawable.bt_music);
-//        	BitmapDrawable bmmusicDrawable=SetBmpRotate(bmmusic);
-//        	mMusicButton.setImageDrawable(bmmusicDrawable);
-//        	
-//           	Bitmap bmapp = BitmapFactory.decodeResource(getResources(),
-//    				R.drawable.bt_allapp);
-//        	BitmapDrawable bmappDrawable=SetBmpRotate(bmapp);
-//        	mAppbutton.setImageDrawable(bmappDrawable);
-//        	
-//        	
-//        }
-        
-//        mPagebutton1=(ImageButton)findViewById(R.id.page1);
-//        mPagebutton2=(ImageButton)findViewById(R.id.page2);
-//        mPagebutton3=(ImageButton)findViewById(R.id.page3);
-//        mPagebutton4=(ImageButton)findViewById(R.id.page4);
-//        mPagebutton5=(ImageButton)findViewById(R.id.page5);
+        mSetbutton.setOnClickListener(controlbt_click);
+        mNewsbutton.setOnClickListener(controlbt_click);
+        mMoviebutton.setOnClickListener(controlbt_click);
+        mMusicButton.setOnClickListener(controlbt_click);
+        mTvbutton.setOnClickListener(controlbt_click);
+        mAppbutton.setOnClickListener(controlbt_click);
+
         mPagebutton1=(ImageButton)findViewById(R.id.page1);
         mPagebutton2=(ImageButton)findViewById(R.id.page2);
         mPagebutton3=(ImageButton)findViewById(R.id.page3);
@@ -414,7 +384,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         
         mDefaultKeySsb = new SpannableStringBuilder();
         Selection.setSelection(mDefaultKeySsb, 0);
-        setPagebuttonFocus(mWorkspace.getCurrentScreen()+1,true);
+
        // mhomeImageView=(ImageView)findViewById(R.id.backhome);
 	   // mhomeImageView.setOnClickListener(this);
        // imRecy=(ImageView)findViewById(R.id.Recybk);
@@ -427,27 +397,73 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 	  //  unreadmail_visble_amation=AnimationUtils.loadAnimation(this, R.anim.mail_visable);
 	  //  unreadmail_gone_amation=AnimationUtils.loadAnimation(this, R.anim.mail_gone);
 	
-	    quit_recy_in_amation=AnimationUtils.loadAnimation(this, R.anim.quit_recy_in);
-	    quit_recy_out_amation=AnimationUtils.loadAnimation(this, R.anim.quit_recy_out);
-        if (GetScreenDir()==SCREEN_H) {
-			rcRecy=new Rect(690,150,800,300);
-		}else {
-			rcRecy=new Rect(400,200,480,300);
-		}
+//	    quit_recy_in_amation=AnimationUtils.loadAnimation(this, R.anim.quit_recy_in);
+//	    quit_recy_out_amation=AnimationUtils.loadAnimation(this, R.anim.quit_recy_out);
+//        if (GetScreenDir()==SCREEN_H) {
+//			rcRecy=new Rect(690,150,800,300);
+//		}else {
+//			rcRecy=new Rect(400,200,480,300);
+//		}
  
 	}
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
     	// TODO Auto-generated method stub
+    	
     	super.onConfigurationChanged(newConfig);
-    	if(newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE)
-    	{
-    		//mWorkspace.startAnimation(animation);
-			
-    	}
-    	myAnimation_Rotate= AnimationUtils.loadAnimation(this,R.anim.my_rotate_action);
+//    	if(newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE)
+//    	{
+//    		//mWorkspace.startAnimation(animation);
+//			
+//    	}
+    	
+        try {
+            mAppWidgetHost.stopListening();
+        } catch (NullPointerException ex) {
+            Log.w(TAG, "problem while stopping AppWidgetHost during Launcher destruction", ex);
+        }
+
+        TextKeyListener.getInstance().release();
+
+        mModel.stopLoader();
+
+        unbindDesktopItems();
+
+        getContentResolver().unregisterContentObserver(mWidgetObserver);
+        
+        if (GetCurDir()==SCREEN_V) {
+			curdir=SCREEN_V;
+		}else {
+			curdir=SCREEN_H;
+		}
+        mDesktopItems.clear();
+        mModel = new LauncherModel();
+        mModel.initialize(this);
+        mDragController = new DragController(this);
+        mInflater = getLayoutInflater();
+        mAppWidgetManager = AppWidgetManager.getInstance(this);
+		mAppWidgetHost = new LauncherAppWidgetHost(this, APPWIDGET_HOST_ID);
+        mAppWidgetHost.startListening();
+        
+        registerContentObservers();
+        setWallpaperDimension();
+      //  this.getWindow().
+    	setContentView(R.layout.easylauncher);
+//        if (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+//        {
+//          /* 若当下为横排，则更改为竖排呈现 */
+//          setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        } else if (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+//        {O
+//          /* 若当下为竖排，则更改为横排呈现 */
+//          setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//        }
+    	//myAnimation_Rotate= AnimationUtils.loadAnimation(this,R.anim.my_rotate_action);
     	//View dragLayer;
-		dragLayer.startAnimation(myAnimation_Rotate);
+		//dragLayer.startAnimation(myAnimation_Rotate);
+	//	setContentView(R.layout.easylauncher);
+		//setupViews();
+		//this.
     	//newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE
     	
     	
@@ -515,6 +531,59 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 			break;
 		}
 	}
+	private ImageButton.OnClickListener controlbt_click= new ImageButton.OnClickListener()
+	{
+//        mSetbutton.setOnClickListener(controlbt_click);
+//        mNewsbutton.setOnClickListener(controlbt_click);
+//        mMoviebutton.setOnClickListener(controlbt_click);
+//        mMusicButton.setOnClickListener(controlbt_click);
+//        mTvbutton.setOnClickListener(controlbt_click);
+//        mAppbutton.setOnClickListener(controlbt_click);
+		@Override
+		public void onClick(View arg0) {
+			// TODO Auto-generated method stub
+			if(arg0 == mSetbutton)
+			{
+			
+			
+			}
+			if(arg0 == mNewsbutton)
+			{
+			
+			
+			}
+			if(arg0 == mMoviebutton)
+			{
+
+	            String packageName ="com.yinhui.EasyTouch";
+	            String className ="com.yinhui.EasyTouch.EasyTouch";
+	            boolean hasPackage = true;
+	            ComponentName cn = new ComponentName(packageName, className);
+	            if(cn!=null){
+				 Intent it = new Intent(Intent.ACTION_VIEW);  
+				 it.setComponent(cn);
+				 startActivity(it);
+	            }
+			
+			}
+			if(arg0 ==  mMusicButton)
+			{
+			
+			
+			}
+			if(arg0 == mTvbutton)
+			{
+			
+			
+			}
+			if(arg0==mAppbutton)
+			{
+				
+			}
+			
+		}
+	};
+	
 	private ImageButton.OnClickListener page1_click= new ImageButton.OnClickListener()
 	{
    
@@ -1039,7 +1108,8 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(RUNTIME_STATE_CURRENT_SCREEN, mWorkspace.getCurrentScreen());
+    	int page=mWorkspace.getCurrentScreen();
+        outState.putInt(RUNTIME_STATE_CURRENT_SCREEN, page);
         super.onSaveInstanceState(outState);
         /*
         final ArrayList<Folder> folders = mWorkspace.getOpenFolders();
@@ -2250,9 +2320,13 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
                 	
                 	if(item.id==1)
                 	{
-//	                	final View shortcut = createVideoView(item);
-//	                	workspace.addInScreen(shortcut, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
-//	                              false);
+                		
+//                		final FrameLayout destop =(FrameLayout)findViewById(R.id.destop);
+//	                	final View shortcut =(View)findViewById(R.id.tvliveview);// tvliveview
+//	                	destop.removeView(shortcut);
+                		final View shortcut = createVideoView(item);
+	                	workspace.addInScreen(shortcut, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
+	                              false);
                 	}
                 	else if(item.id==2)
                 	{
@@ -2297,6 +2371,14 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     	
     	LinearLayout favorite = (LinearLayout) mInflater.inflate(layoutResId, parent, false);
     	favorite.setTag(info);
+//        VODVideoFragment newFragment=new VODVideoFragment();
+//    	//vedio
+//    	//int id=preview.getId();
+//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//        //ft.replace(R.id.vodvideo_bk, newFragment);
+//        ft.add(R.id.video,newFragment, "video");
+//      //  ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+//        ft.commit();
         return favorite;
     }
     /**

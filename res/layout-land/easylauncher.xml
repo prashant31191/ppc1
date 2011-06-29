@@ -15,6 +15,7 @@
 -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/destop"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 <com.smit.EasyLauncher.DragLayer
@@ -123,7 +124,7 @@
 
 </com.smit.EasyLauncher.DragLayer>
 	 <LinearLayout android:id="@+id/all_apps_button_cluster" 
-        android:layout_width="wrap_content" 
+        android:layout_width="wrap_content"  android:layout_marginRight="5dip"
         android:layout_gravity="center_vertical|right"
 		android:layout_height="wrap_content" android:orientation="vertical">
 		<ImageButton android:id="@+id/bt_setting" android:layout_width="wrap_content"

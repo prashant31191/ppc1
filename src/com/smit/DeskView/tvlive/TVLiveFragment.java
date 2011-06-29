@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -133,11 +134,16 @@ public class TVLiveFragment extends Fragment {
 	}
 
 	public void setupView() {
-		
-		tvlive_loading=(FrameLayout)getActivity().findViewById(R.id.tvlive_loading);
-		tvlive_image_loading=(ImageView)(getActivity().findViewById(R.id.tvlive_image_loading));
-		tvlive_flash=(FrameLayout)getActivity().findViewById(R.id.tvlive_flash);
-		tvlive_button_flash=(Button)getActivity().findViewById(R.id.tvlive_button_flash);
+//		FragmentActivity  layout=getActivity();
+//		tvlive_loading=(FrameLayout)layout.findViewById(R.id.tvlive_loading);
+//		tvlive_image_loading=(ImageView)(getActivity().findViewById(R.id.tvlive_image_loading));
+//		tvlive_flash=(FrameLayout)getActivity().findViewById(R.id.tvlive_flash);
+//		tvlive_button_flash=(Button)getActivity().findViewById(R.id.tvlive_button_flash);
+//		
+		tvlive_loading=(FrameLayout) this.getView().findViewById(R.id.tvlive_loading);
+		tvlive_image_loading=(ImageView)this.getView().findViewById(R.id.tvlive_image_loading);
+		tvlive_flash=(FrameLayout)this.getView().findViewById(R.id.tvlive_flash);
+		tvlive_button_flash=(Button)this.getView().findViewById(R.id.tvlive_button_flash);
 		tvlive_button_flash.setOnClickListener(new OnClickListener() {		
 			@Override
 			public void onClick(View arg0) {
@@ -164,9 +170,9 @@ public class TVLiveFragment extends Fragment {
 			}
 		});
 		
-		listFrame = getActivity().findViewById(R.id.tvlive_listdragment);
+		listFrame = this.getView().findViewById(R.id.tvlive_listdragment);
 		
-		moreImage = (ImageView) getActivity().findViewById(R.id.tvlive_more);
+		moreImage = (ImageView) this.getView().findViewById(R.id.tvlive_more);
 		moreImage.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {

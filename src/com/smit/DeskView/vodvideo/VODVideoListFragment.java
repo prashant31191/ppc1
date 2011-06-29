@@ -24,6 +24,8 @@ import com.smit.EasyLauncher.R;
 import android.R.integer;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -39,6 +41,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -61,33 +65,66 @@ public class VODVideoListFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		if(checkWifiIscon()){
+		/*if(checkWifiIscon()){
 			setListAdapter(new VodVideoAdapter());
-		}else {
+			requestXml();
+		}else*/ {
 			String str=ReadVodVideoItemXML();
-			WriteVodVideoItemXML(str);
 			mMovieParse = new VodVideoMoveParse(str);
 			mMovieParse.parseDataStr();
+			mMovieParse.downloadMoviePic();
 			setListAdapter(new VodVideoAdapter());
+			
 		}		
-		
-		//setListAdapter(new VodVideoAdapter());
-		
-		getListView().setCacheColorHint(0);
-		requestXml();
-		
-		
-		//onCreateDialog(1);
-		
-
+			
+		getListView().setCacheColorHint(0);		
+		getListView().setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(android.widget.AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				ItemVideoInfo curItem=null;
+				if (mMovieParse!=null) {
+					curItem=mMovieParse.getCurInfo(arg2);
+				}
+				if (curItem!=null && curItem.getSrcUrl(0)!=null
+						&&curItem.getSrcUrl(0).length()>0) {
+					
+					/* Intent intent = new Intent();   
+		    		 intent.setClass(getActivity(),MediaPlayer_Video.class);
+					
+		    		 Bundle myBund = new Bundle();// 创建Bundle，用于保存要传送的数据
+					String mystr = curItem.getSrcUrl(0);
+					myBund.putString("media", mystr);// KEY-VALUE保存起来
+					intent.putExtras(myBund);// 设置Intent要传送的包
+		    		 
+		    		 startActivity(intent); */
+					
+					Intent intent = new Intent();
+					intent.setClass(getActivity(), FlashPlayerActivity.class);
+					Bundle myBund = new Bundle();// 创建Bundle，用于保存要传送的数据
+					String mystr = curItem.getSrcUrl(0);
+					myBund.putString("media", mystr);// KEY-VALUE保存起来
+					intent.putExtras(myBund);// 设置Intent要传送的包
+					getActivity().startActivity(intent);
+					
+				    /*if(writeXMLFile(curItem.getVideoName(), "1", curItem.getSrcUrl(0)))
+					{
+						doesSwfPlayerExists();			
+						try
+						{
+							Intent intent = new Intent();
+							intent.setClass(getActivity(), FlashPlayerActivity.class);
+							getActivity().startActivity(intent);
+						}
+						catch(Exception e)
+						{
+							Log.e("ERROR", e.getMessage());
+						}
+					}*/
+				}
+				
+			};
+		});
 	}
 	
-/*	//设置加载图片
-	public void setLoadView(){
-		LayoutInflater inflater = LayoutInflater.from(getActivity());
-		View password = inflater.inflate(R.layout.vodvideo_widget_load_progess, null);
-		getListView().setEmptyView(password);
-	}*/
 	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -125,23 +162,6 @@ public class VODVideoListFragment extends ListFragment {
 	};
 
 	public void ParseXml(String str) {
-
-	}
-	
-	public void onCreateDialog(int id) {
-		switch (id) {
-		case 1: {
-			LayoutInflater inflater = LayoutInflater.from(getActivity());
-			View password = inflater.inflate(R.layout.vodvideo_widget_load_progess, null);
-			mBuilderpass = new AlertDialog.Builder(getActivity());
-			mBuilderpass.setView(password);
-			mAlertpass = mBuilderpass.create();
-			mAlertpass.show();
-			break;
-		}
-		default:
-			break;
-		}
 
 	}
 
@@ -302,30 +322,33 @@ public class VODVideoListFragment extends ListFragment {
 			vodvideo_cover = (ImageView) convertView.findViewById(R.id.vodvideo_cover);
 			
 			
-			if (curItem!=null&&isExistFile(curItem.getPicPath(position))) {
+			if (curItem!=null&&isExistFile(curItem.getPicPath(0))) {
 				Bitmap bm = BitmapFactory.decodeFile(curItem.getPicPath(0));
 				Drawable drawable = new BitmapDrawable(bm);	
-				vodvideo_cover.setBackgroundDrawable(drawable);	
+				if(bm!=null&&drawable!=null)
+					vodvideo_cover.setBackgroundDrawable(drawable);	
+				else
+					vodvideo_cover.setBackgroundResource(R.drawable.video_load);
 			}else {
 				vodvideo_cover.setBackgroundResource(R.drawable.video_load);
 			}
 			
 			vodvideo_title = (AlwaysMarqueeTextView) convertView.findViewById(R.id.vodvideo_title);
-			if (curItem!=null && curItem.getVideoName()!=null) {
+			if (curItem!=null && curItem.getVideoName()!=null&&curItem.getVideoName().length()>0) {
 				vodvideo_title.setText(curItem.getVideoName());
 			}else {
 				vodvideo_title.setText(R.string.vodvideo_widget_defvideo);
 			}
 		
 			vodvideo_time = (TextView) convertView.findViewById(R.id.vodvideo_time);
-			if (curItem!=null && curItem.movie_time!=null) {
+			if (curItem!=null && curItem.getVideoTime()!=null && curItem.getVideoTime().length()>0) {
 				vodvideo_time.setText(curItem.movie_time);
 			}else {
 				vodvideo_time.setText(R.string.vodvideo_widget_deftime);		
 			}
 			
 			vodvideo_descrpition = (TextView) convertView.findViewById(R.id.vodvideo_descrpition);
-			if (curItem!=null && curItem.getVideoDes()!=null) {
+			if (curItem!=null && curItem.getVideoDes()!=null&&curItem.getVideoDes().length()>0) {
 				vodvideo_descrpition.setText(curItem.getVideoDes());
 			}else {
 				vodvideo_descrpition.setText(R.string.vodvideo_widget_decript);
@@ -336,5 +359,129 @@ public class VODVideoListFragment extends ListFragment {
 		}
 		
 	}
+	
+	
+	private boolean doesSwfPlayerExists()
+    {
+    	Context c = getActivity();  	
+    	String path = "data/data/com.smit.EasyLauncher/temp/";
+    	String fileName1 = "fflvplayer.html";
+    	String fileName2 = "fflvplayer.swf";
+    	copyFileFromAssetToData(c, path, fileName1);
+    	copyFileFromAssetToData(c, path, fileName2);
+    	return true;
+    }
+    
+    private void copyFileFromAssetToData(Context c, String path,  String fileName )
+    {
+		String FILE_DIR2 = path + fileName;
+		File destfile2 = new File(FILE_DIR2);
+		FileOutputStream out;
+		byte buf[] = new byte[16384];
+		try {
+			if (!destfile2.isFile()) {
+				destfile2.createNewFile();
+
+				// FileOutputStream fos =
+				// c.openFileOutput("testvideo.3gp",Context.MODE_PRIVATE);
+				// fos.write(buffer);
+
+				// fos.close();
+				
+		    	try {
+		    		AssetManager am = c.getAssets();
+					String [] lists = am.list("FlashPlayer");
+					int a = 10;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				//AssetFileDescriptor aFD = c.getAssets().openFd("FlashPlayer/" + fileName);//"testvideo.3gp"
+				InputStream stream = c.getAssets().open("FlashPlayer/" + fileName);
+				//FileDescriptor fileDescriptor = aFD.getFileDescriptor();
+				//InputStream stream = aFD.createInputStream();
+
+				out = new FileOutputStream(destfile2);
+				int numread = 0;
+				do {
+					numread = stream.read(buf);
+					if (numread <= 0) {
+						break;
+					} else {
+						out.write(buf, 0, numread);
+					}
+				} while (true);
+				out.close();
+				//aFD.close();
+
+			}
+		} catch (Exception e) {
+			Log.e("ERROR", "Copy From Asset To Data error!");
+		}
+    }
+    
+    
+    private boolean writeXMLFile(final String movieName, final String episodeName, final String aUrlList)
+    {
+    	File file = new File("/data/data/com.smit.EasyLauncher/temp");
+    	File xmlFile = null;
+		if (!file.exists())
+		{
+			file.mkdirs();
+		}
+		String strPath = file.getAbsolutePath();
+		strPath += "/playlist.xml";
+    	xmlFile = new File(strPath);
+    	try {
+			xmlFile.createNewFile();
+			if(xmlFile != null && xmlFile.canWrite())
+	        {
+				FileOutputStream fos = new FileOutputStream(xmlFile);
+
+				String buffer = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\r\n";
+				buffer += "<videos>\r\n";
+
+				if(-1 == aUrlList.indexOf(","))
+				{
+					buffer += "<video title=\"" + movieName + " " + episodeName +  "\" time=\"0\"><![CDATA[";
+					buffer += formatURL(aUrlList);
+					buffer += "]]></video>\r\n";
+				}
+				else
+				{
+					int index = 0;
+					String tmp = aUrlList;
+					int i = 1;
+					while((index = tmp.indexOf(",")) != -1)
+					{
+						String url = tmp.substring(0, index);
+						tmp = tmp.substring(index+1);
+						buffer += "<video title=\"" + movieName + " " + episodeName + "\" time=\"0\"><![CDATA[";
+						buffer += formatURL(url);
+						buffer += "]]></video>\r\n";
+						++ i;
+					}
+				}
+				buffer += "</videos>";
+				fos.write(buffer.getBytes());
+				return true;
+	        }
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+		return false;
+    }
+    
+    private String formatURL(String url)
+    {
+    	int index = url.indexOf("http://");
+    	String sub = url.substring(index);
+    	return sub;
+    }
+
 
 }

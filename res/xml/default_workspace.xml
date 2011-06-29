@@ -20,17 +20,17 @@
     <!--  Left screen [1] -->
     <ownwidget 
         launcher:viewid="1"
-        launcher.screen="1"
+        launcher:screen="1"
 		launcher:x="0" 
 		launcher:y="0" 
-		launcher:spanX="4" 
+		launcher:spanX="2" 
 		launcher:spanY="4" />
 		    <ownwidget 
         launcher:viewid="2"
-        launcher.screen="2"
+        launcher:screen="2"
 		launcher:x="0" 
 		launcher:y="0" 
-		launcher:spanX="4" 
+		launcher:spanX="2" 
 		launcher:spanY="4" />
 		  <!-- appwidget
         launcher:packageName="com.android.deskclock"
