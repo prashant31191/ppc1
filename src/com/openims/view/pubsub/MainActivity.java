@@ -2,7 +2,7 @@ package com.openims.view.pubsub;
 
 import java.util.ArrayList;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.PushServiceReceiver;

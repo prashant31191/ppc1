@@ -51,16 +51,9 @@ public class IMService extends Service {
     
     private String deviceId;    
    
-    /** For showing and hiding our notification. */
-    NotificationManager mNM;
+
     /** Keeps track of all current registered clients. */
-    ArrayList<Messenger> mClients = new ArrayList<Messenger>();
-    /** Holds last value set by a client. */
-    int mValue = 0;    
-   
-    /**
-     * Target we publish for clients to send messages to IncomingHandler.
-     */
+    private ArrayList<Messenger> mClients = new ArrayList<Messenger>();
     final Messenger mMessenger = new Messenger(new IncomingHandler());
     
     public IMService(){
@@ -68,9 +61,9 @@ public class IMService extends Service {
     	
     	executorService = Executors.newSingleThreadExecutor();
         taskSubmitter = new TaskSubmitter(this);
-        taskTracker = new TaskTracker(this);
-        
+        taskTracker = new TaskTracker(this);        
     }
+    
     @Override
     public void onCreate(){
     	Log.d(TAG, PRE + "onCreate()...");
@@ -152,7 +145,7 @@ public class IMService extends Service {
             }
         });
     }
-    
+    //----------------getter--------------------
     public static Intent getIntent() {
         return new Intent(SERVICE_NAME);
     }
@@ -162,15 +155,12 @@ public class IMService extends Service {
     public TaskSubmitter getTaskSubmitter() {
         return taskSubmitter;
     }
-
     public TaskTracker getTaskTracker() {
         return taskTracker;
     }
-
     public XmppManager getXmppManager() {
         return xmppManager;
     }
-
     public SharedPreferences getSharedPreferences() {
         return sharedPrefs;
     }
@@ -299,16 +289,15 @@ public class IMService extends Service {
     
     private void start() {
         Log.d(TAG, PRE + "start()...");        
-        registerConnectivityReceiver();        
-        //xmppManager.connect();
+        registerConnectivityReceiver(); 
         connect();
     }
 
     private void stop() {
         Log.d(TAG, PRE + "stop()...");        
         unregisterConnectivityReceiver();
-        //xmppManager.disconnect();
-        //executorService.shutdown();
+        xmppManager.disconnect();
+        executorService.shutdown();
         disconnect();
     }
     
@@ -452,7 +441,29 @@ public class IMService extends Service {
         }
         return props;
     }
-    
+    /**
+     * Handler of incoming messages from clients.
+     */
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case PushServiceUtil.MSG_REGISTER_CLIENT:
+                    mClients.add(msg.replyTo);
+                    break;
+                case PushServiceUtil.MSG_UNREGISTER_CLIENT:
+                    mClients.remove(msg.replyTo);
+                    break;
+                case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
+                    break;
+                case PushServiceUtil.MSG_REQUEST_VCARD:
+                	loadVCard((String)msg.obj);
+                	break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
     private void sendMessageChat(Intent intent){
     	Bundle bundle = intent.getExtras();
     	String to = bundle.getString(PushServiceUtil.MESSAGE_TOWHOS);
@@ -518,28 +529,6 @@ public class IMService extends Service {
         });
     	
     }
-    /**
-     * Handler of incoming messages from clients.
-     */
-    class IncomingHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case PushServiceUtil.MSG_REGISTER_CLIENT:
-                    mClients.add(msg.replyTo);
-                    break;
-                case PushServiceUtil.MSG_UNREGISTER_CLIENT:
-                    mClients.remove(msg.replyTo);
-                    break;
-                case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
-                    break;
-                case PushServiceUtil.MSG_REQUEST_VCARD:
-                	loadVCard((String)msg.obj);
-                	break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-    }
+    
     
 }

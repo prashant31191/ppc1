@@ -1,6 +1,6 @@
 package com.openims.view;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

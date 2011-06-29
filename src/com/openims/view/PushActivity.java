@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 

@@ -31,7 +31,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AbsListView.OnScrollListener;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.chat.MessageRecord;
 import com.openims.model.chat.RosterDataBase;
 import com.openims.utility.LogUtil;

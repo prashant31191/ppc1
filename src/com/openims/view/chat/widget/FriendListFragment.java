@@ -27,7 +27,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ExpandableListView.OnChildClickListener;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.chat.RosterDataBase;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
@@ -201,10 +201,8 @@ public class FriendListFragment extends Fragment
 				String.valueOf(System.currentTimeMillis()));
 		roster.close();
 		
-		Intent intent = new Intent();
+		Intent intent = new Intent(getActivity(),MultiChatActivity.class);
 		intent.putExtra(MultiChatActivity.ACCOUNT_JID, entry.Jid);
-		intent.setClassName("com.openims", "com.openims.view.chat.MultiChatActivity");
-		//intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);	
 		return false;
 	}

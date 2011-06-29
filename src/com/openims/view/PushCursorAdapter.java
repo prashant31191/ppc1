@@ -16,7 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.pushService.PushContentDB;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;

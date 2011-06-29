@@ -25,7 +25,7 @@ import android.view.View.OnClickListener;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.MyApplication;
 import com.openims.service.IMService;
 import com.openims.utility.LogUtil;

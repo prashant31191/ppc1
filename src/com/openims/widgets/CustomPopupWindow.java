@@ -9,7 +9,7 @@
 
 package com.openims.widgets;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 
 import android.content.Context;
 

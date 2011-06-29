@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 
 public class BigToast {
 	

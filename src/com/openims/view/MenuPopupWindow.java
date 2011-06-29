@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.widgets.CustomPopupWindow;
 
 public class MenuPopupWindow extends CustomPopupWindow {

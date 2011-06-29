@@ -37,7 +37,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.MyApplication;
 import com.openims.model.chat.MessageRecord;
 import com.openims.model.chat.RosterDataBase;

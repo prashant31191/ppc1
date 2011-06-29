@@ -49,5 +49,5 @@
 	android:text="@string/topic" 
 	android:layout_height="wrap_content" 
 	android:id="@+id/topic">
-</button>
+</Button>
 </LinearLayout>

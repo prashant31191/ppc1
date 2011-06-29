@@ -3,30 +3,24 @@ package com.openims.demo;
 
 
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
-import com.openims.R;
 import com.openims.utility.PushServiceUtil;
+import com.openims.view.PushActivity;
 import com.openims.view.chat.MultiChatActivity;
 import com.openims.view.chat.widget.IMActivity;
 import com.openims.view.setting.Setting;
+import com.smit.EasyLauncher.R;
 
 public class MainActivity extends Activity {
 
-	//ServiceManager serviceManager;
+	
 	private final static String Tag = "chenyz";
-	
-	
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,8 +37,6 @@ public class MainActivity extends Activity {
         Button okButton = (Button) findViewById(R.id.btn_settings);
         okButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                //ServiceManager.viewNotificationSettings(MainActivity.this);
-            	//serviceManager.stopService();
             	startActivity(new Intent(MainActivity.this,Setting.class));
 }
         });
@@ -62,8 +54,7 @@ public class MainActivity extends Activity {
         Button endService = (Button) findViewById(R.id.EndService);
         endService.setOnClickListener(new View.OnClickListener() {			
 			@Override
-			public void onClick(View v) {
-				Log.i(Tag, "start service");
+			public void onClick(View v) {				
 				stopService(new Intent(PushServiceUtil.ACTION_IMSERVICE));
 			}
 		});
@@ -88,11 +79,8 @@ public class MainActivity extends Activity {
         startChat.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent();
+				Intent intent = new Intent(MainActivity.this,IMActivity.class);
 				intent.putExtra(MultiChatActivity.ACCOUNT_JID, 66);
-				//intent.setClassName("com.openims","com.openims.view.onlineHelper.ChatActivity");		       
-		        //intent.setClassName("com.openims", "com.openims.view.chat.MultiChatActivity");
-				intent.setClassName("com.openims", "com.openims.view.chat.widget.IMActivity");
 				
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		        startActivity(intent);			
@@ -102,12 +90,8 @@ public class MainActivity extends Activity {
         btnTopic.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent();
-		        intent.setClassName("com.openims","com.openims.view.PushActivity");		       
-		        //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		        startActivity(intent);
-		        
-		    	
+				Intent intent = new Intent(MainActivity.this,PushActivity.class);				
+		        startActivity(intent);		    	
 			}
 		});
     }
@@ -134,31 +118,6 @@ public class MainActivity extends Activity {
 		
 		startService(regIntent);	
     }
-
-    private void pendingIntent(String uriString,String title,String text){
-  	  	Context serviceContext = this;
-    	NotificationManager mNotificationManager = 
-    		(NotificationManager) serviceContext.
-    		getSystemService(Context.NOTIFICATION_SERVICE);
-    	
-    	int icon = R.drawable.icon;
-    	CharSequence tickerText = "Hello";
-    	long when = System.currentTimeMillis();
-
-    	Notification notification = new Notification(icon, tickerText, when);
-    	
-    	Context context = serviceContext.getApplicationContext();  
-    	CharSequence contentTitle = title;  
-    	CharSequence contentText = text;  
-    	
-    	Uri uri = Uri.parse(uriString);
-    	Intent intent = new Intent(Intent.ACTION_VIEW,uri);
-    	PendingIntent contentIntent = 
-    		PendingIntent.getActivity(serviceContext, 
-    		0, intent, 0);  
-    	notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
-    	notification.defaults |= Notification.DEFAULT_VIBRATE;
-    	mNotificationManager.notify(1, notification);
-    }
+   
    
 }

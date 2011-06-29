@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 
 /**
  * Popup window, shows action list as icon and text (QuickContact / Twitter app). 

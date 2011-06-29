@@ -31,7 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.PopupWindow.OnDismissListener;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.downloader.DownloadTask;
 import com.openims.downloader.DownloadTaskListener;
 import com.openims.downloader.DownloadThread;

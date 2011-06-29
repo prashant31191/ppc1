@@ -2334,6 +2334,12 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 	                	workspace.addInScreen(TvView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
 	                              false);
                 	}
+                	else if(item.id==3)
+                	{
+	                	final View TvView = createImView(item);
+	                	workspace.addInScreen(TvView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
+	                              false);
+                	}
                 	//Button bt=preview.findViewById(R.id.)
                 //	mDesktopItems.add(item);
 //                    VODVideoFragment newFragment=new VODVideoFragment();
@@ -2363,6 +2369,11 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         return createOwnView(R.layout.tv,
                 (ViewGroup) mWorkspace.getChildAt(mWorkspace.getCurrentScreen()), info);
     }
+    View createImView(ItemInfo info) {
+        return createOwnView(R.layout.im,
+                (ViewGroup) mWorkspace.getChildAt(mWorkspace.getCurrentScreen()), info);
+    }
+    
     View createVideoView(ItemInfo info) {
         return createOwnView(R.layout.video,
                 (ViewGroup) mWorkspace.getChildAt(mWorkspace.getCurrentScreen()), info);

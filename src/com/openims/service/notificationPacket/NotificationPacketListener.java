@@ -32,7 +32,7 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.pushService.PushContent;
 import com.openims.model.pushService.PushContentDB;
 import com.openims.model.pushService.PushInfoManager;

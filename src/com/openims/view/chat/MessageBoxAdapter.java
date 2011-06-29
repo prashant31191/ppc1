@@ -14,7 +14,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.chat.RosterDataBase;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.chat.OnAvater.OnAvaterListener;

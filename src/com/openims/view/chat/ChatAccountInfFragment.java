@@ -22,7 +22,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.chat.RosterDataBase;
 import com.openims.model.chat.VCardDataBase;
 import com.openims.utility.LogUtil;

@@ -10,7 +10,7 @@ import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.chat.VCardDataBase;
 
 public class MyApplication extends Application {

@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Window;
 
-import com.openims.R;
+import com.smit.EasyLauncher.R;
 import com.openims.model.MyApplication;
 import com.openims.utility.LogUtil;
 
