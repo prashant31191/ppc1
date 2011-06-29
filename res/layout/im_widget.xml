@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+    <TextView android:id="@+id/textView1" 
+    	android:text="左边龙" 
+    	android:textSize="20sp"
+    	android:gravity="center"
+    	android:layout_width="wrap_content" 
+    	android:layout_height="wrap_content"
+    	android:layout_weight="5">
+    </TextView>   
+    <TextView android:id="@+id/textView2" 
+    	android:text="右边虎" 
+    	android:textSize="20sp"
+    	android:gravity="center"
+    	android:layout_width="wrap_content" 
+    	android:layout_height="wrap_content"
+    	android:layout_weight="5">
+    </TextView>
+     <FrameLayout android:id="@+id/widget_container_im"
+    	android:layout_width="300dip" 
+    	android:layout_height="400dip"  
+    	android:layout_marginTop="20dip" 
+    	 	
+    	>
+    </FrameLayout>
+</LinearLayout>

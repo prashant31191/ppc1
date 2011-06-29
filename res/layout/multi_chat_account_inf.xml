@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent" android:orientation="vertical"
+  android:background="@drawable/s0_frame_activity_inner"
+  >
+   
+  <LinearLayout
+	  xmlns:android="http://schemas.android.com/apk/res/android"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content" 
+	  android:orientation="horizontal"
+	  android:background="@drawable/s0_frame_activity_inner">
+	    
+	    <ImageButton android:id="@+id/header_left" 
+	    	android:text="@string/mchat_detail_inf"  
+	    	android:layout_width="wrap_content" 
+	    	android:layout_height="wrap_content"
+	    	android:layout_marginLeft="10dip"
+	    	android:layout_gravity="center"
+	    	android:src="@drawable/btn_back_arrow"
+	    	android:background="@null"
+	    	>
+	    </ImageButton>
+	    <TextView android:id="@+id/header_title" 
+	    	android:text="@string/mchat_detail_inf" 
+	    	android:textColor="@color/black"
+	    	android:textSize="18sp"
+	    	android:layout_width="0px" 
+	    	android:layout_height="20dip"
+	    	android:layout_gravity="center"
+	    	android:layout_weight="10"
+	    	android:gravity="center">
+	    </TextView>
+	    <ImageButton android:id="@+id/header_right"
+	    	android:layout_height="wrap_content" 
+	    	android:layout_width="wrap_content"    	
+	    	android:text="back"
+	    	android:src="@drawable/btn_forword_arrow"
+			android:visibility="invisible"
+			android:background="@null">
+		</ImageButton>
+	</LinearLayout>
+  
+	<TextView android:id="@+id/line" 
+   	     	android:layout_width="match_parent" 
+   	     	android:layout_height="1dp"   	     	
+   	     	android:background="@color/light_black">
+   	</TextView>
+  
+  <RelativeLayout android:id="@+id/linearLayout1" 
+  	android:layout_height="wrap_content" 
+  	android:layout_width="match_parent"
+  	android:layout_margin="5dp">
+  	
+  	<ImageView android:id="@+id/avater" 
+  		android:layout_height="60dp" 
+  		android:layout_width="60dp" 
+  		android:src="@drawable/icon">
+  	</ImageView>
+  	<TextView android:id="@+id/username" 
+  		android:text="TextView" 
+  		android:textColor="@color/black"
+  		android:layout_height="wrap_content"   		
+  		android:layout_width="wrap_content" 
+  		android:layout_toRightOf="@+id/avater">
+  	</TextView>
+  	<TextView android:id="@+id/geyan" 
+  		android:text="TextView"
+  		android:textColor="@color/black" 
+  		android:layout_height="wrap_content"   		
+  		android:layout_width="wrap_content" 
+  		android:layout_toRightOf="@+id/avater"
+  		android:layout_below="@+id/username">
+  	</TextView>
+  
+  </RelativeLayout>
+  <TextView android:id="@+id/line2" 
+   	     	android:layout_width="match_parent" 
+   	     	android:layout_height="1dp"   	     	
+   	     	android:background="@color/light_black">
+   	</TextView>
+ 
+  <ScrollView android:id="@+id/scrollView1" 
+  	android:layout_height="wrap_content" 
+  	android:layout_width="match_parent"
+  	android:padding="5dp"
+  	>
+      <LinearLayout android:layout_width="match_parent"
+      	android:id="@+id/linearLayout3" 
+      	android:layout_height="match_parent"
+      	android:orientation="vertical">
+      		<TextView android:text="" android:id="@+id/jid" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+      		<TextView android:text="@string/im_nick" android:id="@+id/nickName" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+      		<TextView android:text="@string/im_sex" android:id="@+id/sex" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+  			<TextView android:text="@string/im_state" android:id="@+id/state" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+  			<TextView android:text="@string/im_mob" android:id="@+id/phone" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+			
+			<TextView android:text="" android:id="@+id/white" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="15dp"></TextView>
+			<TextView android:text="@string/im_note" android:id="@+id/note" android:textColor="@color/black" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+	
+      </LinearLayout>
+  </ScrollView>
+  
+</LinearLayout>
