@@ -196,6 +196,7 @@ public class MessageBoxAdapter extends BaseAdapter implements OnAvaterListener  
 				startId = account.msgStartId;
 			}
 		}		
+		roster.close();
 		return startId;
 	}
 	

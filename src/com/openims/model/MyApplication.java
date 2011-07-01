@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 
+import org.jivesoftware.smack.XMPPConnection;
+
 import android.app.Application;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -20,6 +22,8 @@ public class MyApplication extends Application {
 	private int nIndexAvater = 0;
 	private String userJid = "test2@smit";
 
+	private XMPPConnection connection;
+	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		// TODO Auto-generated method stub
@@ -59,18 +63,29 @@ public class MyApplication extends Application {
 		}
 		// 2
 		if(c.getCount() != 1){
+			vc.close();
 			return null;
 		}
 		c.moveToFirst();
 		byte[] b = c.getBlob(nIndexAvater);
 		// 3
 		if(b == null){
+			vc.close();
 			return MyApplication.this.getResources().getDrawable(R.drawable.icon);
 		}
 		
 		Drawable draw = new BitmapDrawable(new ByteArrayInputStream(b));
 		cache.put(jid, new SoftReference<Drawable>(draw));
+		vc.close();
 		return draw;
+	}
+
+	public XMPPConnection getConnection() {
+		return connection;
+	}
+
+	public void setConnection(XMPPConnection connection) {
+		this.connection = connection;
 	}
 	
 }

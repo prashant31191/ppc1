@@ -49,7 +49,10 @@ public class RosterDataBase {
 			dbHelper.close();
 		}
 	}
-	
+	public void deleteRoster(String jid){
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		db.delete(TABLE_NAME, ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"", null);
+	}
 	public Cursor queryItems(int startId,int nNum,boolean bSmall){
 		
 		SQLiteDatabase db = dbHelper.getReadableDatabase();

@@ -3,14 +3,12 @@ package com.openims.service;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Random;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.jivesoftware.smack.XMPPException;
 
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,8 +23,13 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.Button;
 
-import com.openims.model.MyApplication;
 import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.connection.ConnectivityReceiver;
 import com.openims.service.notificationPacket.RegPushIQ;
@@ -81,8 +84,7 @@ public class IMService extends Service {
             public void run() {
                 IMService.this.start();
             }
-        });
-        
+        });        
     }
     @Override
     public void onStart(Intent intent, int startId) {
@@ -457,8 +459,8 @@ public class IMService extends Service {
                 case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
                     break;
                 case PushServiceUtil.MSG_REQUEST_VCARD:
-                	loadVCard((String)msg.obj);
-                	break;
+                	//loadVCard((String)msg.obj);
+                	break;                
                 default:
                     super.handleMessage(msg);
             }
@@ -503,12 +505,14 @@ public class IMService extends Service {
             } catch (RemoteException e) {               
                 mClients.remove(j);
             }
-		}    		
+		} 
+		
     }
     // TODO using thread
     private void loadVCard(final String jid){
     	taskSubmitter.submit(new Runnable() {
             public void run() {
+            	Log.e(TAG, PRE + "BEGIN LOAD CARD");
             	try {
         			xmppManager.getVCard(jid);
         		} catch (XMPPException e) {
@@ -525,8 +529,39 @@ public class IMService extends Service {
                         mClients.remove(j);
                     }
         		}
+        		Log.e(TAG, PRE + "END LOAD CARD");
             }
         });
+    	
+    }
+    
+    protected void alertbox(String title, String mymessage)
+    {
+    	WindowManager wm=(WindowManager)getApplicationContext()
+    	.getSystemService("window"); 
+    	
+    	WindowManager.LayoutParams wmParams =new WindowManager.LayoutParams(); 
+    	wmParams.type=WindowManager.LayoutParams.TYPE_SYSTEM_ALERT; 
+    	wmParams.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+    	wmParams.width=WindowManager.LayoutParams.WRAP_CONTENT; 
+    	wmParams.height=WindowManager.LayoutParams.WRAP_CONTENT; 
+    	Button b = new Button(getApplicationContext());
+    	b.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View arg0) {				
+			}
+    		
+    	});;
+    	b.setOnTouchListener(new OnTouchListener(){
+
+			@Override
+			public boolean onTouch(View arg0, MotionEvent me) {				
+				return false;
+			}
+    		
+    	});
+    	b.setText("hello");
+    	wm.addView(b, wmParams);
     	
     }
     

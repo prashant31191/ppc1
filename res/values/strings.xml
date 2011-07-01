@@ -44,64 +44,6 @@
 	<string name="vodvideo_widget_decript">"没有描述信息"</string>
 	<string name="vodvideo_widget_flash">"刷新"</string>
 	<string name="vodvideo_widget_try_again">"可以再试试"</string>
-	<string name="tvlive_widget_name">电视直播</string>
-
- 	
-    <!-- add by chenyz -->
-    <string name="testApp">软件测试</string> 
-    <string name="welcome">欢迎你</string>
-    <string name="settings">设置</string>
-    <string name="onlineHelper">在线客服</string>
-    <string name="topic">我的关注</string>
-    <string name="pcAssistant">PC Assistant</string>
-    <string name="pushInfo">推送信息</string>
-    <string name="about">关于</string>  
-      
-    <!-- push content action -->
-    <string name="view">查看</string>
-    <string name="delete">删除</string>
-    <string name="download">下载</string>
-    <string name="cancel">取消</string>
-    <string name="delsuccess">删除成功</string>    
-    <string name="stopDownload">停止下载</string>  
-    
-    <!-- push content status -->
-    <string name="pushcontent_uread">未读</string>
-    <string name="pushcontent_read">已读</string>    
-    <string name="pushcontent_beginDownload">开始下载</string>
-    <string name="pushcontent_finishDownload">下载完成</string>
-    <string name="pushcontent_downloadFail">下载失败</string>
-    <string name="pushcontent_stopFail">无法停止下载</string> 
-    
-    
-    <string name="show_menu">显示菜单</string>
-    
-    <!-- not for view -->
-    <string name="btn_type">type</string>   
-    <string name="position">123456</string> 
-    
-    <!-- multiple chat window -->
-    <string name="im_name">Call me</string>
-    <string name="mchat_detail_inf">好友资料</string>   
-    <string name="mchat_history">历史记录</string> 
-    <string name="mchat_send">发送</string> 
-    <string name="mchat_say">说：</string> 
-    <string name="no_data">没有数据</string>
-    <string name="talk_tips">输入你想对TA说的话</string>
-   
-    <string name="im_nick">昵称：</string>
-    <string name="im_sex">性别：</string> 
-    <string name="im_birthday">生日：</string> 
-    <string name="im_state">国家地区：</string> 
-    <string name="im_city">城市：</string>
-    <string name="im_mob">手机：</string>
-    <string name="im_weibo">微博：</string>
-    <string name="im_note">备注：</string>
-    <string name="geyan_default">用户没有输入什么...</string>
-    <!-- 每次动态加载的条数 -->
-    <integer name="load_item_per_time">6</integer>
-    <!-- 加载历史记录时，初始化的条数 -->
-    <integer name="history_init_item_num">21</integer>
-    
+	<string name="tvlive_widget_name">电视直播</string>    
 
 </resources>

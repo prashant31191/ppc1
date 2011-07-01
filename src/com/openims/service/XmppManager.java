@@ -1,8 +1,6 @@
 package com.openims.service;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,9 +35,13 @@ import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.packet.XMPPError.Type;
 import org.jivesoftware.smack.provider.PrivacyProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.GroupChatInvitation;
 import org.jivesoftware.smackx.PrivateDataManager;
+import org.jivesoftware.smackx.ReportedData;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.ReportedData.Row;
 import org.jivesoftware.smackx.filetransfer.FileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
@@ -80,16 +82,16 @@ import org.jivesoftware.smackx.pubsub.Subscription;
 import org.jivesoftware.smackx.pubsub.packet.PubSubNamespace;
 import org.jivesoftware.smackx.pubsub.provider.SubscriptionProvider;
 import org.jivesoftware.smackx.search.UserSearch;
+import org.jivesoftware.smackx.search.UserSearchManager;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.util.Log;
 
+import com.openims.model.MyApplication;
 import com.openims.model.chat.RosterDataBase;
 import com.openims.model.chat.VCardDataBase;
 import com.openims.service.chat.ChatPacketListener;
@@ -119,8 +121,7 @@ public class XmppManager{
 	private static final String TAG = LogUtil.makeTag(XmppManager.class);
 	
 	private String xmppHost;
-	private int xmppPort;
-	private String hostName = "@smit";
+	private int xmppPort;	
     private String username;
     private String password;
     private	String resource = null;
@@ -298,7 +299,7 @@ public class XmppManager{
         return username;
     }*/
     public String getUserNameWithHostName(){
-    	return username+hostName;
+    	return username+PushServiceUtil.SERVER_NAME;
     }
     public void setUsername(String username) {
         this.username = username;
@@ -896,7 +897,7 @@ public class XmppManager{
     	// TODO 要求服务器，保证覆盖唯一的    	
     	UserQueryIQ iq = new UserQueryIQ();
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
-    	iq.setUserAccount(username+hostName);
+    	iq.setUserAccount(username+PushServiceUtil.SERVER_NAME);
     	iq.setResource(getResource());
     	iq.setDeviceName("SMIT1800");
     	iq.setOpCodeSave();
@@ -904,20 +905,80 @@ public class XmppManager{
         
     	UserQueryIQ iqQuery = new UserQueryIQ();
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
-    	iq.setUserAccount(username+hostName);
+    	iq.setUserAccount(username+PushServiceUtil.SERVER_NAME);
     	iq.setResource(getResource());
     	iq.setDeviceName("SMIT1800");
     	iqQuery.setOpCodeQueryOfflinePush();
     	this.sendPacket(iqQuery);
+    	
+    	//userSearch();
+    	MyApplication app = (MyApplication)this.imservice.getApplication();
+    	app.setConnection(getConnection());
+    }
+    public void userSearch(){
+    	UserSearchManager search = new UserSearchManager(connection);
+    	
+    	try {
+    		List<String> list = (List<String>)search.getSearchServices();
+			String searchService = list.get(0);
+			Form from = search.getSearchForm(searchService);
+			String title = from.getTitle();
+			String type = from.getType();
+			Iterator<FormField> it = from.getFields();
+			while(it.hasNext()){
+				FormField fromField = it.next();
+				String fieldType = fromField.getType();
+				String v = fromField.getVariable();
+				String label = fromField.getLabel();
+			}
+			
+			Form answerForm = from.createAnswerForm();
+            answerForm.setAnswer("Username", true);
+            answerForm.setAnswer("search", "test*");
+			ReportedData data =search.getSearchResults(answerForm, searchService);
+			Iterator<Row> itRow = data.getRows();
+			while(itRow.hasNext()){
+				Row row = itRow.next();
+				Iterator<String> i = row.getValues(null);
+			}
+			title = data.getTitle();
+		} catch (XMPPException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+    }
+    public void updateRoster(String jid){
+    	Roster roster = connection.getRoster();
+    	RosterEntry entry = roster.getEntry(jid);
+    	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,
+    			username+PushServiceUtil.SERVER_NAME);
+    	String presenceInf = roster.getPresence(jid).getType().name();
+    	
+    	Collection<RosterGroup> clGroup = entry.getGroups();
+    	Iterator<RosterGroup> iterator = clGroup.iterator();
+    	while(iterator.hasNext()){
+    		RosterGroup rg = iterator.next();
+    		rosterDataBase.insert(jid, entry.getName(), rg.getName(), presenceInf);
+    	}   	
+    	
+    	rosterDataBase.close();    	
+    }
+    public void deleteRoster(String jid){
+    	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,
+    			username+PushServiceUtil.SERVER_NAME);
+    	rosterDataBase.deleteRoster(jid);
+    	rosterDataBase.close();   
     }
     public void getRoster(){
     	Roster roster = connection.getRoster();
-    	roster.addRosterListener(new MyRosterListener());    	
     	
     	Collection<RosterGroup> crg = roster.getGroups();
     	Iterator<RosterGroup> iterator = crg.iterator();
-    	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,username+hostName);
-    	rosterDataBase.removeAll();
+    	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,
+    			username+PushServiceUtil.SERVER_NAME);
+    	rosterDataBase.removeAll();  // delete all
     	while(iterator.hasNext()){
     		RosterGroup rg = (RosterGroup)iterator.next();
     		
@@ -933,7 +994,18 @@ public class XmppManager{
     	
     	rosterDataBase.close();
     	
-    	VCard vCard = new VCard();
+    	roster.addRosterListener(new MyRosterListener(this)); 
+    	
+    	 
+    	VCardDataBase vc = new VCardDataBase(this.getContext(),
+       			 this.getUserNameWithHostName());
+    	vc.removeAll();       	 	
+       	vc.close();
+    	 
+
+/*    	 
+ 
+ 	VCard vCard = new VCard();
 		 vCard.setFirstName("kir");
 		 vCard.setLastName("max");
 		 vCard.setEmailHome("foo@fee.bar");
@@ -947,42 +1019,13 @@ public class XmppManager{
 		 vCard.setAddressFieldHome("STREET", "Some street");
 		 vCard.setAddressFieldWork("CTRY", "US");
 		 vCard.setPhoneWork("FAX", "3443233");
-    	 
-    	VCardDataBase vc = new VCardDataBase(this.getContext(),
-       			 this.getUserNameWithHostName());
-    	vc.removeAll();       	 	
-       	vc.close();
-    	 
-
-/*    	 try {
+		 
+		 try {
 			vCard.save(connection);
 		} catch (XMPPException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}*/
-    	
-    	
-    	/*Collection<RosterEntry> re = roster.getEntries();
-    	iterator = re.iterator();
-    	RosterGroup myGroup = null;*/
-    	/*try {
-    		myGroup = roster.createGroup("aa");
-    	} catch (IllegalArgumentException e) {
-    		e.printStackTrace();
-    	}*/
-    	//RosterEntry rosterEntry = new RosterEntry();
-    	
-    	/*while(myGroup!=null && iterator.hasNext()){
-    		RosterEntry rg = (RosterEntry)iterator.next();
-    		try {
-				myGroup.addEntry(rg);
-			} catch (XMPPException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    		Log.i(LOGTAG,TAG+"user:"+rg.getUser()+";name:"
-    				+rg.getName());
-    	}*/
+		}*/    
     }
     public void getVCard(String jid) throws XMPPException{
     	VCard vcard = new VCard();    	

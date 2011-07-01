@@ -114,7 +114,7 @@ public class FriendListFragment extends Fragment
         mFriendListView.setAdapter(mAdapter);		
         mFriendListView.setGroupIndicator(null);	
         mFriendListView.setOnChildClickListener(this);
-		
+        roster.close();
 		return v;
 	}
 	

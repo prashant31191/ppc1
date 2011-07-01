@@ -5,7 +5,8 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 
 public class PushServiceUtil{
-	public static final String PACKAGE_NAME = "com.openims";
+	//public static final String PACKAGE_NAME = "com.openims";
+	public static final String SERVER_NAME = "@smit";
     // the action for service
     public final static String ACTION_IMSERVICE = "com.openims.service.IMService";
     public static final String ACTION_SERVICE_STATUS = "com.openims.service.IMService.STATUS";
@@ -118,7 +119,9 @@ public class PushServiceUtil{
     
     public static final int MSG_ROSTER_UPDATED = 5;
     
-    public static final int MSG_REQUEST_VCARD = 6;
+    public static final int MSG_ROSTER_DELETE = 6;
+    
+    public static final int MSG_REQUEST_VCARD = 7; 
     
     
     public static ColorFilter GREY_COLOR_FILTER = new ColorMatrixColorFilter( new ColorMatrix(new float[]{0.5f,0.5f,0.5f,0,0, 

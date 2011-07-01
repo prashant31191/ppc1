@@ -1,7 +1,12 @@
 package com.openims.utility;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
+
+import com.openims.widgets.BigToast;
 
 public class Utility {
 
@@ -23,5 +28,13 @@ public class Utility {
 			c.moveToNext();
 			Log.d(LOGTAG,TAG+sb.toString());
 		}
+	}
+	
+	static public void showToast(Context context,int text,int duration){
+		Toast t = BigToast.makeText(context,context.getResources().getString(text), 
+				duration);						
+		t.setGravity(Gravity.RIGHT|Gravity.BOTTOM, 0, 0);
+		t.setMargin(PushServiceUtil.HORIZONTAL_MARGIN, PushServiceUtil.VERTICAL_MARGIN);
+		t.show();
 	}
 }

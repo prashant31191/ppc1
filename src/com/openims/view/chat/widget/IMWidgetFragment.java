@@ -19,9 +19,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -31,6 +35,7 @@ import com.openims.service.IMService;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.chat.OnAvater;
+import com.openims.view.chat.UserSearchActivity;
 
 public class IMWidgetFragment extends Fragment 
 						implements OnClickListener,
@@ -60,7 +65,7 @@ public class IMWidgetFragment extends Fragment
      * Target we publish for clients to send messages to IncomingHandler.
      */
     final Messenger mMessenger = new Messenger(new IncomingHandler());
-    
+   
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -79,7 +84,8 @@ public class IMWidgetFragment extends Fragment
 		//v.findViewById(R.id.btn_group).setOnClickListener(this);
 		mBtnRecent = (ToggleButton)v.findViewById(R.id.btn_recent);
 		mBtnRecent.setOnClickListener(this);
-				
+			
+		v.findViewById(R.id.btn_add_friend).setOnClickListener(this);
 		return v;
 	}
 
@@ -163,7 +169,7 @@ public class IMWidgetFragment extends Fragment
 			//ft.addToBackStack(null);
 			ft.commit();
 			mBtnFriend.setChecked(true);
-			mBtnRecent.setChecked(false);
+			mBtnRecent.setChecked(false);			
 			break;
 		case R.id.btn_recent:
 			if(mBtnRecent.isChecked() == false){
@@ -176,10 +182,13 @@ public class IMWidgetFragment extends Fragment
 			//ft1.addToBackStack(null);
 			ft1.commit();
 			mBtnFriend.setChecked(false);
-			mBtnRecent.setChecked(true);
+			mBtnRecent.setChecked(true);	    	
 			break;
-		}
-		
+		case R.id.btn_add_friend:
+			Intent intent = new Intent(mActivity,UserSearchActivity.class);
+			mActivity.startActivity(intent);
+			break;
+		}		
 	}
 	
 	
@@ -191,11 +200,7 @@ public class IMWidgetFragment extends Fragment
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
-                    break;
-                case PushServiceUtil.MSG_ROSTER_UPDATED:
-                	Log.d(TAG, PRE + "roster updated");
-                	mFriendFragment.reRoadData();
-                	break;
+                    break;              
                 case PushServiceUtil.MSG_REQUEST_VCARD:
                 	String jid = (String)msg.obj;
                 	OnAvaterListener listener = avaterListeners.get(jid);
@@ -203,6 +208,12 @@ public class IMWidgetFragment extends Fragment
                 		listener.avater(jid, myApplication.getAvater(jid));
                 		avaterListeners.remove(jid);
                 	}
+                	break;
+                case PushServiceUtil.MSG_ROSTER_UPDATED:                	
+                	mFriendFragment.reRoadData();
+                	break;
+                case PushServiceUtil.MSG_ROSTER_DELETE:
+                	mFriendFragment.reRoadData();
                 	break;
                 default:
                     super.handleMessage(msg);
