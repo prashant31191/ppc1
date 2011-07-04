@@ -85,16 +85,6 @@ public class VCardDataBase {
 		ContentValues values = new ContentValues();
 		values.put(JID, jid);
 		values.put(ADMIN, mAdmin);
-		values.put(USER_NAME, "vcard.getFirstName()");
-		values.put(NICK, "vcard.getNickName()");
-		values.put(SEX, "vcard.getNickName()");
-		values.put(BIRTHDAY, "null");
-		values.put(STATE, "vcard.getOrganization()");
-		values.put(PROVINCE, "null");
-		values.put(CITY, "null");
-		values.put(NOTE, "null");
-		values.put(AvaterUrl, "null");
-		values.put(Avater, "vcard.getAvatar()");
 		
 		return db.insert(TABLE_NAME, null, values);
 		

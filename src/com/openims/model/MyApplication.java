@@ -53,7 +53,12 @@ public class MyApplication extends Application {
 		SoftReference<Drawable> d = cache.get(jid);
 		// 1
 		if(d != null){
-			return d.get();
+			Drawable drawable = d.get();
+			if(drawable != null){
+				return drawable;
+			}else{
+				cache.remove(jid);
+			}
 		}
 		
 		VCardDataBase vc = new VCardDataBase(MyApplication.this,userJid);
@@ -62,19 +67,21 @@ public class MyApplication extends Application {
 			nIndexAvater = c.getColumnIndex(VCardDataBase.Avater);
 		}
 		// 2
-		if(c.getCount() != 1){
+		if(c.getCount() == 0){
 			vc.close();
 			return null;
 		}
 		c.moveToFirst();
 		byte[] b = c.getBlob(nIndexAvater);
 		// 3
+		Drawable draw;
 		if(b == null){
 			vc.close();
-			return MyApplication.this.getResources().getDrawable(R.drawable.icon);
-		}
+			draw = MyApplication.this.getResources().getDrawable(R.drawable.icon);
+		}else{
+			draw = new BitmapDrawable(new ByteArrayInputStream(b));
+		}		
 		
-		Drawable draw = new BitmapDrawable(new ByteArrayInputStream(b));
 		cache.put(jid, new SoftReference<Drawable>(draw));
 		vc.close();
 		return draw;

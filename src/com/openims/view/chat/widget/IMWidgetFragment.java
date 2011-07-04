@@ -294,20 +294,23 @@ public class IMWidgetFragment extends Fragment
 			return d;
 		}
 		// notify jia zai
-		avaterListeners.put(avaterJid, listener);
+		if(avaterListeners.containsKey(avaterJid) == false){
+			Message msg = Message.obtain(null,
+	        		PushServiceUtil.MSG_REQUEST_VCARD);
+	        msg.replyTo = mMessenger;
+	        msg.obj = avaterJid;
+	        try {
+				mService.send(msg);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			avaterListeners.put(avaterJid, listener);
+		}
+		
 		Resources r = getResources();
 		d = r.getDrawable(R.drawable.icon);
 		
-		Message msg = Message.obtain(null,
-        		PushServiceUtil.MSG_REQUEST_VCARD);
-        msg.replyTo = mMessenger;
-        msg.obj = avaterJid;
-        try {
-			mService.send(msg);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return d;		
 	}
     

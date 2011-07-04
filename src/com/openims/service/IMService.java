@@ -459,7 +459,7 @@ public class IMService extends Service {
                 case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
                     break;
                 case PushServiceUtil.MSG_REQUEST_VCARD:
-                	//loadVCard((String)msg.obj);
+                	loadVCard((String)msg.obj);
                 	break;                
                 default:
                     super.handleMessage(msg);
@@ -518,7 +518,8 @@ public class IMService extends Service {
         		} catch (XMPPException e) {
         			// TODO Auto-generated catch block
         			e.printStackTrace();
-        		}
+        			return;
+        		} 
         		
         		for (int j=mClients.size()-1; j>=0; j--) {
                     try {
