@@ -141,9 +141,11 @@ public class ChatMainFragment extends Fragment
 	}	
 	@Override
 	public void onDestroy() {
-		super.onDestroy();
 		Log.d(TAG, PRE + "onDestroy");
-		mMessageRecord.close();
+		if(mMessageRecord != null){
+			mMessageRecord.close();
+		}
+		super.onDestroy();
 	}
 	@Override
 	public void onDetach() {

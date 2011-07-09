@@ -57,6 +57,7 @@ public class MultiChatActivity extends FragmentActivity
 	private static final String TAG_HISTORY = "history";
 	private static final String TAG_ACCOUNT_INF = "information";
 	public  static final String ACCOUNT_JID = "ACCOUNT_JID";
+	private  static final String ACCOUNT_JID_NEW = "ACCOUNT_JID_NEW";
 
 	private HorizontialListView chatUserListview;
 	private MessageBoxAdapter mMessageBoxAdapter;	
@@ -65,7 +66,7 @@ public class MultiChatActivity extends FragmentActivity
 	private String mMyJid;
 	private String mYourJid;
 	
-	// for update avater
+	// for update avatar
 	private MyApplication myApplication;
 	private final HashMap<String,OnAvaterListener> avaterListeners = 
 		new HashMap<String,OnAvaterListener>();
@@ -92,35 +93,34 @@ public class MultiChatActivity extends FragmentActivity
 		View v = this.findViewById(R.id.layout_root);
 		v.setDrawingCacheEnabled(true);
 		
-		// initial main chat fragment
-		if(bundle == null){
-			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-			mChatMainFragment = new ChatMainFragment();
-			
-	        ft.add(R.id.multi_chat_content, mChatMainFragment,TAG_CHAT_MAIN).commit();
-	        
-			
-		}else{			
-			mChatMainFragment = (ChatMainFragment)getSupportFragmentManager().findFragmentByTag(TAG_CHAT_MAIN);
-			initAccountInfFragment((ChatAccountInfFragment)getSupportFragmentManager()
-					.findFragmentByTag(TAG_ACCOUNT_INF));		
-			initHistoryFragment((ChatHistoryFragment)getSupportFragmentManager()
-					.findFragmentByTag(TAG_HISTORY));
-		}	
-						
 		// initial global data
 		SharedPreferences sharedPrefs = getSharedPreferences(
 				PushServiceUtil.SHARED_PREFERENCE_NAME,
 				Context.MODE_PRIVATE);
 		mMyJid = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, null)+"@smit";
+		Intent intent = getIntent();		
+		mYourJid  = intent.getStringExtra(ACCOUNT_JID);
+		
 		myApplication = (MyApplication)getApplication();
+		
+		// initial main chat fragment
+		if(bundle == null){
+			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+			mChatMainFragment = new ChatMainFragment();			
+	        ft.add(R.id.multi_chat_content, mChatMainFragment,TAG_CHAT_MAIN).commit();        
+			
+		}else{	
+			mYourJid = bundle.getString(ACCOUNT_JID);
+			mChatMainFragment = (ChatMainFragment)getSupportFragmentManager().findFragmentByTag(TAG_CHAT_MAIN);
+			initAccountInfFragment((ChatAccountInfFragment)getSupportFragmentManager()
+					.findFragmentByTag(TAG_ACCOUNT_INF));		
+			initHistoryFragment((ChatHistoryFragment)getSupportFragmentManager()
+					.findFragmentByTag(TAG_HISTORY));
+		}
 		
 		// initial chat user list
 		chatUserListview = (HorizontialListView)findViewById(R.id.multi_chat_user);
-		chatUserListview.setOnItemSelectedListener(this);	
-		
-		Intent intent = getIntent();		
-		mYourJid  = intent.getStringExtra(ACCOUNT_JID);
+		chatUserListview.setOnItemSelectedListener(this);
 		
 		mMessageBoxAdapter = new MessageBoxAdapter(this);
 		mMessageBoxAdapter.setOnAvater(this);
@@ -146,11 +146,7 @@ public class MultiChatActivity extends FragmentActivity
 		f.setOnAvater(MultiChatActivity.this);
 		f.setInf(mMyJid, mYourJid);
 	}
-	private void initMainFragment(ChatMainFragment main){
-		if(main != null){
-			
-		}
-	}
+	
 	private void initHistoryFragment(ChatHistoryFragment history){
 		if(history == null){
 			return;
@@ -166,24 +162,13 @@ public class MultiChatActivity extends FragmentActivity
 
 			@Override
 			public void onClick(View v) {
-				/*FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 				ChatAccountInfFragment inf = new ChatAccountInfFragment();
 				initAccountInfFragment(inf);
 				ft.replace(R.id.multi_chat_content, inf,TAG_ACCOUNT_INF);
-			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			  
+			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);			  
 			    ft.addToBackStack(null);
-				ft.commit();*/
-		        // Instantiate a new fragment.
-		        Fragment newFragment = CountingFragment.newInstance(11);
-
-		        // Add the fragment to the activity, pushing this transaction
-		        // on to the back stack.
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		        ft.replace(R.id.multi_chat_content, newFragment);
-		        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-		        ft.addToBackStack(null);  //这个是做什么用的？
-		        ft.commit();
+				ft.commit();		       
 			}
 			
 		});
@@ -220,11 +205,6 @@ public class MultiChatActivity extends FragmentActivity
 	    {
 	        e.printStackTrace();
 	    }
-	}
-	@Override
-	public View onCreateView(String name, Context context, AttributeSet attrs) {		
-		View v = super.onCreateView(name, context, attrs);		
-		return v;
 	}
 
 
@@ -268,29 +248,7 @@ public class MultiChatActivity extends FragmentActivity
 	public void onContextMenuClosed(Menu menu) {
 		Log.i(TAG, PRE + "onContextMenuClosed");
 		super.onContextMenuClosed(menu);
-	}
-
-	
-
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		Log.i(TAG, PRE + "onCreateDialog");
-		return super.onCreateDialog(id);
-	}
-
-	
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		Log.i(TAG, PRE + "onKeyDown");
-		return super.onKeyDown(keyCode, event);
-	}
-
-	@Override
-	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-		Log.i(TAG, PRE + "onKeyLongPress");
-		return super.onKeyLongPress(keyCode, event);
-	}
+	}	
 
 	@Override
 	public void onLowMemory() {
@@ -303,12 +261,12 @@ public class MultiChatActivity extends FragmentActivity
 		Log.i(TAG, PRE + "onNewIntent");
 		super.onNewIntent(intent);
 	}
-
 	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		Log.i(TAG, PRE + "onSaveInstanceState");
 		super.onSaveInstanceState(outState);
+		outState.putString(ACCOUNT_JID, mYourJid);
 	}
 
 	@Override
