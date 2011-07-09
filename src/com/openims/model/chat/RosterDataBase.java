@@ -36,7 +36,7 @@ public class RosterDataBase {
 	public static final String MSG_BOX_SHOW = "msgBoxShow";  // 0 will ignore
 	public static final String FLAG = "FLAG";
 	
-	private static DatabaseHelper dbHelper;	
+	private DatabaseHelper dbHelper;	
 	
 	private String mAdmin;
 	public RosterDataBase(Context context, String mAdmin){	
@@ -44,7 +44,7 @@ public class RosterDataBase {
 		dbHelper = new DatabaseHelper(context,DATABASE_NAME);		
 		
 	}
-	public void close(){
+	public synchronized void close(){
 		if(dbHelper != null){
 			dbHelper.close();
 		}

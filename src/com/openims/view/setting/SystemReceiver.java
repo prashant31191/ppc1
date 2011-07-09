@@ -26,9 +26,9 @@ public class SystemReceiver extends BroadcastReceiver{
 		//TODO-ANDREW 可以等待网络联通再启动不？
 		if( "android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
 			Log.d(LOGTAG,tag+"系统启动 push service");
-			ComponentName service =context.startService(new Intent(PushServiceUtil.ACTION_IMSERVICE));
+			ComponentName service =context.startService(new Intent(PushServiceUtil.ACTION_SERVICE_CONNECT));
 			if (null == service){
-			    Log.e(LOGTAG, "Could not start service " + PushServiceUtil.ACTION_IMSERVICE);
+			    Log.e(LOGTAG, "Could not start service " + PushServiceUtil.ACTION_SERVICE_CONNECT);
 			   }
 		}
 	}

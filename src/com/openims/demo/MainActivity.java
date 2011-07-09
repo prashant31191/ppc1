@@ -19,6 +19,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 import com.openims.model.MyApplication;
@@ -45,21 +47,33 @@ public class MainActivity extends Activity {
         		WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.main);
         
-
+       /* Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(MainActivity.this,
+        		R.anim.my_rotate_action);
+        View v = this.findViewById(R.id.main);
+        v.startAnimation(hyperspaceJumpAnimation);*/
+        
         // Settings
         Button okButton = (Button) findViewById(R.id.btn_settings);
         okButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+            	Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(MainActivity.this,
+                		R.anim.my_rotate_action);
+            	view.startAnimation(hyperspaceJumpAnimation);
             	startActivity(new Intent(MainActivity.this,Setting.class));
-}
+            	overridePendingTransition(R.anim.grow_from_bottom,
+            			R.anim.grow_from_bottomleft_to_topright);
+           }
         });
+        Animation animation = AnimationUtils.loadAnimation(this,
+        		R.anim.my_rotate_action);
+        okButton.startAnimation(animation);
         // start service
         Button startService = (Button) findViewById(R.id.startService);
         startService.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {
 				Log.i(Tag, "start service");				
-				startService(new Intent(PushServiceUtil.ACTION_IMSERVICE));
+				startService(new Intent(PushServiceUtil.ACTION_SERVICE_CONNECT));
 				//bindService(new Intent(serviceName),);
 			}
 		});
@@ -68,7 +82,7 @@ public class MainActivity extends Activity {
         endService.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {				
-				stopService(new Intent(PushServiceUtil.ACTION_IMSERVICE));
+				stopService(new Intent(PushServiceUtil.ACTION_SERVICE_CONNECT));
 			}
 		});
         // register push
@@ -167,6 +181,8 @@ public class MainActivity extends Activity {
 		
 		startService(regIntent);	
     }
+    
+    
    
    
 }

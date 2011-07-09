@@ -22,8 +22,24 @@
     	android:visibility="invisible"
     	android:layout_weight="10">
     </TextView>
-    <ImageView android:src="@drawable/icon_friend_group" 
-    	android:id="@+id/icon_expand" 
+    <ImageView android:src="@drawable/im_user_edit" 
+    	android:id="@+id/im_entry_edit" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="wrap_content"
+    	android:layout_gravity="center"
+    	android:adjustViewBounds="true"
+    	android:layout_marginRight="10dip">
+    </ImageView>
+    <ImageView android:src="@drawable/im_user_delete" 
+    	android:id="@+id/im_entry_delete" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="wrap_content"
+    	android:layout_gravity="center"
+    	android:adjustViewBounds="true"
+    	android:layout_marginRight="10dip">
+    </ImageView>
+    <ImageView android:src="@drawable/im_user_move" 
+    	android:id="@+id/im_entry_move" 
     	android:layout_height="wrap_content" 
     	android:layout_width="wrap_content"
     	android:layout_gravity="center"

@@ -1027,25 +1027,32 @@ public class XmppManager{
 			e1.printStackTrace();
 		}*/    
     }
-    public void getVCard(String jid) throws XMPPException{
-    	VCardDataBase vc = new VCardDataBase(this.getContext(),
-      			 this.getUserNameWithHostName());
-    	try {
-    		VCard vcard = new VCard();    	
-    		vcard.load(this.connection,jid);   		
+    public void getVCard(String jid) throws Exception{
+    	
+    	VCard vcard = new VCard();  
+    	try { 
     		
-    		
-       	 	long n = vc.insert(jid, vcard);
+    		vcard.load(this.connection,jid);    	
        	 	
 		} catch (XMPPException e) {
-			
+			Log.e(LOGTAG,TAG+"get vcard exception");
+			vcard = null;
 			e.printStackTrace();
-			vc.insert(jid);
-			throw e;
-		} finally{
-			vc.close();
+		} catch(Exception e){			
+			e.printStackTrace();
+		}finally{			
 		}
-    	
+		VCardDataBase vc = new VCardDataBase(this.getContext(),
+      			 this.getUserNameWithHostName());
+		if(vcard == null){
+			vc.insert(jid);
+		}else{
+			vc.insert(jid, vcard);
+		}
+ 	 	vc.close();	
+ 	 	if( vcard == null){
+ 	 		throw new Exception("error");
+ 	 	}
     }
     public void configure(ProviderManager pm) {
     	 

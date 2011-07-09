@@ -66,4 +66,8 @@
     <string name="search_input_null">输入不能全部为空</string>
     <string name="search_fail">查询失败</string>
     <string name="add_user_suc">添加联系人成功</string>
+    
+    <integer name="tag_group">0</integer>
+    <integer name="tag_child">0</integer>
+    <string name="user_manage">用户管理</string>
 </resources>

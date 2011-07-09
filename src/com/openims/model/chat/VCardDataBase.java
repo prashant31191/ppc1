@@ -41,7 +41,7 @@ public class VCardDataBase {
 	public static final String FLAG = "FLAG";
 	
 	
-	private static DatabaseHelper dbHelper;	
+	private  DatabaseHelper dbHelper;	
 	
 	private String mAdmin;
 	public VCardDataBase(Context context, String mAdmin){	
@@ -49,7 +49,7 @@ public class VCardDataBase {
 		dbHelper = new DatabaseHelper(context,DATABASE_NAME);		
 		
 	}
-	public void close(){
+	public synchronized void close(){
 		if(dbHelper != null){
 			dbHelper.close();
 		}
@@ -109,7 +109,9 @@ public class VCardDataBase {
 		values.put(AvaterUrl, "null");
 		values.put(Avater, vcard.getAvatar());
 		
-		return db.insert(TABLE_NAME, null, values);
+		long n = db.insert(TABLE_NAME, null, values);
+		db.close();
+		return n;
 		
 	}
 	
@@ -145,7 +147,7 @@ public class VCardDataBase {
 	public Cursor queryByJId(String jid){
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		Cursor cursor = db.query(TABLE_NAME, null, JID + "=\"" + jid + "\"",
-				null,null,null,null);
+				null,null,null,null);		
 		return cursor;
 	}
 	

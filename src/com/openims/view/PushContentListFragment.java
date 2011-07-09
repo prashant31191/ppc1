@@ -103,6 +103,8 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 				pushContentDB.queryItems(),true,this);
 		
 		this.setListAdapter(pushAdapter);	
+		//this.setEmptyText("nodat");
+		//this.getListView().setEmptyView(emptyView)
 		
 	}
 	

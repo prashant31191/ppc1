@@ -32,6 +32,7 @@ public class Setting extends Activity {
         
         infView = (TextView)findViewById(R.id.settingInf);
         // get current status
+        
         sendStateReq();
         getUserInf();
     }

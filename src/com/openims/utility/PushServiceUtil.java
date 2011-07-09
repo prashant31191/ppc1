@@ -8,11 +8,12 @@ public class PushServiceUtil{
 	//public static final String PACKAGE_NAME = "com.openims";
 	public static final String SERVER_NAME = "@smit";
     // the action for service
-    public final static String ACTION_IMSERVICE = "com.openims.service.IMService";
+    //public final static String ACTION_IMSERVICE = "com.openims.service.IMService";
     public static final String ACTION_SERVICE_STATUS = "com.openims.service.IMService.STATUS";
     public static final String ACTION_SERVICE_REGISTER = "com.openims.service.IMService.REGISTER";
     public static final String ACTION_SERVICE_MESSAGE = "com.openims.service.IMService.MESSAGE";
     public static final String ACTION_SERVICE_PUBSUB = "com.openims.service.IMService.PUBSUB";
+    public static final String ACTION_SERVICE_CONNECT = "com.openims.service.IMService.CONNECT";
     
     // the action for broadcast
     public static final String ACTION_REGISTRATION = "com.openims.pushService.REGISTRATION";

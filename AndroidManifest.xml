@@ -153,7 +153,14 @@
 		<uses-library android:name="android.test.runner"></uses-library>
 		<activity android:name="com.openims.view.chat.widget.IMActivity"></activity>	
     	<!-- end test -->
-		<activity android:name="com.openims.view.chat.UserSearchActivity"></activity> 
+		<activity android:name="com.openims.view.chat.UserSearchActivity"></activity>
+		<activity android:name="com.openims.view.chat.UserManageActivity"></activity>
+		<activity android:name="com.openims.view.chat.MainActivity">
+		 <intent-filter>
+        		  	<action android:name="android.intent.action.MAIN" /> 
+        		  	<category android:name="android.intent.category.LAUNCHER" />
+        		  </intent-filter>
+        </activity> 
     </application>
     
     

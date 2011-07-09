@@ -61,6 +61,7 @@ public class MyApplication extends Application {
 			}
 		}
 		
+		
 		VCardDataBase vc = new VCardDataBase(MyApplication.this,userJid);
 		Cursor c = vc.queryByJId(jid);
 		if(nIndexAvater == 0){
@@ -69,20 +70,21 @@ public class MyApplication extends Application {
 		// 2
 		if(c.getCount() == 0){
 			vc.close();
+			c.close();
 			return null;
 		}
 		c.moveToFirst();
 		byte[] b = c.getBlob(nIndexAvater);
 		// 3
 		Drawable draw;
-		if(b == null){
-			vc.close();
+		if(b == null){			
 			draw = MyApplication.this.getResources().getDrawable(R.drawable.icon);
 		}else{
 			draw = new BitmapDrawable(new ByteArrayInputStream(b));
 		}		
 		
 		cache.put(jid, new SoftReference<Drawable>(draw));
+		c.close();
 		vc.close();
 		return draw;
 	}

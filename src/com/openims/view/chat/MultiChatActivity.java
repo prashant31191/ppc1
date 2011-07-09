@@ -96,13 +96,18 @@ public class MultiChatActivity extends FragmentActivity
 		if(bundle == null){
 			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 			mChatMainFragment = new ChatMainFragment();
-			mChatMainFragment.setOnAvater(this);
+			
 	        ft.add(R.id.multi_chat_content, mChatMainFragment,TAG_CHAT_MAIN).commit();
+	        
 			
 		}else{			
 			mChatMainFragment = (ChatMainFragment)getSupportFragmentManager().findFragmentByTag(TAG_CHAT_MAIN);
-		}		
-				
+			initAccountInfFragment((ChatAccountInfFragment)getSupportFragmentManager()
+					.findFragmentByTag(TAG_ACCOUNT_INF));		
+			initHistoryFragment((ChatHistoryFragment)getSupportFragmentManager()
+					.findFragmentByTag(TAG_HISTORY));
+		}	
+						
 		// initial global data
 		SharedPreferences sharedPrefs = getSharedPreferences(
 				PushServiceUtil.SHARED_PREFERENCE_NAME,
@@ -127,27 +132,58 @@ public class MultiChatActivity extends FragmentActivity
 		// initial chat fragment
 		String tableName = MessageRecord.getMessageRecordTableName(mMyJid, mYourJid);
 		mChatMainFragment.setTableName(tableName, nstartId, mYourJid,mMyJid);
-		
+		mChatMainFragment.setOnAvater(this);
 		addListener();
 		
 		// connect to service
 		doBindService();		
 	}
 
+	private void initAccountInfFragment(ChatAccountInfFragment f){
+		if(f == null){
+			return;
+		}
+		f.setOnAvater(MultiChatActivity.this);
+		f.setInf(mMyJid, mYourJid);
+	}
+	private void initMainFragment(ChatMainFragment main){
+		if(main != null){
+			
+		}
+	}
+	private void initHistoryFragment(ChatHistoryFragment history){
+		if(history == null){
+			return;
+		}
+		history.setOnAvater(MultiChatActivity.this);
+		history.setDataTableName(
+				MessageRecord.getMessageRecordTableName(mMyJid,mYourJid)
+				,mMyJid,mYourJid);
+	}
 	private void addListener(){
 		
 		mChatMainFragment.setOnClickAccountInf(new OnClickListener(){
 
 			@Override
 			public void onClick(View v) {
-				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				/*FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 				ChatAccountInfFragment inf = new ChatAccountInfFragment();
-				inf.setOnAvater(MultiChatActivity.this);
-				inf.setInf(mMyJid, mYourJid);
+				initAccountInfFragment(inf);
 				ft.replace(R.id.multi_chat_content, inf,TAG_ACCOUNT_INF);
-			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+			  
 			    ft.addToBackStack(null);
-				ft.commit();
+				ft.commit();*/
+		        // Instantiate a new fragment.
+		        Fragment newFragment = CountingFragment.newInstance(11);
+
+		        // Add the fragment to the activity, pushing this transaction
+		        // on to the back stack.
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		        ft.replace(R.id.multi_chat_content, newFragment);
+		        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+		        ft.addToBackStack(null);  //这个是做什么用的？
+		        ft.commit();
 			}
 			
 		});
@@ -157,12 +193,10 @@ public class MultiChatActivity extends FragmentActivity
 			public void onClick(View v) {
 				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 				ChatHistoryFragment history = new ChatHistoryFragment();
-				history.setOnAvater(MultiChatActivity.this);
-				history.setDataTableName(
-						MessageRecord.getMessageRecordTableName(mMyJid,mYourJid)
-						,mMyJid,mYourJid);
+				initHistoryFragment(history);
 				ft.replace(R.id.multi_chat_content, history,TAG_HISTORY);
 			    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+			    ft.setCustomAnimations(R.anim.fade_in_fast, R.anim.fade_out_fast);
 			    ft.addToBackStack(null);
 				ft.commit();
 			}	

@@ -64,7 +64,7 @@ public class ChatAccountInfFragment extends Fragment
 		Log.d(TAG, PRE + "onCreateView");
 		View v = inflater.inflate(R.layout.multi_chat_account_inf, container, false);
 		
-		addListener(v);
+		/*addListener(v);
 		
 		VCardDataBase vc = new VCardDataBase(getActivity(),mMyJid);
 		Cursor c = vc.queryByJId(mYourJid);
@@ -137,11 +137,11 @@ public class ChatAccountInfFragment extends Fragment
 		mAvater = (ImageView)v.findViewById(R.id.avater);
 		mAvater.setImageDrawable(mOnAvater.getAvater(mYourJid, this));
 		updatePresence();
-		vc.close();
+		vc.close();*/
 		return v;
 	}
 	
-	public void addListener(View v){
+	private void addListener(View v){
 		View btn = v.findViewById(R.id.header_left);
 		btn.setOnClickListener(this);
 		v.findViewById(R.id.header_right).setOnClickListener(this);
@@ -208,15 +208,15 @@ public class ChatAccountInfFragment extends Fragment
 	}
 
 	private void updateAvater(Drawable avater){
-		this.mAvater.setImageDrawable(avater);
+		/*this.mAvater.setImageDrawable(avater);
 		if(mIsPresence){
 			mAvater.setColorFilter(null);
 		}else{
 			mAvater.setColorFilter(PushServiceUtil.GREY_COLOR_FILTER);
-		}
+		}*/
 	}
 	public void updatePresence(){
-		RosterDataBase roster = new RosterDataBase(mActivity,
+		/*RosterDataBase roster = new RosterDataBase(mActivity,
 				mMyJid);
         String presence = roster.getPresence(mYourJid);
         roster.close();
@@ -229,7 +229,7 @@ public class ChatAccountInfFragment extends Fragment
         	mAvater.setColorFilter(null);
 		}else{
 			mAvater.setColorFilter(PushServiceUtil.GREY_COLOR_FILTER);
-		}
+		}*/
 	}
 	@Override
 	public void avater(String avaterJid, Drawable avater) {		

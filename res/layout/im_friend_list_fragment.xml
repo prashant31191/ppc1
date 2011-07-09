@@ -3,20 +3,20 @@
     android:layout_width="match_parent" 
     android:layout_height="match_parent" 
     android:id="@+id/relativeLayout1">
-    <!--<TextView android:id="@+id/textView1" 
-    	android:layout_height="wrap_content" 
-    	android:layout_width="fill_parent" 
-    	android:text="TextView" 
-    	android:layout_alignParentLeft="true">
-    </TextView>
-    -->
-    <ExpandableListView android:layout_height="fill_parent" 
+       
+    <com.openims.view.chat.widget.FriendGroupListView 
+    	android:layout_height="fill_parent" 
     	android:layout_width="fill_parent" 
     	android:id="@+id/listview_friend" 
     	android:layout_alignParentTop="true"
-    	android:cacheColorHint="#00000000"
-    	
+    	android:cacheColorHint="#00000000"    	
+    	>    	
+    </com.openims.view.chat.widget.FriendGroupListView>
+    <LinearLayout android:id="@+id/indicatorGroup" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="fill_parent" 
+    	android:layout_alignParentLeft="true"
     	>
-    	
-    </ExpandableListView>
+    </LinearLayout>
+    
 </RelativeLayout>

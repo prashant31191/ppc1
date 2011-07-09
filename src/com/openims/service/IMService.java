@@ -22,7 +22,9 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -38,7 +40,7 @@ import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 
 
-public class IMService extends Service {
+public class IMService extends Service  {
 
     private static final String TAG = LogUtil.makeLogTag(IMService.class);
     private static final String PRE = LogUtil.makeTag(IMService.class);
@@ -58,6 +60,12 @@ public class IMService extends Service {
     /** Keeps track of all current registered clients. */
     private ArrayList<Messenger> mClients = new ArrayList<Messenger>();
     final Messenger mMessenger = new Messenger(new IncomingHandler());
+    
+    private View mPopupView;
+    private int mCurrentY;
+
+    private WindowManager mWindowManager;
+    private WindowManager.LayoutParams mWmlp;
     
     public IMService(){
     	connectivityReceiver = new ConnectivityReceiver(this);
@@ -79,12 +87,13 @@ public class IMService extends Service {
     	initDeviceId();
     	
     	xmppManager = new XmppManager(this);
-
-        taskSubmitter.submit(new Runnable() {
+        
+    	taskSubmitter.submit(new Runnable() {
             public void run() {
                 IMService.this.start();
             }
-        });        
+        });   
+        //alertbox(null,null);
     }
     @Override
     public void onStart(Intent intent, int startId) {
@@ -99,6 +108,8 @@ public class IMService extends Service {
         	sendMessageChat(intent);
         }else if(PushServiceUtil.ACTION_SERVICE_PUBSUB.equals(action)){
         	sendTopic(intent);
+        }else if(PushServiceUtil.ACTION_SERVICE_CONNECT.equals(action)){
+        	
         }
     }
 
@@ -515,7 +526,7 @@ public class IMService extends Service {
             	Log.e(TAG, PRE + "BEGIN LOAD CARD");
             	try {
         			xmppManager.getVCard(jid);
-        		} catch (XMPPException e) {
+        		} catch (Exception e) {
         			// TODO Auto-generated catch block
         			e.printStackTrace();
         			return;
@@ -538,14 +549,21 @@ public class IMService extends Service {
     
     protected void alertbox(String title, String mymessage)
     {
-    	WindowManager wm=(WindowManager)getApplicationContext()
-    	.getSystemService("window"); 
+    	mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);    	
     	
     	WindowManager.LayoutParams wmParams =new WindowManager.LayoutParams(); 
     	wmParams.type=WindowManager.LayoutParams.TYPE_SYSTEM_ALERT; 
     	wmParams.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-    	wmParams.width=WindowManager.LayoutParams.WRAP_CONTENT; 
-    	wmParams.height=WindowManager.LayoutParams.WRAP_CONTENT; 
+    	wmParams.flags |= WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+    	wmParams.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+    	wmParams.width=100; 
+    	wmParams.height=100; 
+    	wmParams.alpha=0.5f;
+    	wmParams.dimAmount = 0.5f;
+    	//wmParams.gravity = Gravity.NO_GRAVITY;
+    	wmParams.gravity = Gravity.TOP|Gravity.LEFT;
+    	wmParams.x = 0;
+    	wmParams.y = 0;
     	Button b = new Button(getApplicationContext());
     	b.setOnClickListener(new OnClickListener(){
 			@Override
@@ -556,14 +574,54 @@ public class IMService extends Service {
     	b.setOnTouchListener(new OnTouchListener(){
 
 			@Override
-			public boolean onTouch(View arg0, MotionEvent me) {				
+			public boolean onTouch(View arg0, MotionEvent me) {	
+				int action = me.getAction();
+				Log.d(TAG, PRE + "action = " + action);
+				switch(action){
+				case MotionEvent.ACTION_OUTSIDE:
+					break;
+				case MotionEvent.ACTION_DOWN:
+					break;
+				case MotionEvent.ACTION_MOVE:
+					break;
+				case MotionEvent.ACTION_UP:
+					break;
+				}
+				
 				return false;
 			}
     		
     	});
     	b.setText("hello");
-    	wm.addView(b, wmParams);
+    	mWindowManager.addView(b, wmParams);
     	
+    }
+    
+    private void initPopupWindow(){
+
+    	
+
+    	  // 获取屏幕宽度
+    	  DisplayMetrics outMetrics = new DisplayMetrics();
+    	  mWindowManager.getDefaultDisplay().getMetrics(outMetrics);
+    	  int width = outMetrics.widthPixels;
+
+    	  //mlp = new WindowManager.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+    	  mWmlp.alpha = 0.5f;
+    	  mWmlp.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE; // 不能抢占聚焦点
+    	  mWmlp.flags = mWmlp.flags | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+    	  mWmlp.flags = mWmlp.flags | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS; // 排版不受限制
+    	  mWmlp.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;     // 系统提示类型
+    	  mWmlp.width = width;
+    	  mWmlp.height = 30;
+    	  mWmlp.gravity = 2;
+    	  mWmlp.format = -1;
+    	  mWmlp.token = null;
+    	  mWmlp.x = 0;
+    	  mWmlp.y = 200;
+
+    	  mCurrentY = mWmlp.y;
+
     }
     
     

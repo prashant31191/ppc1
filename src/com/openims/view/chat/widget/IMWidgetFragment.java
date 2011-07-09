@@ -19,23 +19,20 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.smit.EasyLauncher.R;
 import com.openims.model.MyApplication;
 import com.openims.service.IMService;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.chat.OnAvater;
+import com.openims.view.chat.UserManageActivity;
 import com.openims.view.chat.UserSearchActivity;
+import com.smit.EasyLauncher.R;
 
 public class IMWidgetFragment extends Fragment 
 						implements OnClickListener,
@@ -84,7 +81,8 @@ public class IMWidgetFragment extends Fragment
 		//v.findViewById(R.id.btn_group).setOnClickListener(this);
 		mBtnRecent = (ToggleButton)v.findViewById(R.id.btn_recent);
 		mBtnRecent.setOnClickListener(this);
-			
+		v.findViewById(R.id.btn_im_setting).setOnClickListener(this);
+		
 		v.findViewById(R.id.btn_add_friend).setOnClickListener(this);
 		return v;
 	}
@@ -97,14 +95,14 @@ public class IMWidgetFragment extends Fragment
 		if(savedInstanceState == null){
 			final FragmentTransaction ft = getFragmentManager().beginTransaction();
 			mFriendFragment = new FriendListFragment();	
-			mFriendFragment.setOnAvater(this);
+			
 	        ft.add(R.id.im_center, mFriendFragment,TAG_FRIEND).commit();
 			
 		}else{			
 			mFriendFragment = (FriendListFragment)getFragmentManager()
 				.findFragmentByTag(TAG_FRIEND);
 		}
-		
+		mFriendFragment.setOnAvater(this);
 		myApplication = (MyApplication)mActivity.getApplication();
 	}
 	
@@ -147,6 +145,8 @@ public class IMWidgetFragment extends Fragment
 	public void onDestroy() {
 		super.onDestroy();
 		Log.d(TAG, PRE + "onDestroy");
+		doUnbindService();
+		mConnection = null;
 	}
 
 	@Override
@@ -186,7 +186,10 @@ public class IMWidgetFragment extends Fragment
 			break;
 		case R.id.btn_add_friend:
 			Intent intent = new Intent(mActivity,UserSearchActivity.class);
-			mActivity.startActivity(intent);
+			mActivity.startActivity(intent);			
+			break;
+		case R.id.btn_im_setting:
+			mActivity.startActivity(new Intent(mActivity,UserManageActivity.class));	
 			break;
 		}		
 	}
@@ -204,8 +207,9 @@ public class IMWidgetFragment extends Fragment
                 case PushServiceUtil.MSG_REQUEST_VCARD:
                 	String jid = (String)msg.obj;
                 	OnAvaterListener listener = avaterListeners.get(jid);
-                	if(listener != null){                		
-                		listener.avater(jid, myApplication.getAvater(jid));
+                	if(listener != null){  
+                		//myApplication.getAvater(jid)
+                		listener.avater(jid, null);
                 		avaterListeners.remove(jid);
                 	}
                 	break;
@@ -261,7 +265,7 @@ public class IMWidgetFragment extends Fragment
     };
     
     
-    void doBindService() {
+   private void doBindService() {
     	IMWidgetFragment.this.mActivity.bindService(
     			new Intent(IMWidgetFragment.this.mActivity, 
                 IMService.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -269,7 +273,7 @@ public class IMWidgetFragment extends Fragment
         Log.i(TAG,PRE + "Binding.");
     }
     
-    void doUnbindService() {
+   private void doUnbindService() {
         if (mIsBound) {                       
         	if (mService != null) {
                 try {
@@ -294,6 +298,9 @@ public class IMWidgetFragment extends Fragment
 			return d;
 		}
 		// notify jia zai
+		Resources r = getResources();
+		d = r.getDrawable(R.drawable.icon);
+		
 		if(avaterListeners.containsKey(avaterJid) == false){
 			Message msg = Message.obtain(null,
 	        		PushServiceUtil.MSG_REQUEST_VCARD);
@@ -302,17 +309,17 @@ public class IMWidgetFragment extends Fragment
 	        try {
 				mService.send(msg);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return d;
+			} catch (Exception e){
+				e.printStackTrace();
+				return d;
 			}
 			avaterListeners.put(avaterJid, listener);
 		}
 		
-		Resources r = getResources();
-		d = r.getDrawable(R.drawable.icon);
+		
 		
 		return d;		
 	}
-    
-	
 }

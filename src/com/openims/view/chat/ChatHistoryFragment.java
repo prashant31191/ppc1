@@ -321,16 +321,20 @@ public class ChatHistoryFragment extends Fragment
 			}
 			if (position== 0 ) {
 				return(IGNORE_ITEM_VIEW_TYPE);
-			}		
+			}
+			ChatMessage msg = messages.get(position);
+			if(msg.jid.startsWith(mMyJid)){
+				return 0;
+			}
 			return 1;
 		}
 		@Override
 		public int getViewTypeCount() {
-			return 2;
+			return 3;
 		}
 		@Override
 		public boolean areAllItemsEnabled() {
-			return true;
+			return false;
 		}
 		
 		@Override
@@ -343,7 +347,10 @@ public class ChatHistoryFragment extends Fragment
 		}
 
 		@Override
-		public long getItemId(int position) {		
+		public long getItemId(int position) {	
+			if(messages.isEmpty() || position >= messages.size()){
+				return 0;
+			}
 			return messages.get(position).id;
 		}
 
@@ -376,20 +383,27 @@ public class ChatHistoryFragment extends Fragment
 				Log.d(TAG, PRE + "ºı…Ÿ“ª∏ˆ  position=" + position);
 			}
 			// normal situation
-			View v;
+			boolean isMe = false;
+			ChatMessage msg = messages.get(position);
+			if(msg.jid.startsWith(mMyJid)){	
+				isMe = true;
+			}
+			View v = null;
 			if (convertView == null) {
-	            v = mInflater.inflate(R.layout.multi_chat_message_item, null);
+	            v = mInflater.inflate(
+	            		isMe?R.layout.multi_chat_message_item_right:
+	            			R.layout.multi_chat_message_item, null);
 	        } else {
 	            v = convertView;
-	        }
-			ChatMessage msg = messages.get(position);
+	        }			
+			
 			TextView name = (TextView)v.findViewById(R.id.tv_chat_item_name_time);
 			name.setText(msg.nickName);
 			TextView content = (TextView)v.findViewById(R.id.tv_chat_item_content);
 			content.setText(msg.content);
 			
 			ImageView avater = (ImageView)v.findViewById(R.id.avater);
-			if(msg.jid.startsWith(mMyJid)){
+			if(isMe){
 				avater.setImageDrawable(mMyAvater);
 				avater.setColorFilter(null);
 			}else{				

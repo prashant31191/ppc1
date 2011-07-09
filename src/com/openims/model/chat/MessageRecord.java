@@ -28,7 +28,7 @@ public class MessageRecord {
 	public static final String SENDER = "SENDER";
 	public static final String FLAG = "FLAG";
 	
-	private static DatabaseHelper dbHelper;
+	private DatabaseHelper dbHelper;
 	
 
 	private String tableName = null;
@@ -53,7 +53,7 @@ public class MessageRecord {
 		}
 		
 	}
-	public void close(){
+	public synchronized void close(){
 		if(dbHelper != null){
 			dbHelper.close();
 		}

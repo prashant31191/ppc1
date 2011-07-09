@@ -71,7 +71,7 @@ public class ChatMainFragment extends Fragment
 	private Boolean mIsPresence = true;
 	
 	private OnAvater mOnAvater;
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -298,7 +298,10 @@ public class ChatMainFragment extends Fragment
 	@Override
 	public void avater(String avaterJid, Drawable avater) {
 		updateState();
-		mListAdapter.notifyDataSetChanged();		
+		if(mListAdapter != null){
+			mListAdapter.notifyDataSetChanged();
+		}
+				
 	}
 	private void updateState(){
 		if(mOnAvater != null){
@@ -347,17 +350,13 @@ public class ChatMainFragment extends Fragment
 	    
 		//private Context context;
 		private LayoutInflater mInflater;
-		private String mMyJid;
-		private int blackColor;
-		private int blueColor;
+		private String mMyJid;	
 		
 		LinkedList<ChatMessage> messages = new LinkedList<ChatMessage>();
 		
 		public ChatMainAdapter(Context context, String myJid){
 			mMyJid = myJid;
-			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);;
-			blackColor = context.getResources().getColor(R.color.light_black);
-			blueColor = context.getResources().getColor(R.color.main_blue);
+			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);			
 		}
 		public void removeAll(){			
 			messages = new LinkedList<ChatMessage>();
@@ -388,7 +387,11 @@ public class ChatMainFragment extends Fragment
 		}
 		
 		@Override
-		public int getItemViewType(int position) {			
+		public int getItemViewType(int position) {	
+			ChatMessage msg = messages.get(position);
+			if(msg.jid.startsWith(mMyJid)){
+				return 0;
+			}
 			return 1;
 		}
 		@Override
@@ -397,7 +400,7 @@ public class ChatMainFragment extends Fragment
 		}
 		@Override
 		public boolean areAllItemsEnabled() {
-			return true;
+			return false;
 		}
 		
 		@Override
@@ -413,7 +416,7 @@ public class ChatMainFragment extends Fragment
 		@Override
 		public long getItemId(int position) {
 			Log.d(TAG, PRE + "getItemId");		
-			if(messages.isEmpty() || position > messages.size()){
+			if(messages.isEmpty() || position >= messages.size()){
 				return 0;
 			}
 			return messages.get(position).id;
@@ -423,23 +426,28 @@ public class ChatMainFragment extends Fragment
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Log.d(TAG, PRE + "getView position=" + position);
 			
-			View v;
+			boolean isMe = false;
+			ChatMessage msg = messages.get(position);
+			if(msg.jid.startsWith(mMyJid)){	
+				isMe = true;
+			}
+			View v = null;
 			if (convertView == null) {
-	            v = mInflater.inflate(R.layout.multi_chat_message_item, null);
+	            v = mInflater.inflate(
+	            		isMe?R.layout.multi_chat_message_item_right:
+	            			R.layout.multi_chat_message_item, null);
 	        } else {
 	            v = convertView;
 	        }
-			ChatMessage msg = messages.get(position);
+			
 			
 			TextView tvName = (TextView)v.findViewById(R.id.tv_chat_item_name_time);
 			tvName.setText(msg.nickName);
 			ImageView avater = (ImageView)v.findViewById(R.id.avater);
-			if(msg.jid.startsWith(mMyJid)){			
-				tvName.setTextColor(blueColor);
+			if(isMe){
 				avater.setImageDrawable(mMyAvater);
 				avater.setColorFilter(null);
-			}else{
-				tvName.setTextColor(blackColor);
+			}else{				
 				avater.setImageDrawable(mYourAvater);
 				if(mIsPresence){
 					avater.setColorFilter(null);
