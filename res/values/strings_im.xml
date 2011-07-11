@@ -70,4 +70,10 @@
     <integer name="tag_group">0</integer>
     <integer name="tag_child">0</integer>
     <string name="user_manage">用户管理</string>
+    <string name="im_select_group">选择分组</string>
+    <string name="alert_dialog_ok">确定</string>
+    <string name="alert_dialog_cancel">取消</string>
+    <string name="im_no_group">no groups</string>
+    
+    
 </resources>

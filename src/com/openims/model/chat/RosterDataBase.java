@@ -199,7 +199,22 @@ public class RosterDataBase {
 				null,null,null,null);
 		return cursor;
 	}
-	
+	public String[] getGroups(){
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		Cursor cursor = db.query(TABLE_NAME, new String[]{GROUP_NAME}, ADMIN + "=\"" + mAdmin + "\"",
+				null,GROUP_NAME,null,null);
+		int n = cursor.getCount();
+		if(n == 0){
+			return null;
+		}
+		String[] groups = new String[n];
+		cursor.moveToFirst();
+		for(int i=0; i<n; i++){
+			groups[i] = cursor.getString(0);
+			cursor.moveToNext();
+		}
+		return groups;
+	}
 	public void dropTable(){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);

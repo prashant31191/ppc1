@@ -83,8 +83,7 @@
    	     	android:layout_width="wrap_content" 
    	     	android:layout_height="wrap_content"
    	     	android:background="@drawable/s0_add_friend_button_qqwideget"   	     	
-   	     	android:layout_margin="2dp"
-   	     	android:visibility="invisible">
+   	     	android:layout_margin="2dp">
    	     </Button>
    	     <TextView android:text="TextView" 
    	     	android:id="@+id/textView3" 
@@ -113,8 +112,7 @@
    	     	android:layout_width="wrap_content" 
    	     	android:layout_height="wrap_content"
    	     	android:background="@drawable/s0_add_friend_button_qqwideget"
-   	     	android:layout_margin="2dp"
-   	     	android:visibility="invisible">
+   	     	android:layout_margin="2dp">
    	     </Button>
     </LinearLayout>
    	 

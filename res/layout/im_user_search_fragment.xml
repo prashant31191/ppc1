@@ -48,14 +48,21 @@
     		android:layout_width="fill_parent" 
     		android:layout_height="3dip"
     		android:background="@color/black">
-     </View>
+    	</View>     
+    	
+	   
+    
     <FrameLayout android:id="@+id/search_result_container"
     	android:layout_width="fill_parent"     	 
     	android:layout_height="1000dip"
     	android:layout_weight="10" 
     	 
     	>    	
-    	
+    	 <ProgressBar android:id="@+id/searchProgressBar" 
+	    	android:layout_width="wrap_content" android:layout_height="wrap_content"
+	    	android:layout_gravity="right"
+	    	android:layout_marginRight="10dip">
+	    </ProgressBar>
   		<ImageView android:id="@+id/search_result_listView_empty"     			
   			android:src="@drawable/im_search_no_result" 
   			android:layout_height="wrap_content" 

@@ -1,7 +1,6 @@
 package com.openims.view.chat;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,11 +18,15 @@ import org.jivesoftware.smackx.ReportedData.Row;
 import org.jivesoftware.smackx.search.UserSearchManager;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Gravity;
@@ -37,10 +40,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.openims.model.MyApplication;
+import com.openims.model.chat.RosterDataBase;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.openims.utility.Utility;
@@ -55,6 +60,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 	private static final String EMAIL = "Email";
 	private static final String USERNAME = "Username";
 	private static final String NickNAME = "Name";
+	private static final String GROUPS = "groups";
 	private Activity mActivity;
 	
 	private ListView listView;
@@ -63,6 +69,8 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 	private CheckBox checkBoxNickName;
 	private CheckBox checkBoxUsername;
 	private CheckBox checkBoxEmail;
+	
+	private ProgressBar mProgress;
 	
 	private XMPPConnection xmppConnection;
 	
@@ -331,7 +339,8 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 			ResultAdapter mSchedule = new ResultAdapter(mActivity, mylist, 
 					R.layout.im_user_search_list_item,UserSearchFragment.this);
 
-			listView.setAdapter(mSchedule);			
+			listView.setAdapter(mSchedule);	
+			mProgress.setVisibility(View.GONE);
 		}    	
     }
     class UserTask extends AsyncTask<Object, Void, Exception> {
@@ -422,6 +431,9 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		checkBoxUsername = (CheckBox)v.findViewById(R.id.checkBox_username);
 		checkBoxEmail = (CheckBox)v.findViewById(R.id.checkBox_email);
 		listView = (ListView)v.findViewById(R.id.search_result_listView);
+		mProgress = (ProgressBar)v.findViewById(R.id.searchProgressBar);
+		
+		mProgress.setVisibility(View.GONE);
 		
 		TextView emptyView = new TextView(mActivity);
 		emptyView.setText(R.string.no_data);
@@ -451,82 +463,71 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 				UserSearchTask userSearch = new UserSearchTask(checkBoxNickName.isChecked(),
 						checkBoxUsername.isChecked(),checkBoxEmail.isChecked(),input);
 				userSearch.execute(null);
+				mProgress.setVisibility(View.VISIBLE);
 			}			
 		});
 	}
-	// old
-    private void userSearch(String input,Boolean bNickName,Boolean bUserName,Boolean bEmail){
-    	UserSearchManager search = new UserSearchManager(xmppConnection);
-    	
-    	try {
-    		List<String> list = (List<String>)search.getSearchServices();
-			String searchService = list.get(0);
-			Form from = search.getSearchForm(searchService);
-			
-			/*Iterator<FormField> it = from.getFields();
-			while(it.hasNext()){
-				FormField fromField = it.next();
-				String fieldType = fromField.getType();
-				String v = fromField.getVariable();
-				String label = fromField.getLabel();				
-				Log.d(TAG, PRE + "flield type=" + fieldType + " variable="
-						+ v + " label=" + label);
-			}*/
-			
-			Form answerForm = from.createAnswerForm();
-            answerForm.setAnswer(NickNAME, bNickName);
-            answerForm.setAnswer(USERNAME, bUserName);
-            answerForm.setAnswer(EMAIL, bEmail);
-            answerForm.setAnswer("search", input);
-			
-            ReportedData data =search.getSearchResults(answerForm, searchService);
-			Iterator<Row> itRow = data.getRows(); 
-			
-			ArrayList<HashMap<String, String>> mylist = new ArrayList<HashMap<String, String>>();
-			
-			while(itRow.hasNext()){
-				HashMap<String, String> map = new HashMap<String, String>();
-				
-				Row row = itRow.next();				
-				Iterator<String> jids = row.getValues(NickNAME);
-				if(jids.hasNext()){
-					map.put(NickNAME, jids.next() );
-				}
-				
-				Iterator userNames = row.getValues(USERNAME);
-				if(userNames.hasNext()){
-					map.put(USERNAME, (String)userNames.next() );
-				}
-				
-				Iterator emails = row.getValues(EMAIL);
-				if(emails.hasNext()){
-					map.put(EMAIL, (String)emails.next() );
-				}
-				
-				mylist.add(map);
-			}
-			
-			ResultAdapter mSchedule = new ResultAdapter(mActivity, mylist, 
-					R.layout.im_user_search_list_item,this);
-
-			listView.setAdapter(mSchedule);
-		
-		} catch (XMPPException e) {
-			e.printStackTrace();
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-    }
+	
 
 	@Override
 	public void onClick(View v) {
-		String username = (String)v.getTag();
-		Log.d(TAG, PRE + username);
-		UserTask userTask = new UserTask();
-		userTask.addUser(username+PushServiceUtil.SERVER_NAME,"hello","∫√≈Û”—");
-		userTask.execute(new Object());
+		showDialog((String)v.getTag());		
 	}
 	
+	void showDialog(String user) { 
+        String[] groups = null;
+        RosterDataBase rosterDb = new RosterDataBase(getActivity(),"test2@smit");
+        groups = rosterDb.getGroups();
+        if(groups == null){
+        	Utility.showToast(mActivity, R.string.im_no_group,
+					Toast.LENGTH_LONG);
+        	return;
+        }
+        GroupDialogFragment newFragment = new GroupDialogFragment();
+        Bundle args = new Bundle();
+        args.putString(USERNAME, user);
+        args.putStringArray(GROUPS, groups);
+        newFragment.setArguments(args);         
+        newFragment.show(getFragmentManager(), "dialog");
+       
+    }
+	public class GroupDialogFragment extends DialogFragment {
+		 
+		 private String userName = null;
+		 private int position = 0;
+		 private String[] groups = null;
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			userName = this.getArguments().getString(USERNAME);	
+			groups = this.getArguments().getStringArray(GROUPS);
+            
+            return new AlertDialog.Builder(getActivity())
+            //.setIconAttribute(android.R.attr.alertDialogIcon)
+            .setTitle(R.string.im_select_group)
+            .setSingleChoiceItems(groups, 0, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {                  
+                	position = whichButton;
+                }
+            })
+            .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                	UserTask userTask = new UserTask();
+            	 	userTask.addUser(userName+PushServiceUtil.SERVER_NAME,userName,groups[position]);
+            	 	userTask.execute(new Object());
+                }
+            })
+            .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                    /* User clicked No so do some stuff */
+                }
+            })
+           .create();
+		}
+		 
+	 }
+	 
 }
 
 
