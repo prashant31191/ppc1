@@ -25,7 +25,7 @@
 			android:layout_weight="1">
 			<com.smit.DeskView.commonclass.AlwaysMarqueeTextView
 				android:id="@+id/tvlive_title" android:textColor="@color/vodvideo_title_color"
-				android:singleLine="true" android:ellipsize="marquee"
+				android:singleLine="true"
 				android:marqueeRepeatLimit="marquee_forever"
 				android:layout_width="0dp" android:layout_height="wrap_content"
 				android:layout_weight="3" android:text="@string/vodvideo_widget_defvideo" />

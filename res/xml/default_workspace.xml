@@ -18,7 +18,14 @@
     <!--  Far-left screen [0] -->
 
     <!--  Left screen [1] -->
-    <ownwidget 
+		 <ownwidget 
+        launcher:viewid="0"
+        launcher:screen="0"
+		launcher:x="0" 
+		launcher:y="0" 
+		launcher:spanX="3" 
+		launcher:spanY="4" />
+		    <ownwidget 
         launcher:viewid="1"
         launcher:screen="1"
 		launcher:x="0" 

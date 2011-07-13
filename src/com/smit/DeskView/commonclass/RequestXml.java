@@ -23,6 +23,7 @@ public  class RequestXml extends Thread {
 	private     final int       TimeOut=20*1000;
 	private     String          Tag="RequestXml";
 
+
 	
 	public void sendData() {  
 		String tag ="HTTPSend:sendData";  
@@ -131,8 +132,6 @@ public  class RequestXml extends Thread {
 	}
 	
 	public void stopThread(){
-		//stop();  //不能随便调用
-		
 		if (mTimer!=null) {
 			mTimer.cancel();
 			mTimer=null;
