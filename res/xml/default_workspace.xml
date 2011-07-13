@@ -23,7 +23,7 @@
         launcher:screen="0"
 		launcher:x="0" 
 		launcher:y="0" 
-		launcher:spanX="3" 
+		launcher:spanX="4" 
 		launcher:spanY="4" />
 		    <ownwidget 
         launcher:viewid="1"
