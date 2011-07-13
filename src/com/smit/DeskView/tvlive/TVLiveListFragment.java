@@ -60,6 +60,15 @@ public class TVLiveListFragment extends ListFragment {
 	private static String TVLIVE_ITEM_FILE_DIR = "data/data/com.smit.EasyLauncher/files";// 视屏文件
 	private static String TVLIVE_ITEM_FILE = "data/data/com.smit.EasyLauncher/files/tvlive.xml";// 视屏文件
 
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		
+		setRetainInstance(true);
+	}
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -157,7 +166,7 @@ public class TVLiveListFragment extends ListFragment {
 	   }
 	
 	public void requestXml() {
-		String Url = "http://192.168.0.195:8080/pring/video.do?columnKey=102";
+		String Url = CommonDataFun.myServerAddr+"video.do?columnKey=102";
 		try {
 			URL url = new URL(Url);
 			Thread mThread = new RequestXml(url, mHandler, GET_VOD_VIDEO_XML,
@@ -300,7 +309,11 @@ public class TVLiveListFragment extends ListFragment {
 			if (curItem!=null&&isExistFile(curItem.getPicPath(0))) {
 				Bitmap bm = BitmapFactory.decodeFile(curItem.getPicPath(0));
 				Drawable drawable = new BitmapDrawable(bm);	
-				vodvideo_cover.setBackgroundDrawable(drawable);	
+				if (bm==null||drawable==null) {
+					vodvideo_cover.setBackgroundResource(R.drawable.video_load);
+				}else {
+					vodvideo_cover.setBackgroundDrawable(drawable);	
+				}		
 			}else {
 				vodvideo_cover.setBackgroundResource(R.drawable.video_load);
 			}

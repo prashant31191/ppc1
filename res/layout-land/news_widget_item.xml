@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:background="@drawable/vodwidget_list_item_selector">
+
+		<LinearLayout android:orientation="vertical"
+			android:layout_width="fill_parent" 
+			android:layout_height="90dp">
+			<com.smit.DeskView.commonclass.AlwaysMarqueeTextView
+				android:id="@+id/news_title" android:textColor="@color/vodvideo_title_color"
+				android:singleLine="true"
+				android:marqueeRepeatLimit="marquee_forever"
+				android:layout_width= "fill_parent"
+				android:layout_height="0dp"
+				android:layout_weight="1" android:text="@string/vodvideo_widget_defvideo" />
+			<TextView android:id="@+id/news_descript"
+				android:layout_width="fill_parent"
+				android:layout_height="0dp"
+				android:layout_weight="3" android:text="@string/vodvideo_widget_deftime" />
+		</LinearLayout>
+</LinearLayout>

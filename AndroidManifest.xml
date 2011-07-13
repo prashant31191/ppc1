@@ -72,6 +72,8 @@
 	  android:label="@string/app_name">
      </activity>
 	
+	
+	<provider android:name="com.smit.DeskView.commonclass.HistoryCityContentProvider" android:authorities="com.smit.DeskView.commonclass.HistoryCityContentProvider"/>
 	<activity android:name="com.smit.DeskView.commonclass.FlashPlayerActivity"
 	  android:label="@string/app_name">
      </activity>

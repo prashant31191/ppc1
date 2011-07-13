@@ -38,12 +38,22 @@
 	<string name="permdesc_write_settings">Allows an application to change the settings and
 		shortcuts in Home.</string>
 
-	<string name="vodvideo_widget_name">视频直播</string>
+	<string name="vodvideo_widget_name">视频点播</string>
 	<string name="vodvideo_widget_deftime">00:00:00</string>
 	<string name="vodvideo_widget_defvideo">"video"</string>
 	<string name="vodvideo_widget_decript">"没有描述信息"</string>
 	<string name="vodvideo_widget_flash">"刷新"</string>
 	<string name="vodvideo_widget_try_again">"可以再试试"</string>
 	<string name="tvlive_widget_name">电视直播</string>    
-
+	<string name="news_widget_name">新闻资讯</string>
+	
+	<string name="weather_widget_city">北京</string>
+	<string name="weather_widget_temp">20℃</string>
+	<string name="weather_pop_change_city">切换城市</string>
+	<string name="weather_pop_histroy">历史记录</string>
+	<string name="weather_pop_hotcity">热门城市</string>
+	<string name="weather_pop_inputcity">键入城市名或拼音</string>
+	<string name="weather_back">返回</string>
+	<string name="weather_noresult">没有符合的搜索结果</string>
+	<string name="weather_cancel">取消</string>
 </resources>
