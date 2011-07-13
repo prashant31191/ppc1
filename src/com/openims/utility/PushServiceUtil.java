@@ -5,7 +5,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 
 public class PushServiceUtil{
-	//public static final String PACKAGE_NAME = "com.openims";
+	public static final String PACKAGE_NAME = "com.smit.EasyLauncher";
 	public static final String SERVER_NAME = "@smit";
     // the action for service
     //public final static String ACTION_IMSERVICE = "com.openims.service.IMService";
@@ -14,6 +14,11 @@ public class PushServiceUtil{
     public static final String ACTION_SERVICE_MESSAGE = "com.openims.service.IMService.MESSAGE";
     public static final String ACTION_SERVICE_PUBSUB = "com.openims.service.IMService.PUBSUB";
     public static final String ACTION_SERVICE_CONNECT = "com.openims.service.IMService.CONNECT";
+    
+    /**
+     * login/logout server
+     */
+    public static final String ACTION_SERVICE_LOGIN = "com.openims.service.IMService.LOGIN";
     
     // the action for broadcast
     public static final String ACTION_REGISTRATION = "com.openims.pushService.REGISTRATION";
@@ -109,13 +114,8 @@ public class PushServiceUtil{
      * from the service.  The Message's replyTo field must be a Messenger of
      * the client as previously given with MSG_REGISTER_CLIENT.
      */
-    public static final int MSG_UNREGISTER_CLIENT = 2;
-    
-    /**
-     * request unread message number
-     */
-    public static final int MSG_UNREAD_NUMBBER = 3;
-    
+    public static final int MSG_UNREGISTER_CLIENT = 2;    
+
     public static final int MSG_NEW_MESSAGE = 4;
     
     public static final int MSG_ROSTER_UPDATED = 5;

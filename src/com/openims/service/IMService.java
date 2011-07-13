@@ -7,8 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.jivesoftware.smack.XMPPException;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -67,8 +65,7 @@ public class IMService extends Service  {
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mWmlp;
     
-    public IMService(){
-    	connectivityReceiver = new ConnectivityReceiver(this);
+    public IMService(){    	
     	
     	executorService = Executors.newSingleThreadExecutor();
         taskSubmitter = new TaskSubmitter(this);
@@ -82,17 +79,12 @@ public class IMService extends Service  {
     	initSetting();
     	sharedPrefs = getSharedPreferences(PushServiceUtil.SHARED_PREFERENCE_NAME,
                 Context.MODE_PRIVATE);
-    	
-    	// 初始化设备的ID
+   
     	initDeviceId();
     	
     	xmppManager = new XmppManager(this);
         
-    	taskSubmitter.submit(new Runnable() {
-            public void run() {
-                IMService.this.start();
-            }
-        });   
+    	  
         //alertbox(null,null);
     }
     @Override
@@ -110,6 +102,8 @@ public class IMService extends Service  {
         	sendTopic(intent);
         }else if(PushServiceUtil.ACTION_SERVICE_CONNECT.equals(action)){
         	
+        }else if(PushServiceUtil.ACTION_SERVICE_LOGIN.equals(action)){
+        	login();
         }
     }
 
@@ -117,7 +111,7 @@ public class IMService extends Service  {
     @Override
     public void onDestroy() {
         Log.d(TAG, PRE + "onDestroy()...");
-        stop();
+        logout();
     }
 
     /**
@@ -228,6 +222,22 @@ public class IMService extends Service  {
             }
         }
     }
+    /**
+     * 读取law文件里面的信息
+     * @createtime 2011年5月17日9:50:28
+     */
+    private Properties loadProperties() {
+        Properties props = new Properties();
+        try {
+            int id = this.getResources().getIdentifier("androidpn", "raw",
+                    this.getPackageName());
+            props.load(this.getResources().openRawResource(id));
+        } catch (Exception e) {
+            Log.e(TAG, PRE + "Could not find the properties file.", e);
+            e.printStackTrace();
+        }
+        return props;
+    }
     private void initSetting(){
     	
     	SharedPreferences sharedPrefs;
@@ -285,31 +295,23 @@ public class IMService extends Service  {
         Log.d(TAG, PRE + "deviceId=" + deviceId);
     }
     
-    private void registerConnectivityReceiver() {
-        Log.d(TAG, PRE + "registerConnectivityReceiver()...");
-
+    private void login() {
+        Log.d(TAG, PRE + "start()...");        
+        
+        connectivityReceiver = new ConnectivityReceiver(this);
         IntentFilter filter = new IntentFilter();
         filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
         filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(connectivityReceiver, filter);
-    }
-
-    private void unregisterConnectivityReceiver() {
-        Log.d(TAG, PRE + "unregisterConnectivityReceiver()...");
-        
-        unregisterReceiver(connectivityReceiver);
-    }
-    
-    private void start() {
-        Log.d(TAG, PRE + "start()...");        
-        registerConnectivityReceiver(); 
+        registerReceiver(connectivityReceiver, filter);        
         connect();
     }
 
-    private void stop() {
+    private void logout() {
         Log.d(TAG, PRE + "stop()...");        
-        unregisterConnectivityReceiver();
-        xmppManager.disconnect();
+        
+        if(connectivityReceiver != null){
+        	unregisterReceiver(connectivityReceiver);
+        }
         executorService.shutdown();
         disconnect();
     }
@@ -438,22 +440,7 @@ public class IMService extends Service  {
 			
         }
     }
-    /**
-     * 读取law文件里面的信息
-     * @createtime 2011年5月17日9:50:28
-     */
-    private Properties loadProperties() {
-        Properties props = new Properties();
-        try {
-            int id = this.getResources().getIdentifier("androidpn", "raw",
-                    this.getPackageName());
-            props.load(this.getResources().openRawResource(id));
-        } catch (Exception e) {
-            Log.e(TAG, PRE + "Could not find the properties file.", e);
-            e.printStackTrace();
-        }
-        return props;
-    }
+    
     /**
      * Handler of incoming messages from clients.
      */
@@ -466,9 +453,7 @@ public class IMService extends Service  {
                     break;
                 case PushServiceUtil.MSG_UNREGISTER_CLIENT:
                     mClients.remove(msg.replyTo);
-                    break;
-                case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
-                    break;
+                    break;              
                 case PushServiceUtil.MSG_REQUEST_VCARD:
                 	loadVCard((String)msg.obj);
                 	break;                
@@ -478,12 +463,20 @@ public class IMService extends Service  {
         }
     }
     private void sendMessageChat(Intent intent){
+    	if(xmppManager.isAuthenticated() == false){
+    		return;
+    	}
+    	
     	Bundle bundle = intent.getExtras();
     	String to = bundle.getString(PushServiceUtil.MESSAGE_TOWHOS);
     	String mesContent = bundle.getString(PushServiceUtil.MESSAGE_CONTENT);  
     	xmppManager.sendChatMessage(to, mesContent); 
     }
     private void sendTopic(Intent intent){
+    	if(xmppManager.isAuthenticated() == false){
+    		return;
+    	}
+    	
     	String topic = intent.getStringExtra(PushServiceUtil.MESSAGE_TOWHOS);
     	String message = intent.getStringExtra(PushServiceUtil.MESSAGE_CONTENT);
     	xmppManager.sendTopic(topic, message);
@@ -521,6 +514,9 @@ public class IMService extends Service  {
     }
     // TODO using thread
     private void loadVCard(final String jid){
+    	if(xmppManager.isAuthenticated() == false){
+    		return;
+    	}
     	taskSubmitter.submit(new Runnable() {
             public void run() {
             	Log.e(TAG, PRE + "BEGIN LOAD CARD");
@@ -598,9 +594,6 @@ public class IMService extends Service  {
     }
     
     private void initPopupWindow(){
-
-    	
-
     	  // 获取屏幕宽度
     	  DisplayMetrics outMetrics = new DisplayMetrics();
     	  mWindowManager.getDefaultDisplay().getMetrics(outMetrics);

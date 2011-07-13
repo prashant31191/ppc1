@@ -50,7 +50,7 @@ public class Setting extends Activity {
         unregisterReceiver(receiver);  
     };
     private void sendStateReq(){
-    	startService(new Intent(PushServiceUtil.ACTION_SERVICE_STATUS));
+    	startService(new Intent(PushServiceUtil.ACTION_SERVICE_LOGIN));
     }
     private void getUserInf(){
     	String userId = null;

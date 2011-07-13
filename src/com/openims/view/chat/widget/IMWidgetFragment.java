@@ -2,10 +2,14 @@ package com.openims.view.chat.widget;
 
 import java.util.HashMap;
 
+import org.jivesoftware.smack.XMPPConnection;
+
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -32,11 +36,11 @@ import com.openims.utility.PushServiceUtil;
 import com.openims.view.chat.OnAvater;
 import com.openims.view.chat.UserManageActivity;
 import com.openims.view.chat.UserSearchActivity;
+import com.openims.view.setting.Setting.InnerReceiver;
 import com.smit.EasyLauncher.R;
 
 public class IMWidgetFragment extends Fragment 
-						implements OnClickListener,
-						OnAvater{
+						implements OnClickListener,OnAvater{
 
 	private static final String TAG = LogUtil
 					.makeLogTag(IMWidgetFragment.class);
@@ -63,11 +67,31 @@ public class IMWidgetFragment extends Fragment
      */
     final Messenger mMessenger = new Messenger(new IncomingHandler());
    
+    private IMStatusReceiver statusReceiver;
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		this.mActivity = activity;
 		Log.d(TAG, PRE + "onAttach");
+	}
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.d(TAG, PRE + "onCreate");
+		
+		if(savedInstanceState == null){
+			final FragmentTransaction ft = getFragmentManager().beginTransaction();
+			mFriendFragment = new FriendListFragment();
+	        ft.add(R.id.im_center, mFriendFragment,TAG_FRIEND).commit();
+			
+		}else{			
+			mFriendFragment = (FriendListFragment)getFragmentManager()
+				.findFragmentByTag(TAG_FRIEND);
+		}
+		mFriendFragment.setOnAvater(this);
+		myApplication = (MyApplication)mActivity.getApplication();
+		
+		statusReceiver = new IMStatusReceiver();
 	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,45 +105,42 @@ public class IMWidgetFragment extends Fragment
 		//v.findViewById(R.id.btn_group).setOnClickListener(this);
 		mBtnRecent = (ToggleButton)v.findViewById(R.id.btn_recent);
 		mBtnRecent.setOnClickListener(this);
-		v.findViewById(R.id.btn_im_setting).setOnClickListener(this);
+		View btnSetting = v.findViewById(R.id.btn_im_setting);
+		btnSetting.setOnClickListener(this);
+		View btnAddFriend = v.findViewById(R.id.btn_add_friend);
+		btnAddFriend.setOnClickListener(this);
 		
-		v.findViewById(R.id.btn_add_friend).setOnClickListener(this);
+		View contentLayout = v.findViewById(R.id.im_center);
+		View loginTips = v.findViewById(R.id.im_unlogin);
+		
+		if(isLogin()){
+			btnSetting.setVisibility(View.VISIBLE);
+			btnAddFriend.setVisibility(View.VISIBLE);
+			contentLayout.setVisibility(View.VISIBLE);
+			loginTips.setVisibility(View.GONE);
+		}else{
+			btnSetting.setVisibility(View.GONE);
+			btnAddFriend.setVisibility(View.GONE);
+			contentLayout.setVisibility(View.GONE);
+			
+			loginTips.setVisibility(View.VISIBLE);
+		}
 		return v;
 	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Log.d(TAG, PRE + "onCreate");
-		
-		if(savedInstanceState == null){
-			final FragmentTransaction ft = getFragmentManager().beginTransaction();
-			mFriendFragment = new FriendListFragment();	
-			
-	        ft.add(R.id.im_center, mFriendFragment,TAG_FRIEND).commit();
-			
-		}else{			
-			mFriendFragment = (FriendListFragment)getFragmentManager()
-				.findFragmentByTag(TAG_FRIEND);
-		}
-		mFriendFragment.setOnAvater(this);
-		myApplication = (MyApplication)mActivity.getApplication();
-	}
-	
-	
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {		
 		super.onActivityCreated(savedInstanceState);		
-		doBindService();
-		
+		doBindService();		
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
 		Log.d(TAG, PRE + "onStart");
-		
+		IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(IMStatusReceiver.ACTION);
+        mActivity.registerReceiver(statusReceiver, intentFilter);   
 	}
 
 	@Override
@@ -139,6 +160,7 @@ public class IMWidgetFragment extends Fragment
 	public void onStop() {
 		super.onStop();
 		Log.d(TAG, PRE + "onStop");
+		mActivity.unregisterReceiver(statusReceiver);
 	}
 	
 	@Override
@@ -201,9 +223,7 @@ public class IMWidgetFragment extends Fragment
     class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case PushServiceUtil.MSG_UNREAD_NUMBBER:                    
-                    break;              
+            switch (msg.what) {                          
                 case PushServiceUtil.MSG_REQUEST_VCARD:
                 	String jid = (String)msg.obj;
                 	OnAvaterListener listener = avaterListeners.get(jid);
@@ -242,11 +262,7 @@ public class IMWidgetFragment extends Fragment
                 		PushServiceUtil.MSG_REGISTER_CLIENT);
                 msg.replyTo = mMessenger;
                 mService.send(msg);
-                
-                // Give it some value as an example.
-//                msg = Message.obtain(null,
-//                		PushServiceUtil.MSG_UNREAD_NUMBBER,0, 0);
-//                mService.send(msg);
+
             } catch (RemoteException e) {                
             }
             
@@ -318,8 +334,27 @@ public class IMWidgetFragment extends Fragment
 			avaterListeners.put(avaterJid, listener);
 		}
 		
-		
-		
 		return d;		
 	}
+	private boolean isLogin(){
+		XMPPConnection connection = myApplication.getConnection();
+		if(connection != null && connection.isAuthenticated()){
+			return true;
+		}
+		return false;
+	}
+	public class IMStatusReceiver extends BroadcastReceiver{
+	    
+    	public final static String ACTION = "com.openims.setting.Receiver"; 
+    	@Override
+    	public void onReceive(Context context,Intent intent){
+    		String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
+    		Log.d(TAG,PRE+"STATUSE:"+status);
+    		if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_SUC)){
+    			
+    		}else{
+    			
+    		}
+    	}
+    }
 }

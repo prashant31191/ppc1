@@ -104,7 +104,10 @@
 			android:name="com.openims.service.IMService"
 			android:label="IMService">
 			<intent-filter>
-				<action android:name="com.openims.service.IMService" />
+				<action android:name="com.openims.service.IMService.LOGIN" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="com.openims.service.IMService.CONNECT" />
 			</intent-filter>
 			<intent-filter>
 				<action android:name="com.openims.service.IMService.STATUS" />
@@ -155,12 +158,7 @@
     	<!-- end test -->
 		<activity android:name="com.openims.view.chat.UserSearchActivity"></activity>
 		<activity android:name="com.openims.view.chat.UserManageActivity"></activity>
-		<activity android:name="com.openims.view.chat.MainActivity">
-		 <intent-filter>
-        		  	<action android:name="android.intent.action.MAIN" /> 
-        		  	<category android:name="android.intent.category.LAUNCHER" />
-        		  </intent-filter>
-        </activity> 
+		
     </application>
     
     

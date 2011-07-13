@@ -354,10 +354,7 @@ public class MultiChatActivity extends FragmentActivity
     class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case PushServiceUtil.MSG_UNREAD_NUMBBER:
-                	recUnReadMessage(msg);
-                    break;
+            switch (msg.what) {               
                 case PushServiceUtil.MSG_NEW_MESSAGE:
                 	recUnReadMessage(msg);                	
                 	break;
@@ -438,12 +435,7 @@ public class MultiChatActivity extends FragmentActivity
                 Message msg = Message.obtain(null,
                 		PushServiceUtil.MSG_REGISTER_CLIENT);
                 msg.replyTo = mMessenger;
-                mService.send(msg);
-                
-                // Give it some value as an example.
-                msg = Message.obtain(null,
-                		PushServiceUtil.MSG_UNREAD_NUMBBER,0, 0);
-                mService.send(msg);
+                mService.send(msg);                
             } catch (RemoteException e) {
             }
             

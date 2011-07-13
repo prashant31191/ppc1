@@ -456,7 +456,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		@Override
 		protected void onPostExecute(Exception result) {
 			Utility.showToast(mActivity, R.string.add_user_suc,
-					Toast.LENGTH_LONG);
+					Toast.LENGTH_SHORT);
 			if(mSchedule != null){
 				mSchedule.setUserHadAdd(userJid);
 				mSchedule.notifyDataSetChanged();
@@ -581,7 +581,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
                 public void onClick(DialogInterface dialog, int whichButton) {
 
                 	UserSearchFragment fragment = (UserSearchFragment)getTargetFragment();
-                	fragment.addUser2Group(userName+PushServiceUtil.SERVER_NAME,userName,groups[position]);
+                	fragment.excuAddUser2Group(userName+PushServiceUtil.SERVER_NAME,userName,groups[position]);
                 }
             })
             .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
@@ -594,7 +594,13 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		 
 	 }
 	
-	public void addUser2Group(String jid,String nickName,String groupName){
+	public void excuAddUser2Group(String jid,String nickName,String groupName){
+		if(xmppConnection == null ||
+				xmppConnection.isAuthenticated() == false){
+			Utility.showToast(mActivity, R.string.im_connect_fail,
+					Toast.LENGTH_SHORT);
+			return;
+		}
 		UserTask userTask = new UserTask();
 	 	userTask.addUser(jid,nickName,groupName);
 	 	userTask.execute(new Object());

@@ -52,9 +52,7 @@ public class UserManageActivity extends BaseActivity implements OnClickListener{
     class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case PushServiceUtil.MSG_UNREAD_NUMBBER:                	
-                    break;
+            switch (msg.what) {               
                 case PushServiceUtil.MSG_NEW_MESSAGE:                	             	
                 	break;
                 case PushServiceUtil.MSG_ROSTER_UPDATED: 

@@ -76,8 +76,7 @@
     <string name="im_change_group">将分组   %s 修改为：</string>
     <string name="im_new_group">新建分组</string>
     <string name="im_groupname_exist">%s 分组已经存在</string>
-    <string name="im_groupname_format">%1$s(%2$d/%3$d)</string>
-   
+    <string name="im_groupname_format">%1$s(%2$d/%3$d)</string>   
     
     <integer name="tag_group">0</integer>
     <integer name="tag_child">0</integer>
@@ -92,4 +91,8 @@
     <string name="im_import_note">重要提示</string>
     <string name="im_del_group_commit">你确认要删除 %s 分组吗？改分组的联系人将被移动到默认分组中</string>
     <string name="add_group">点击添加分组</string>
+    <string name="im_connect_fail">当前连接服务器中断</string>
+    <string name="im_not_login">你还没有登录</string>
+    <string name="im_login">登录</string>
+    
 </resources>

@@ -847,6 +847,12 @@ public class FriendListFragment extends Fragment
 		fragment.show(getFragmentManager(), "dialog_friend");
 	}
 	private void excuChangeGroup(String groupname,String oldGroupName){
+		if(xmppConnection == null ||
+				xmppConnection.isAuthenticated() == false){
+			Utility.showToast(mActivity, R.string.im_connect_fail,
+					Toast.LENGTH_SHORT);
+			return;
+		}
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
 		int nRowCount = roster.updateGroupName(groupname,oldGroupName);		
 		roster.close();
@@ -856,7 +862,12 @@ public class FriendListFragment extends Fragment
 		userTask.execute();
 	}
 	private void excuAddGroup(String groupname){
-		
+		if(xmppConnection == null ||
+				xmppConnection.isAuthenticated() == false){
+			Utility.showToast(mActivity, R.string.im_connect_fail,
+					Toast.LENGTH_SHORT);
+			return;
+		}
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
 		if(roster.isGroupNameExist(groupname)){
 			String tips = mActivity.getResources()
@@ -872,6 +883,12 @@ public class FriendListFragment extends Fragment
 		userTask.execute();
 	}
 	private void excuDeleteGroup(String groupName){
+		if(xmppConnection == null ||
+				xmppConnection.isAuthenticated() == false){
+			Utility.showToast(mActivity, R.string.im_connect_fail,
+					Toast.LENGTH_SHORT);
+			return;
+		}
 		String defaultGroupName = getResources().getString(R.string.im_default_group_name);
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
 		int nRowCount = roster.updateGroupName(defaultGroupName,groupName);
