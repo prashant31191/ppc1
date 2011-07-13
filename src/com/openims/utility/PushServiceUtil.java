@@ -23,6 +23,9 @@ public class PushServiceUtil{
     // the action for broadcast
     public static final String ACTION_REGISTRATION = "com.openims.pushService.REGISTRATION";
     public static final String ACTION_RECEIVE = "com.openims.pushService.RECEIVE";
+    /**
+     * broadcast connection status
+     */
     public static final String ACTION_STATUS = "com.openims.CONNECT_STATUS";
     public static final String ACTION_UI_PUSHCONTENT = "com.openims.ui.pushContent";
     
@@ -34,7 +37,9 @@ public class PushServiceUtil{
     public static final String PUSH_CLASSNAME = "callBackClassName";
     public static final String PUSH_NAME_KEY = "pushNameKey";
     public static final String PUSH_ID = "PushServiceID";
-    // push register status
+    /**
+     * login & logout & push register status
+     */
     public static final String PUSH_STATUS = "PushServiceStatus";
     public static final String PUSH_STATUS_FAIL = "Fail";
     public static final String PUSH_STATUS_UNCONNECT = "unconnected";
@@ -46,6 +51,7 @@ public class PushServiceUtil{
     public static final String PUSH_STATUS_REGISTER_FAIL = "REGISTER_FAIL";
     public static final String PUSH_STATUS_LOGIN_SUC = "LOGIN_SUC";
     public static final String PUSH_STATUS_REGISTER_SUC = "REGISTER_SUC";
+    public static final String PUSH_STATUS_LOGOUT = "logout_suc";
     
     // connection status
     public static final String PUSH_STATUS_NONETWORK = "NO_NETWORK";
@@ -90,6 +96,7 @@ public class PushServiceUtil{
     public static final String XMPP_PASSWORD = "XMPP_PASSWORD";
     public static final String XMPP_RESOURCE = "XMPP_RESOURCE";
     public static final String XMPP_HOSTNAME = "XMPP_HOSTNAME";
+    public static final String XMPP_AUTO_LOGIN = "XMPP_AUTO_LOGIN";
     // PREFERENCE KEYS
     public static final String API_KEY = "API_KEY";
     public static final String VERSION = "VERSION";

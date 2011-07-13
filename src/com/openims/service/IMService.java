@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -51,8 +52,6 @@ public class IMService extends Service  {
     private TaskTracker taskTracker;
     private XmppManager xmppManager;
     private SharedPreferences sharedPrefs;
-    
-    private String deviceId;    
    
 
     /** Keeps track of all current registered clients. */
@@ -74,17 +73,12 @@ public class IMService extends Service  {
     
     @Override
     public void onCreate(){
-    	Log.d(TAG, PRE + "onCreate()...");
+    	Log.d(TAG, PRE + "onCreate()..."); 
     	
-    	initSetting();
-    	sharedPrefs = getSharedPreferences(PushServiceUtil.SHARED_PREFERENCE_NAME,
-                Context.MODE_PRIVATE);
-   
+    	initSetting();   
     	initDeviceId();
-    	
     	xmppManager = new XmppManager(this);
-        
-    	  
+    	
         //alertbox(null,null);
     }
     @Override
@@ -101,19 +95,21 @@ public class IMService extends Service  {
         }else if(PushServiceUtil.ACTION_SERVICE_PUBSUB.equals(action)){
         	sendTopic(intent);
         }else if(PushServiceUtil.ACTION_SERVICE_CONNECT.equals(action)){
-        	
+        	if(isAutoLogin()){
+        		login();
+        	}
         }else if(PushServiceUtil.ACTION_SERVICE_LOGIN.equals(action)){
+        	//TODO get login information and write to preference
+        	// setLogin(,,);
         	login();
         }
     }
-
     
     @Override
     public void onDestroy() {
         Log.d(TAG, PRE + "onDestroy()...");
         logout();
     }
-
     /**
      * When binding to the service, we return an interface to our messenger
      * for sending messages to the service.
@@ -223,8 +219,7 @@ public class IMService extends Service  {
         }
     }
     /**
-     * 读取law文件里面的信息
-     * @createtime 2011年5月17日9:50:28
+     * read default data and write to shared preference
      */
     private Properties loadProperties() {
         Properties props = new Properties();
@@ -238,9 +233,21 @@ public class IMService extends Service  {
         }
         return props;
     }
-    private void initSetting(){
+    private boolean isAutoLogin(){
+    	return sharedPrefs.getBoolean(PushServiceUtil.XMPP_AUTO_LOGIN,false);
+    }
+    private void setLogin(String userName,String password,boolean bAutoLogin){
+    	Editor editor = sharedPrefs.edit();
+    	editor.putString(PushServiceUtil.XMPP_USERNAME, userName);
+        editor.putString(PushServiceUtil.XMPP_PASSWORD, password);
+        editor.putBoolean(PushServiceUtil.XMPP_AUTO_LOGIN, bAutoLogin);
+        editor.commit();
+    }
+    private void initSetting(){    	
     	
-    	SharedPreferences sharedPrefs;
+    	sharedPrefs = getSharedPreferences(PushServiceUtil.SHARED_PREFERENCE_NAME,
+                Context.MODE_PRIVATE);
+    	
     	Properties props;
     	String version = "0.5.0";
     	String apiKey;
@@ -259,9 +266,7 @@ public class IMService extends Service  {
         Log.i(TAG, PRE + "apiKey=" + apiKey);
         Log.i(TAG, PRE + "xmppHost=" + xmppHost);
         Log.i(TAG, PRE + "xmppPort=" + xmppPort);
-
-        sharedPrefs = this.getSharedPreferences(
-                PushServiceUtil.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+       
         Editor editor = sharedPrefs.edit();
         editor.putString(PushServiceUtil.API_KEY, apiKey);
         editor.putString(PushServiceUtil.VERSION, version);
@@ -273,7 +278,8 @@ public class IMService extends Service  {
         editor.commit();
     }
     private void initDeviceId(){
-    	deviceId = DeviceFun.getDeviceID();
+    	
+    	 String deviceId = DeviceFun.getDeviceID();
     	Editor editor = sharedPrefs.edit();
         editor.putString(PushServiceUtil.DEVICE_ID, deviceId);
         editor.commit();
@@ -306,14 +312,20 @@ public class IMService extends Service  {
         connect();
     }
 
-    private void logout() {
-        Log.d(TAG, PRE + "stop()...");        
+    private void logout() {            
         
         if(connectivityReceiver != null){
         	unregisterReceiver(connectivityReceiver);
         }
-        executorService.shutdown();
         disconnect();
+        try {
+			executorService.awaitTermination(1000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        //executorService.shutdown();
+        
     }
     
     private void registerPush(Intent intent){
@@ -512,7 +524,7 @@ public class IMService extends Service  {
 		} 
 		
     }
-    // TODO using thread
+    
     private void loadVCard(final String jid){
     	if(xmppManager.isAuthenticated() == false){
     		return;

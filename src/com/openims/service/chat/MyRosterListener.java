@@ -21,9 +21,10 @@ public class MyRosterListener implements RosterListener {
 	 public MyRosterListener(XmppManager xmppManager){
 		 this.xmppManager = xmppManager;
 	 }
+	 
 	 @Override
 	 public void entriesAdded(Collection<String> addresses) {
-		// TODO Auto-generated method stub
+	
 		Log.e(LOGTAG,TAG+"entriesAdded");
 		Iterator<String> it = addresses.iterator();
 		while(it.hasNext()){
@@ -32,13 +33,11 @@ public class MyRosterListener implements RosterListener {
 			xmppManager.updateRoster(jid);
 			xmppManager.notifyRosterUpdated(jid);
 		}
-		
-
 	 }
 
 	 @Override
 	 public void entriesDeleted(Collection<String> addresses) {
-		// TODO Auto-generated method stub
+		
 		Log.e(LOGTAG,TAG+"entriesDeleted");
 		Iterator<String> it = addresses.iterator();
 		
@@ -48,12 +47,11 @@ public class MyRosterListener implements RosterListener {
 			xmppManager.deleteRoster(jid);
 			xmppManager.notifyRosterUpdated(jid);
 		}
-
 	}
 
 	 @Override
 	 public void entriesUpdated(Collection<String> addresses) {
-		// TODO Auto-generated method stub
+		
 		Log.e(LOGTAG,TAG+"entriesUpdated");
 		Iterator<String> it = addresses.iterator();
 		xmppManager.notifyRosterUpdated(null);
@@ -63,14 +61,13 @@ public class MyRosterListener implements RosterListener {
 			xmppManager.updateRoster(jid);
 			xmppManager.notifyRosterUpdated(jid);
 		}
-		//xmppManager.getRoster();
 
 	 }
 
 	 @Override
 	 public void presenceChanged(Presence presence) {
 		// TODO Auto-generated method stub
-		Log.e(LOGTAG,TAG+"presenceChanged " + presence.getFrom());
+		Log.e(LOGTAG,TAG+"presenceChanged have not deal with" + presence.getFrom());
 
 	 }
 

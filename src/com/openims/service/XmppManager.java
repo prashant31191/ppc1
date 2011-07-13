@@ -120,21 +120,21 @@ public class XmppManager{
 	private static final String LOGTAG = LogUtil.makeLogTag(XmppManager.class);
 	private static final String TAG = LogUtil.makeTag(XmppManager.class);
 	
+	/**
+	 * login information
+	 */
 	private String xmppHost;
 	private int xmppPort;	
     private String username;
     private String password;
     private	String resource = null;
+    private SharedPreferences sharedPrefs;
     
     private XMPPConnection connection;
     private IMService imservice;
     private IMService.TaskSubmitter taskSubmitter;
     private IMService.TaskTracker taskTracker;
-    private SharedPreferences sharedPrefs;
-    private ConnectionListener connectionListener;
-    private PacketListener notificationPacketListener;
-    private PacketListener regPushPacketListener;
-    private FileTransferManager fileTransferManager;
+    
     // TODO 需要优化离线和待机的情况，释放一下资源
     private List<Runnable> taskList;
     private boolean running = false;
@@ -143,7 +143,17 @@ public class XmppManager{
     int reconnectTime = 0;
     private Handler handler;
     
-    //pubsub
+    /**
+     * register XMPP handle listener
+     */
+    private ConnectionListener connectionListener;
+    private PacketListener notificationPacketListener;
+    private PacketListener regPushPacketListener;
+    private FileTransferManager fileTransferManager;   
+    
+    /**
+     * publish subscription
+     */
     private Map<String,LeafNode> topicMap = null;
     
     public XmppManager(IMService imservice){
@@ -170,6 +180,10 @@ public class XmppManager{
         
         configure(ProviderManager.getInstance());
     }
+    /**
+     * dynamic create resource
+     * @return
+     */
     public String getResource(){
     	if(resource == null || resource.length()==0){
     		resource = newRandomUUID();
@@ -177,8 +191,7 @@ public class XmppManager{
              editor.putString(PushServiceUtil.XMPP_RESOURCE,
             		 resource);
              editor.commit();
-    	}
-    		
+    	}    		
     	return this.resource;
     }
     public void connect() {
@@ -195,6 +208,7 @@ public class XmppManager{
         }
         stopReconnectionThread();
         terminatePersistentConnection();
+        broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGOUT);
     }
     public void reregisterAccount() {
         removeAccount();
@@ -202,7 +216,7 @@ public class XmppManager{
         runTask();
     }    
 
-    public void terminatePersistentConnection() {
+    private void terminatePersistentConnection() {
         Log.d(LOGTAG, "terminatePersistentConnection()...");
         Runnable runnable = new Runnable() {
 
@@ -292,24 +306,25 @@ public class XmppManager{
     public XMPPConnection getConnection() {
         return connection;
     }
-    public void setConnection(XMPPConnection connection) {
+    private void setConnection(XMPPConnection connection) {
         this.connection = connection;
-    }
-    /*public String getUsername() {
-        return username;
-    }*/
+    }  
     public String getUserNameWithHostName(){
     	return username+PushServiceUtil.SERVER_NAME;
     }
-    public void setUsername(String username) {
+    private void setUsername(String username) {
         this.username = username;
     }
-    public String getPassword() {
+    private String getPassword() {
         return password;
     }
-    public void setPassword(String password) {
+    private void setPassword(String password) {
         this.password = password;
     }
+    /**
+     * for reconnection
+     * @return
+     */
     public Handler getHandler() {
         return handler;
     }
@@ -1001,31 +1016,6 @@ public class XmppManager{
        			 this.getUserNameWithHostName());
     	vc.removeAll();       	 	
        	vc.close();
-    	 
-
-/*    	 
- 
- 	VCard vCard = new VCard();
-		 vCard.setFirstName("kir");
-		 vCard.setLastName("max");
-		 vCard.setEmailHome("foo@fee.bar");
-		 vCard.setJabberId("jabber@id.org");
-		 vCard.setOrganization("Jetbrains, s.r.o");
-		 vCard.setNickName("KIR");
-		 
-		
-		
-		 vCard.setField("TITLE", "Mr");
-		 vCard.setAddressFieldHome("STREET", "Some street");
-		 vCard.setAddressFieldWork("CTRY", "US");
-		 vCard.setPhoneWork("FAX", "3443233");
-		 
-		 try {
-			vCard.save(connection);
-		} catch (XMPPException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}*/    
     }
     public void getVCard(String jid) throws Exception{
     	
@@ -1204,5 +1194,28 @@ while(it.hasNext()){
 
 //stopReconnectionThread();
 
+/*    	 
 
+	VCard vCard = new VCard();
+	 vCard.setFirstName("kir");
+	 vCard.setLastName("max");
+	 vCard.setEmailHome("foo@fee.bar");
+	 vCard.setJabberId("jabber@id.org");
+	 vCard.setOrganization("Jetbrains, s.r.o");
+	 vCard.setNickName("KIR");
+	 
+	
+	
+	 vCard.setField("TITLE", "Mr");
+	 vCard.setAddressFieldHome("STREET", "Some street");
+	 vCard.setAddressFieldWork("CTRY", "US");
+	 vCard.setPhoneWork("FAX", "3443233");
+	 
+	 try {
+		vCard.save(connection);
+	} catch (XMPPException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
+*/    
 

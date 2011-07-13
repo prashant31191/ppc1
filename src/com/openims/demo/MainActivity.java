@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(Tag, "start service");				
-				startService(new Intent(PushServiceUtil.ACTION_SERVICE_LOGIN));
+				startService(new Intent(PushServiceUtil.ACTION_SERVICE_CONNECT));
 				//bindService(new Intent(serviceName),);
 			}
 		});
