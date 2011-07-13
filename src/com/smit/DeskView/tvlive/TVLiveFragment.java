@@ -216,6 +216,9 @@ public class TVLiveFragment extends Fragment {
 			listFrame.setVisibility(View.VISIBLE);
 			tvlive_flash.setVisibility(View.GONE);
 			tvlive_loading.setVisibility(View.GONE);
+			if(!showTvList()){
+				SetCurShow(SHOW_FLASH);
+			}
 			break;
 		}
 		default:
@@ -225,16 +228,14 @@ public class TVLiveFragment extends Fragment {
 		curMyStatus=curStatus;
 	}
 
-	void showVodVideoList() {
+	private boolean showTvList() {
 
 		tvListFragment = (TVLiveListFragment) getFragmentManager()
-				.findFragmentById(R.id.tvlive_listdragment);
+				.findFragmentById(R.id.tvlive_listdragment_fragment);
 		if (tvListFragment == null) {
-			tvListFragment = new TVLiveListFragment();
-			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			ft.replace(R.id.tvlive_listdragment, tvListFragment);
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
+			return false;
+		}else {
+			return tvListFragment.ShowCurList();
 		}
 
 	}
@@ -283,8 +284,8 @@ public class TVLiveFragment extends Fragment {
 					mMovieParse = new VodVideoMoveParse(str);
 					mMovieParse.parseDataStr();
 					if (mMovieParse != null && mMovieParse.getItemCount() > 0) {
-						SetCurShow(SHOW_LIST);
 						WriteVodVideoItemXML(str);
+						SetCurShow(SHOW_LIST);
 						// showVodVideoList();
 					} else {
 						SetCurShow(SHOW_FLASH);

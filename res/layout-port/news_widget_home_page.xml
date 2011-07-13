@@ -65,7 +65,8 @@
 			<fragment class="com.smit.DeskView.news.NewsListFragment"
 	  	android:layout_gravity="center"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
+		android:layout_height="fill_parent"
+		android:id="@+id/news_listdragment_fragment" />
 		</FrameLayout>
 	</LinearLayout>
 
