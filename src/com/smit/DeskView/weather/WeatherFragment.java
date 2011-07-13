@@ -233,7 +233,12 @@ public class WeatherFragment extends Fragment {
 	@Override
 	public void onDetach() {
 		// TODO Auto-generated method stub
-		super.onDetach();		
+		super.onDetach();
+		
+		if(mPopupWindow!=null){
+			mPopupWindow.dismiss();
+			mPopupWindow=null;
+		}
 	}
 
 	@Override
