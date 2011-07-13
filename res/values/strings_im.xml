@@ -94,5 +94,10 @@
     <string name="im_connect_fail">当前连接服务器中断</string>
     <string name="im_not_login">你还没有登录</string>
     <string name="im_login">登录</string>
+    <string name="im_del_user_commit">您确定要删除 %s 吗？</string>
+    <string name="im_change_nickname">修改 %s 的昵称为: </string>
+    <string name="im_input_nickname_hit">请输入新的昵称</string>
+    <integer name="tag_nickname">0</integer>
+    <integer name="tag_groupname">0</integer>
     
 </resources>

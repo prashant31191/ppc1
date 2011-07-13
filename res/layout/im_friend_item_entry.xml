@@ -1,37 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="300dip"
->
-    <ImageView android:src="@drawable/icon" 
-    	android:id="@+id/imageView" 
-    	android:layout_height="50px" 
-    	android:layout_width="50px"
-    	android:layout_marginLeft="10dip"
-    	android:layout_marginRight="10dip"
-    	android:layout_marginTop="5dip"
-    	android:layout_marginBottom="5dip">
-    </ImageView>
-    <TextView android:text="TextView" 
-    	android:id="@+id/username" 
-    	android:layout_width="wrap_content" 
-    	android:layout_height="wrap_content"
-    	android:textSize="14sp" 
-		android:textStyle="bold" 
-		android:textColor="@color/main_blue"
-		android:layout_marginTop="0dip"
-		android:layout_toRightOf="@+id/imageView">
-    </TextView> 
-    <TextView android:text="让心飞翔..." 
-    	android:id="@+id/sign" 
-    	android:layout_width="wrap_content" 
-    	android:layout_height="wrap_content"
-    	android:textSize="14sp" 
-		android:textStyle="bold" 
-		android:textColor="@color/white"
-		android:layout_toRightOf="@+id/imageView"
-		android:layout_below="@+id/username">
-    </TextView>  
-   
-</RelativeLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+  	android:layout_height="wrap_content">
+  	
+	<RelativeLayout
+	  android:layout_width="match_parent"
+	  android:layout_height="match_parent">
+	    <ImageView android:src="@drawable/icon" 
+	    	android:id="@+id/imageView" 
+	    	android:layout_height="50px" 
+	    	android:layout_width="50px"
+	    	android:layout_marginLeft="10dip"
+	    	android:layout_marginRight="10dip"
+	    	android:layout_marginTop="5dip"
+	    	android:layout_marginBottom="5dip">
+	    </ImageView>
+	    <TextView android:text="TextView" 
+	    	android:id="@+id/username" 
+	    	android:layout_width="wrap_content" 
+	    	android:layout_height="wrap_content"
+	    	android:textSize="14sp" 
+			android:textStyle="bold" 
+			android:textColor="@color/main_blue"
+			android:layout_marginTop="0dip"
+			android:layout_toRightOf="@+id/imageView">
+	    </TextView> 
+	    <TextView android:text="让心飞翔..." 
+	    	android:id="@+id/sign" 
+	    	android:layout_width="wrap_content" 
+	    	android:layout_height="wrap_content"
+	    	android:textSize="14sp" 
+			android:textStyle="bold" 
+			android:textColor="@color/white"
+			android:layout_toRightOf="@+id/imageView"
+			android:layout_below="@+id/username">
+	    </TextView> 	     
+	   
+	</RelativeLayout>
+</LinearLayout>
