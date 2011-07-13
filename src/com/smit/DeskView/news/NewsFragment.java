@@ -323,6 +323,7 @@ public class NewsFragment extends Fragment {
 
 	}
 
+	
 	public String ReadVodVideoItemXML() {
 		InputStream is = null;
 		byte[] data = null;
