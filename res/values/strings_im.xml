@@ -63,9 +63,21 @@
     <string name="btn_clear">清空</string>
     <string name="btn_search">搜索</string>
     <string name="btn_add_friend">加为好友</string>
+    <string name="btn_has_friend">已经添加为好友</string>
     <string name="search_input_null">输入不能全部为空</string>
     <string name="search_fail">查询失败</string>
     <string name="add_user_suc">添加联系人成功</string>
+    <string name="del_user_suc">删除联系人成功</string>
+    <string name="edit_user_suc">修改联系人成功</string>
+    <string name="add_group_suc">添加分组成功</string>
+    <string name="del_group_suc">删除分组成功</string>
+    <string name="edit_group_suc">编辑分组成功</string>
+    <string name="input_user_data">输入用户相关信息</string>
+    <string name="im_change_group">将分组   %s 修改为：</string>
+    <string name="im_new_group">新建分组</string>
+    <string name="im_groupname_exist">%s 分组已经存在</string>
+    <string name="im_groupname_format">%1$s(%2$d/%3$d)</string>
+   
     
     <integer name="tag_group">0</integer>
     <integer name="tag_child">0</integer>
@@ -74,6 +86,10 @@
     <string name="alert_dialog_ok">确定</string>
     <string name="alert_dialog_cancel">取消</string>
     <string name="im_no_group">no groups</string>
+    <string name="im_input_new_group">输入新的分组名</string>
+    <string name="im_default_group_name">好友</string>
     
-    
+    <string name="im_import_note">重要提示</string>
+    <string name="im_del_group_commit">你确认要删除 %s 分组吗？改分组的联系人将被移动到默认分组中</string>
+    <string name="add_group">点击添加分组</string>
 </resources>

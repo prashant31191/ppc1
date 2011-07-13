@@ -28,6 +28,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -60,19 +61,25 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 	private static final String EMAIL = "Email";
 	private static final String USERNAME = "Username";
 	private static final String NickNAME = "Name";
+	private static final String HAD_ADD = "had_add";
 	private static final String GROUPS = "groups";
 	private Activity mActivity;
 	
 	private ListView listView;
 	private EditText mEditInput;
+	private ResultAdapter mSchedule;
 	
 	private CheckBox checkBoxNickName;
 	private CheckBox checkBoxUsername;
 	private CheckBox checkBoxEmail;
 	
+	private ArrayList<HashMap<String, String>> mSearchResult = null;
 	private ProgressBar mProgress;
 	
 	private XMPPConnection xmppConnection;
+	
+	//TODO
+	private String mAdminJid = "test2@smit";
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -87,6 +94,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		Log.d(TAG, PRE + "onCreate");
 		MyApplication app = (MyApplication)mActivity.getApplication();
 		xmppConnection = app.getConnection();
+		setRetainInstance(true); // save result
 	}
 	
 	@Override
@@ -139,6 +147,11 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		
+		if(mSearchResult != null){
+			//TODO
+			//outState.putParcelableArrayList("ddd", mSearchResult);
+		}
 	}
 	
 	/**
@@ -149,7 +162,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
      */
     public class ResultAdapter extends BaseAdapter {
         
-        private List<? extends Map<String, ?>> mData;
+        private List<? extends Map<String, String>> mData;
 
         private int mResource;
         private int mDropDownResource;
@@ -159,7 +172,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 
         private OnClickListener mListener;  
 
-        public ResultAdapter(Context context, List<? extends Map<String, ?>> data,
+        public ResultAdapter(Context context, List<? extends Map<String, String>> data,
                 int resource,OnClickListener listener) {
             mData = data;
             mResource = mDropDownResource = resource;           
@@ -235,7 +248,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
         }
 
         private void bindView(int position, View view) {
-            final Map dataSet = mData.get(position);
+            final Map<String,String> dataSet = mData.get(position);
             if (dataSet == null) {
                 return;
             }
@@ -252,12 +265,34 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
             Button btn = (Button)holder[3];
             btn.setTag(dataSet.get(USERNAME)); 
             btn.setOnClickListener(mListener);
+            String isExist = (String)dataSet.get(HAD_ADD);
+            
+            if(Boolean.parseBoolean(isExist)){
+            	btn.setEnabled(false);
+            	btn.setText(R.string.btn_has_friend);
+            }else{
+            	btn.setEnabled(true);
+            	btn.setText(R.string.btn_add_friend);
+            }
            
         }// the end of bind view function
+        
+        public void setUserHadAdd(String usrJid){
+        	
+        	Iterator<? extends Map<String,String>> it = mData.iterator();
+        	while(it.hasNext()){
+        		Map<String, String> item = it.next();
+        		String username = item.get(USERNAME)+PushServiceUtil.SERVER_NAME;
+        		if(usrJid.equalsIgnoreCase(username)){
+        			item.put(HAD_ADD, "true");
+        			break;
+        		}
+        	}
+        }
 
     }
     
-    class UserSearchTask extends AsyncTask<String, Void, Exception> {
+    class UserSearchTask extends AsyncTask<Void, Void, Exception> {
 
     	private ReportedData reportData;
     	private Boolean bNickName;
@@ -274,7 +309,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
     		
     	}
 		@Override
-		protected Exception doInBackground(String... params) {
+		protected Exception doInBackground(Void... params) {
 		 
 	    	try {
 	    		
@@ -312,7 +347,9 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 			}
 			Iterator<Row> itRow = reportData.getRows(); 
 			
-			ArrayList<HashMap<String, String>> mylist = new ArrayList<HashMap<String, String>>();
+			mSearchResult = new ArrayList<HashMap<String, String>>();
+			
+			RosterDataBase rosterDb = new RosterDataBase(mActivity,mAdminJid);
 			
 			while(itRow.hasNext()){
 				HashMap<String, String> map = new HashMap<String, String>();
@@ -325,7 +362,10 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 				
 				Iterator userNames = row.getValues(USERNAME);
 				if(userNames.hasNext()){
-					map.put(USERNAME, (String)userNames.next() );
+					String username = (String)userNames.next();
+					map.put(USERNAME, username);
+					Boolean bExist = rosterDb.isUserExist(username+PushServiceUtil.SERVER_NAME);
+					map.put(HAD_ADD, Boolean.toString(bExist));
 				}
 				
 				Iterator emails = row.getValues(EMAIL);
@@ -333,10 +373,10 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 					map.put(EMAIL, (String)emails.next() );
 				}
 				
-				mylist.add(map);
+				mSearchResult.add(map);
 			}
 			
-			ResultAdapter mSchedule = new ResultAdapter(mActivity, mylist, 
+			mSchedule = new ResultAdapter(mActivity, mSearchResult, 
 					R.layout.im_user_search_list_item,UserSearchFragment.this);
 
 			listView.setAdapter(mSchedule);	
@@ -417,6 +457,10 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		protected void onPostExecute(Exception result) {
 			Utility.showToast(mActivity, R.string.add_user_suc,
 					Toast.LENGTH_LONG);
+			if(mSchedule != null){
+				mSchedule.setUserHadAdd(userJid);
+				mSchedule.notifyDataSetChanged();
+			}
 			super.onPostExecute(result);
 		}
 		
@@ -441,8 +485,16 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		
 		listView.setEmptyView(v.findViewById(R.id.search_result_listView_empty));
 		listView.addHeaderView(inflater.inflate(
-				R.layout.im_user_search_list_header, null),null,false);		
-		listView.setAdapter(null);
+				R.layout.im_user_search_list_header, null),null,false);
+		
+		if(mSearchResult != null){
+			mSchedule = new ResultAdapter(mActivity, mSearchResult, 
+					R.layout.im_user_search_list_item,UserSearchFragment.this);
+			listView.setAdapter(mSchedule);	
+			
+		}else{
+			listView.setAdapter(null);
+		}
 		
 		addListener(v);
 		return v;
@@ -462,7 +514,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 				}
 				UserSearchTask userSearch = new UserSearchTask(checkBoxNickName.isChecked(),
 						checkBoxUsername.isChecked(),checkBoxEmail.isChecked(),input);
-				userSearch.execute(null);
+				userSearch.execute();
 				mProgress.setVisibility(View.VISIBLE);
 			}			
 		});
@@ -483,19 +535,35 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 					Toast.LENGTH_LONG);
         	return;
         }
-        GroupDialogFragment newFragment = new GroupDialogFragment();
-        Bundle args = new Bundle();
-        args.putString(USERNAME, user);
-        args.putStringArray(GROUPS, groups);
-        newFragment.setArguments(args);         
-        newFragment.show(getFragmentManager(), "dialog");
+        
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        
+        GroupDialogFragment newFragment = GroupDialogFragment.newInstance(this,
+        		user, groups);
+        newFragment.show(getFragmentManager(), "dialog");     
        
     }
-	public class GroupDialogFragment extends DialogFragment {
+	public static class GroupDialogFragment extends DialogFragment {
 		 
 		 private String userName = null;
 		 private int position = 0;
 		 private String[] groups = null;
+		 
+		public static GroupDialogFragment newInstance(Fragment targetFragment,
+				String username,String[] groups){
+			 GroupDialogFragment newFragment = new GroupDialogFragment();
+			 Bundle args = new Bundle();
+		     args.putString(USERNAME, username);
+		     args.putStringArray(GROUPS, groups);
+		     newFragment.setArguments(args); 
+		     newFragment.setTargetFragment(targetFragment, 0);
+		     return newFragment;
+		}
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			userName = this.getArguments().getString(USERNAME);	
@@ -512,22 +580,25 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
             .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                	UserTask userTask = new UserTask();
-            	 	userTask.addUser(userName+PushServiceUtil.SERVER_NAME,userName,groups[position]);
-            	 	userTask.execute(new Object());
+                	UserSearchFragment fragment = (UserSearchFragment)getTargetFragment();
+                	fragment.addUser2Group(userName+PushServiceUtil.SERVER_NAME,userName,groups[position]);
                 }
             })
             .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-
-                    /* User clicked No so do some stuff */
+                   
                 }
             })
            .create();
 		}
 		 
 	 }
-	 
+	
+	public void addUser2Group(String jid,String nickName,String groupName){
+		UserTask userTask = new UserTask();
+	 	userTask.addUser(jid,nickName,groupName);
+	 	userTask.execute(new Object());
+	}
 }
 
 

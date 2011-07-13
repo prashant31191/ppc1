@@ -46,6 +46,14 @@ public class Utility {
 		t.show();
 	}
 	
+	static public void showToast(Context context,String text,int duration){
+		Toast t = BigToast.makeText(context,text, 
+				duration);						
+		t.setGravity(Gravity.RIGHT|Gravity.BOTTOM, 0, 0);
+		t.setMargin(PushServiceUtil.HORIZONTAL_MARGIN, PushServiceUtil.VERTICAL_MARGIN);
+		t.show();
+	}
+	
 	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap) {
 	    Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
 	        bitmap.getHeight(), Config.ARGB_8888);

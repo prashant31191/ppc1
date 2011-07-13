@@ -1,30 +1,41 @@
 package com.openims.view.chat.widget;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,11 +52,13 @@ import com.openims.utility.PushServiceUtil;
 import com.openims.utility.Utility;
 import com.openims.view.chat.MultiChatActivity;
 import com.openims.view.chat.OnAvater;
+import com.openims.view.chat.ProgressFragment;
 import com.openims.widgets.DragDropListener;
 import com.smit.EasyLauncher.R;
 
 public class FriendListFragment extends Fragment 
-		implements OnChildClickListener, DragDropListener ,OnScrollListener{
+		implements OnChildClickListener, DragDropListener ,
+		OnScrollListener,OnClickListener{
 
 	private static final String TAG = LogUtil
 					.makeLogTag(FriendListFragment.class);
@@ -58,7 +71,7 @@ public class FriendListFragment extends Fragment
 	private OnAvater onAvater;
 	private boolean mEditable = false;
     
-    private String mUsername;
+    private String mAdminJid;
     
     private int columnIndexJId = 0;
     private int columnIndexGroup = 0;
@@ -72,6 +85,17 @@ public class FriendListFragment extends Fragment
 	private int indicatorGroupId;
 	private int indicatorGroupHeight;	
     
+	
+	  @Override
+	public void onInflate(Activity activity, AttributeSet attrs,
+			Bundle savedInstanceState) {		
+		super.onInflate(activity, attrs, savedInstanceState);
+		
+		TypedArray a = activity.obtainStyledAttributes(attrs,R.styleable.FriendListFragment);
+		mEditable = a.getBoolean(R.styleable.FriendListFragment_editable, false);
+	}
+
+	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -86,12 +110,13 @@ public class FriendListFragment extends Fragment
 		SharedPreferences sharedPrefs = mActivity.getSharedPreferences(
 				PushServiceUtil.SHARED_PREFERENCE_NAME,
 				Context.MODE_PRIVATE);
-		mUsername = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, null)+"@smit";
+		mAdminJid = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, null)+"@smit";
 		
 		MyApplication app = (MyApplication)mActivity.getApplication();
 		xmppConnection = app.getConnection();
 		indicatorGroupId = -1;
 		indicatorGroupHeight = 0;	
+		
 	}
 	
 	@Override
@@ -107,10 +132,11 @@ public class FriendListFragment extends Fragment
 		//indicatorGroup.setBackgroundColor(0x55ff0000);		
 		
         mAdapter = new RosterExpandableListAdapter(mActivity); 
-        inflater.inflate(R.layout.im_friend_item_group, indicatorGroup, true);
+        inflater.inflate(mEditable?R.layout.im_friend_item_group_edit:
+    		R.layout.im_friend_item_group, indicatorGroup, true);
         
         
-        RosterDataBase roster = new RosterDataBase(mActivity,mUsername);
+        RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
         Cursor cursor = roster.queryAll();
         columnIndexJId = cursor.getColumnIndex(RosterDataBase.JID);
 		columnIndexGroup = cursor.getColumnIndex(RosterDataBase.GROUP_NAME);
@@ -121,13 +147,13 @@ public class FriendListFragment extends Fragment
 		cursor.moveToFirst();
         while(cursor.isAfterLast() == false){
         	
-        	RosterEntry entry = new RosterEntry();
+        	MyRosterEntry entry = new MyRosterEntry();
         	entry.groupName = cursor.getString(columnIndexGroup);
         	entry.Jid = cursor.getString(columnIndexJId);
         	entry.userName = cursor.getString(indexUserName);
         	entry.id = cursor.getInt(columnIndexId);
         	String presence = cursor.getString(indexPresence);
-        	if(presence.equals(Presence.Type.available.name())){
+        	if(Presence.Type.available.name().equals(presence)){
         		entry.isOnline = true;
         	}else{
         		entry.isOnline = false;
@@ -147,24 +173,23 @@ public class FriendListFragment extends Fragment
 	}
 	
 	public void reRoadData(){
-		        
+		   
+		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
         try {
-			RosterDataBase roster = new RosterDataBase(mActivity,mUsername);
+        	
 			Cursor cursor = roster.queryAll();
-			roster.close();	
-
 			mAdapter.initData(); 
 			
 			cursor.moveToFirst();
 			while(cursor.isAfterLast() == false){
 				
-				RosterEntry entry = new RosterEntry();
+				MyRosterEntry entry = new MyRosterEntry();
 				entry.groupName = cursor.getString(columnIndexGroup);
 				entry.Jid = cursor.getString(columnIndexJId);
 				entry.userName = cursor.getString(indexUserName);
 				entry.id = cursor.getInt(columnIndexId);
 				String presence = cursor.getString(indexPresence);
-				if(presence.equals(Presence.Type.available.name())){
+				if(Presence.Type.available.name().equals(presence)){
 					entry.isOnline = true;
 				}else{
 					entry.isOnline = false;
@@ -178,7 +203,8 @@ public class FriendListFragment extends Fragment
 			// TODO Auto-generated catch block
 			Log.e(TAG, PRE + "—œ÷ÿ¥ÌŒÛ");
 			e.printStackTrace();
-		}        
+		}   
+		roster.close();	
 	}
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {		
@@ -229,9 +255,12 @@ public class FriendListFragment extends Fragment
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v,
 			int groupPosition, int childPosition, long id) {
-		RosterEntry entry = mAdapter.getChild(groupPosition, childPosition);
+		if(mEditable){
+			return false;
+		}
+		MyRosterEntry entry = mAdapter.getChild(groupPosition, childPosition);
 		
-		RosterDataBase roster = new RosterDataBase(mActivity, mUsername);
+		RosterDataBase roster = new RosterDataBase(mActivity, mAdminJid);
 		roster.updateColumn(entry.Jid, RosterDataBase.NEW_MSG_TIME, 
 				String.valueOf(System.currentTimeMillis()));
 		roster.close();
@@ -239,18 +268,20 @@ public class FriendListFragment extends Fragment
 		Intent intent = new Intent(getActivity(),MultiChatActivity.class);
 		intent.putExtra(MultiChatActivity.ACCOUNT_JID, entry.Jid);
         startActivity(intent);	
-		return false;
+		return true;
 	}
 	
-	public class RosterGroup {
-		public RosterGroup(String groupName){
+	public class MyRosterGroup {
+		public MyRosterGroup(String groupName){
 			this.groupName = groupName;
 		}
 		public String groupName;
+		public int totalNum = -1;
+		public int onlineNum = -1;
 		@Override
 		public boolean equals(Object o) {
-			if(o instanceof RosterGroup){
-				RosterGroup r = (RosterGroup)o;
+			if(o instanceof MyRosterGroup){
+				MyRosterGroup r = (MyRosterGroup)o;
 				return groupName.equals(r.groupName);
 			}
 			return false;
@@ -258,7 +289,7 @@ public class FriendListFragment extends Fragment
 		
 		
 	}
-	public class RosterEntry {
+	public class MyRosterEntry {
 		public Integer id;
 		public String groupName;
 		public String Jid;
@@ -269,8 +300,8 @@ public class FriendListFragment extends Fragment
 	 public class RosterExpandableListAdapter extends BaseExpandableListAdapter
 	 						implements OnAvater.OnAvaterListener,DragDropListener{
 	        	        
-	        private ArrayList<RosterGroup> groups = new ArrayList<RosterGroup>();
-	        private ArrayList<ArrayList<RosterEntry>> children = new ArrayList<ArrayList<RosterEntry>>();
+	        private ArrayList<MyRosterGroup> groups = new ArrayList<MyRosterGroup>();
+	        private ArrayList<ArrayList<MyRosterEntry>> children = new ArrayList<ArrayList<MyRosterEntry>>();
 	        
 	        private LayoutInflater mInflater;
 	        
@@ -282,8 +313,8 @@ public class FriendListFragment extends Fragment
 	        private int mDragFocusGroupPosition  = AdapterView.INVALID_POSITION;
 	        private int mDragFocusChildPosition  = AdapterView.INVALID_POSITION;
 	        
-	        public RosterExpandableListAdapter(Context context, ArrayList<RosterGroup> groups,
-	        		ArrayList<ArrayList<RosterEntry>> children){
+	        public RosterExpandableListAdapter(Context context, ArrayList<MyRosterGroup> groups,
+	        		ArrayList<ArrayList<MyRosterEntry>> children){
 	        	mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	        	this.groups = groups;
 	            this.children = children;
@@ -293,17 +324,21 @@ public class FriendListFragment extends Fragment
 	        	
 	        }
 	        public void initData(){
-	        	groups = new ArrayList<RosterGroup>();
-		        children = new ArrayList<ArrayList<RosterEntry>>();
+	        	groups = new ArrayList<MyRosterGroup>();
+		        children = new ArrayList<ArrayList<MyRosterEntry>>();
 	        }
-	        public void addItem(RosterEntry entry) {
-	        	RosterGroup g = new RosterGroup(entry.groupName);
+	        public void addItem(MyRosterEntry entry) {
+	        	MyRosterGroup g = new MyRosterGroup(entry.groupName);
+	        	
 	            if (!groups.contains(g)) {
 	                groups.add(g);
 	            }
 	            int index = groups.indexOf(g);
+	            if(entry.userName.endsWith(mAdminJid)){
+	            	return;
+	            }
 	            if (children.size() < index + 1) {
-	                children.add(new ArrayList<RosterEntry>());
+	                children.add(new ArrayList<MyRosterEntry>());
 	            }
 	            children.get(index).add(entry);
 	        }
@@ -321,7 +356,24 @@ public class FriendListFragment extends Fragment
 	        public long getGroupId(int groupPosition) {
 	            return groupPosition;
 	        }
-
+	        private void initGroupChildCount(int groupPosition){
+	        	MyRosterGroup group = groups.get(groupPosition);
+	        	if(group.totalNum == -1){
+	        		group.onlineNum = 0;
+	        		group.totalNum = getChildrenCount(groupPosition);
+	        		if(group.totalNum == 0){
+	        			return;
+	        		}
+	        		ArrayList<MyRosterEntry> arrayEntry = children.get(groupPosition);	        		
+	        		Iterator<MyRosterEntry> it = arrayEntry.iterator();
+	        		while(it.hasNext()){
+	        			MyRosterEntry entry = it.next();
+	        			if(entry.isOnline){
+	        				group.onlineNum++;
+	        			}
+	        		}
+	        	}
+	        }
 	        public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
 	                ViewGroup parent) {
 	            View view;
@@ -331,8 +383,13 @@ public class FriendListFragment extends Fragment
 	            } else {
 	            	view = convertView;
 	            }
-	            TextView groupName = (TextView)view.findViewById(R.id.groupName);
-	            groupName.setText(groups.get(groupPosition).groupName);
+	            initGroupChildCount(groupPosition);
+	            MyRosterGroup group = groups.get(groupPosition);
+	            String groupName = group.groupName;
+	            TextView txGroup = (TextView)view.findViewById(R.id.groupName);
+	            txGroup .setText(mActivity.getResources()
+	            		.getString(R.string.im_groupname_format,groupName,
+	            		group.onlineNum,group.totalNum));
 	            
 	            ImageView btn = null;
 	            if(mEditable == false){
@@ -342,26 +399,33 @@ public class FriendListFragment extends Fragment
 		            }else{
 		            	btn.setSelected(false);
 		            }	            	
+	            }else{
+	            	View viewDel = view.findViewById(R.id.im_entry_delete);
+	            	viewDel.setTag(groupName);
+	            	viewDel.setOnClickListener(FriendListFragment.this);
+	            	ImageView viewEdit = (ImageView)view.findViewById(R.id.im_entry_edit);
+	            	viewEdit.setTag(groupName);
+	            	viewEdit.setOnClickListener(FriendListFragment.this);
 	            }
 	            
 	            if(mStartDragGroupPosition == groupPosition && 
 	               mStartDragChildPosition == -1){
-	            	groupName.setText("start");
+	            	txGroup.setText("start");
 	            }else if(mDragFocusGroupPosition == groupPosition && 
 	            		mDragFocusChildPosition == -1){
-	            	groupName.setText("focus");
+	            	txGroup.setText("focus");
 	            }
 	            view.setTag(R.integer.tag_group, groupPosition);
 	            view.setTag(R.integer.tag_child, -1);
 	            
 	            if(mFirstGroupPos == groupPosition && isExpanded){
-	            	groupName.setVisibility(View.INVISIBLE);
+	            	txGroup.setVisibility(View.INVISIBLE);
 	            	if(btn != null){
 	            		btn.setVisibility(View.INVISIBLE);
 	            	}
 	            
 	            }else{
-	            	groupName.setVisibility(View.VISIBLE);
+	            	txGroup.setVisibility(View.VISIBLE);
 	            	if(btn != null){
 	            		btn.setVisibility(View.VISIBLE);
 	            	}
@@ -370,7 +434,7 @@ public class FriendListFragment extends Fragment
 	            return view;
 	        }
 
-	        public RosterEntry getChild(int groupPosition, int childPosition) {
+	        public MyRosterEntry getChild(int groupPosition, int childPosition) {
 	            return children.get(groupPosition).get(childPosition);
 	        }
 
@@ -379,6 +443,9 @@ public class FriendListFragment extends Fragment
 	        }
 
 	        public int getChildrenCount(int groupPosition) {
+	        	if(groupPosition >= children.size() ){
+	        		return 0;
+	        	}	        	
 	            return children.get(groupPosition).size();
 	        }	       
 	        
@@ -391,7 +458,7 @@ public class FriendListFragment extends Fragment
 	        		view = mInflater.inflate(mEditable?R.layout.im_friend_item_entry_edit:
 	        			R.layout.im_friend_item_entry, null);
 	        	}
-	        	RosterEntry entry = getChild(groupPosition, childPosition);
+	        	MyRosterEntry entry = getChild(groupPosition, childPosition);
 	            TextView textView = (TextView)view.findViewById(R.id.username);
 	            textView.setText(entry.Jid);
 	            ImageView head = (ImageView)view.findViewById(R.id.imageView);
@@ -469,22 +536,22 @@ public class FriendListFragment extends Fragment
 					
 					// change data
 					
-					RosterEntry entry = children.get(mStartDragGroupPosition).get(mStartDragChildPosition);
+					MyRosterEntry entry = children.get(mStartDragGroupPosition).get(mStartDragChildPosition);
 					
 					// delete
 					children.get(mStartDragGroupPosition).remove(mStartDragChildPosition);
 					
-					RosterGroup group = groups.get(endDragGroupPosition);
+					MyRosterGroup group = groups.get(endDragGroupPosition);
 					entry.groupName = group.groupName;
 					children.get(endDragGroupPosition).add(entry);
 					
-					 RosterDataBase roster = new RosterDataBase(mActivity,mUsername);
+					 RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
 					 roster.updateColumn(entry.Jid, RosterDataBase.GROUP_NAME, group.groupName);
 					 roster.close();
 					 
 					UserTask userTask = new UserTask();
 					userTask.addUser(entry.Jid,"hello1",group.groupName);
-					userTask.execute(new Object());
+					userTask.execute();
 					
 				}
 				
@@ -498,15 +565,14 @@ public class FriendListFragment extends Fragment
 			public void hideGroup(int groupPos){
 				mFirstGroupPos = groupPos;
 			}
-			
 
 	}
-	 class UserTask extends AsyncTask<Object, Void, Exception> {
+	 class UserTask extends AsyncTask<Void, Void, Exception> {
 
 	    	private String userJid;
 	    	private String nickName;
 	    	private String groupName;
-	    	private String newGroupName;
+	    	private String oldGroupName;
 	    	
 	    	private Boolean bAddUser = false;
 	    	private Boolean bAddGroup = false;
@@ -528,22 +594,39 @@ public class FriendListFragment extends Fragment
 	    		bDeleteUser = true;
 	    		this.userJid = userJid;
 	    	}
-	    	public void deleteGroup(String groupName){
+	    	public void deleteGroup(String oldGroupName,String groupName){
 	    		bDeleteGroup = true;
+	    		this.oldGroupName = oldGroupName;
 	    		this.groupName = groupName;
 	    	}
-	    	public void move2Group(String jid,String groupName,String newGroupName){
+	    	public void move2Group(String oldGroupName,String groupName){
 	    		bMove2Group = true;
-	    		this.userJid = jid;
+	    		this.oldGroupName = oldGroupName;
 	    		this.groupName = groupName;
-	    		this.newGroupName = newGroupName;
 	    	}
+	    	
 			@Override
-			protected Exception doInBackground(Object... params) {
+			protected void onPreExecute() {
+				if(bAddUser){
+		   			
+		   		}else if(bAddGroup){
+		   					   			
+		   		}else if(bDeleteUser){
+															   		
+				}else if(bDeleteGroup){
+					
+				}else if(bMove2Group){
+					
+				}
+				showProgressDialog(true);
+				super.onPreExecute();
+			}
+			@Override
+			protected Exception doInBackground(Void... params) {
 				
 				Roster roster = xmppConnection.getRoster();
 			   	
-			   	org.jivesoftware.smack.RosterGroup myGroup = null;
+			   	RosterGroup myGroup = null;
 			   	try {   		
 			   		if(bAddUser){
 			   			myGroup = roster.getGroup(groupName);
@@ -556,15 +639,34 @@ public class FriendListFragment extends Fragment
 						roster.createEntry(userJid, nickName, new String[]{groupName});	
 						myGroup = null;
 			   		}else if(bAddGroup){
-			   			myGroup = roster.createGroup(groupName);			   			
+			   			myGroup = roster.createGroup(groupName);
+			   			RosterEntry adminEntry = roster.getEntry(mAdminJid);
+			   			if(adminEntry == null){
+			   				roster.createEntry(mAdminJid, mAdminJid, new String[]{groupName});	
+			   			}else{
+			   				myGroup.addEntry(adminEntry);
+			   			}
 			   		}else if(bDeleteUser){
-						org.jivesoftware.smack.RosterEntry rosterEntry = roster.getEntry(userJid);
+						RosterEntry rosterEntry = roster.getEntry(userJid);
 						roster.removeEntry(rosterEntry);											   		
-					}else if(bDeleteGroup){
-						
-					}else if(bMove2Group){
-						org.jivesoftware.smack.RosterEntry rosterEntry = roster.getEntry(userJid);
-						rosterEntry.getGroups();
+					}else if(bDeleteGroup || bMove2Group){
+						RosterGroup rosterGroup = roster.getGroup(oldGroupName);
+						Iterator<RosterEntry> it = rosterGroup
+								.getEntries().iterator();
+						while(it.hasNext()){
+							RosterEntry entry = it.next();
+							if(entry.getUser().equalsIgnoreCase(mAdminJid)){								
+								myGroup = roster.getGroup(groupName);
+						   		if(myGroup == null){
+						   			myGroup = roster.createGroup(groupName);
+						   		}
+								myGroup.addEntry(entry);
+								rosterGroup.removeEntry(entry);
+							}else{
+								roster.createEntry(entry.getUser(), entry.getName(),
+										new String[]{groupName});	
+							}
+						}
 					}
 					
 			   	} catch (IllegalArgumentException e) {		   		
@@ -581,8 +683,21 @@ public class FriendListFragment extends Fragment
 			}
 			@Override
 			protected void onPostExecute(Exception result) {
-				Utility.showToast(mActivity, R.string.add_user_suc,
-						Toast.LENGTH_LONG);
+				int nString = R.string.add_user_suc;
+				if(bAddUser){
+					nString = R.string.add_user_suc;
+		   		}else if(bAddGroup){
+		   			nString = R.string.add_group_suc;
+		   		}else if(bDeleteUser){
+		   			nString = R.string.del_user_suc;		   		
+				}else if(bDeleteGroup){
+					nString = R.string.del_group_suc;
+				}else if(bMove2Group){
+					nString = R.string.edit_group_suc;
+				}
+				showProgressDialog(false);
+				reRoadData();
+				Utility.showToast(mActivity, nString, Toast.LENGTH_SHORT);
 				super.onPostExecute(result);
 			}
 	}
@@ -675,5 +790,180 @@ public class FriendListFragment extends Fragment
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
 		
 	}	
+	
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.im_entry_delete:
+			showDeleteGroupDialog((String)v.getTag());
+			break;
+		case R.id.im_entry_edit:
+			showEditGroupNameDialog((String)v.getTag());
+			break;
+		}
+		
+	}
+	
+	private void showProgressDialog(boolean bShow){
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		ProgressFragment prev = (ProgressFragment)getFragmentManager().findFragmentByTag("dialog_progress");
+        if(bShow == false){        	
+        	prev.dismiss();
+            return;
+        }
+
+    	if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        
+        ProgressFragment fragment = ProgressFragment.newInstance(this,
+				EditDialogFragment.REQCODE_EDIT_GROUP,"waiting");
+		fragment.show(getFragmentManager(), "dialog_progress");
+		
+	}
+	private void showDeleteGroupDialog(final String groupName){
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("dialog_friend");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        
+		EditDialogFragment fragment = EditDialogFragment.newInstance(this,
+				EditDialogFragment.REQCODE_DEL_GROUP,groupName);
+		fragment.show(getFragmentManager(), "dialog_friend");
+	}
+	private void showEditGroupNameDialog(String groupName){		
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("dialog_friend");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        
+		EditDialogFragment fragment = EditDialogFragment.newInstance(this,
+				EditDialogFragment.REQCODE_EDIT_GROUP,groupName);
+		fragment.show(getFragmentManager(), "dialog_friend");
+	}
+	private void excuChangeGroup(String groupname,String oldGroupName){
+		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
+		int nRowCount = roster.updateGroupName(groupname,oldGroupName);		
+		roster.close();
+		
+		UserTask userTask = new UserTask();
+		userTask.move2Group(oldGroupName, groupname);
+		userTask.execute();
+	}
+	private void excuAddGroup(String groupname){
+		
+		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
+		if(roster.isGroupNameExist(groupname)){
+			String tips = mActivity.getResources()
+				.getString(R.string.im_groupname_exist,groupname);
+			Utility.showToast(mActivity, tips, Toast.LENGTH_SHORT);
+			return;
+		}		
+		roster.insert(mAdminJid, mAdminJid, groupname, null);
+		roster.close();
+		
+		UserTask userTask = new UserTask();
+		userTask.addGroup(groupname);
+		userTask.execute();
+	}
+	private void excuDeleteGroup(String groupName){
+		String defaultGroupName = getResources().getString(R.string.im_default_group_name);
+		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
+		int nRowCount = roster.updateGroupName(defaultGroupName,groupName);
+		roster.close();
+		UserTask userTask = new UserTask();
+		userTask.deleteGroup(groupName, defaultGroupName);
+		userTask.execute();
+	}
+	public static class EditDialogFragment extends DialogFragment{
+		
+		private static String GROUP_NAME = "groupName";
+		public static int REQCODE_EDIT_GROUP = 1;
+		public static int REQCODE_DEL_GROUP = 2;
+		public static int REQCODE_ADD_GROUP = 3;
+		public static int REQCODE_EDIT_USER = 4;
+
+		String groupName;
+		FriendListFragment targetFragment;
+		int reqCode = REQCODE_EDIT_GROUP;
+		
+		public static EditDialogFragment newInstance(Fragment targetFragment,int reqCode,
+				String groupName){
+			EditDialogFragment fragment = new EditDialogFragment();
+			Bundle args = new Bundle();
+			args.putString(GROUP_NAME, groupName);
+			fragment.setArguments(args);
+			fragment.setTargetFragment(targetFragment, reqCode);
+			return fragment;
+		}
+		
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			
+			Bundle args = getArguments();
+			groupName = args.getString(GROUP_NAME);
+			targetFragment = (FriendListFragment)getTargetFragment();
+			reqCode = getTargetRequestCode();
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			
+			// cancel button
+			builder.setNegativeButton(R.string.alert_dialog_cancel, new Dialog.OnClickListener(){
+				@Override
+				public void onClick(DialogInterface dialog, int which) {					
+				}
+			});
+			
+			if(reqCode == REQCODE_EDIT_GROUP ||
+					reqCode == REQCODE_ADD_GROUP){
+				String tips = getActivity().getResources()
+					.getString(R.string.im_change_group,groupName);
+				if(reqCode == REQCODE_ADD_GROUP){
+					tips = getActivity().getResources().getString(R.string.im_new_group);
+				}
+				final View layout = View.inflate(getActivity(), R.layout.im_edit_group_input, null);
+				final EditText editText = (EditText)layout.findViewById(R.id.editText);
+				builder.setTitle(tips);
+				builder.setIcon(R.drawable.icon);
+				builder.setView(layout);
+				builder.setPositiveButton(R.string.alert_dialog_ok, new Dialog.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						String newGroupName = editText.getEditableText().toString();
+						// TODO: when input is empty we should do something ...
+						if(reqCode == REQCODE_EDIT_GROUP){
+							targetFragment.excuChangeGroup(newGroupName,groupName);				
+						}else if(reqCode == REQCODE_ADD_GROUP){
+							targetFragment.excuAddGroup(newGroupName);
+						}
+					}			
+				});
+			}else if(reqCode == REQCODE_DEL_GROUP){
+				String tips = getActivity().getResources()
+					.getString(R.string.im_del_group_commit,groupName);
+			
+				builder.setTitle(R.string.im_import_note);
+				builder.setIcon(R.drawable.icon);
+				builder.setMessage(tips);
+			
+				builder.setPositiveButton(R.string.alert_dialog_ok, new Dialog.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						targetFragment.excuDeleteGroup(groupName);					
+					}			
+				});				
+			}
+			
+			return builder.create();
+		}
+	}
+
 	
 }

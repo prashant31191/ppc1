@@ -162,11 +162,30 @@ public class RosterDataBase {
 		values.put(columnName, value);
 		return db.update(TABLE_NAME, values, ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"", null);
 	}
+	/**
+	 * 
+	 * @param jid can set to null for change all column
+	 * @param columnName
+	 * @param value
+	 * @return
+	 */
 	public int updateColumn(String jid, String columnName, String value){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put(columnName, value);
-		return db.update(TABLE_NAME, values, ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"", null);
+		String where = ADMIN + "=\"" + mAdmin + "\" AND " + JID+"=\""+jid+"\"";
+		if(jid == null){
+			where = ADMIN + "=\"" + mAdmin + "\"";
+		}
+		return db.update(TABLE_NAME, values, where, null);
+	}
+	
+	public int updateGroupName(String groupName,String oldGroupName){
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(GROUP_NAME, groupName);
+		return db.update(TABLE_NAME, values, ADMIN + "=\"" + mAdmin + "\" AND " + GROUP_NAME+"=\""+oldGroupName+"\"", null);
+	
 	}
 	public Cursor queryHaveNewMsgRoster(){
 		String where = ADMIN + "=\"" + mAdmin + "\" AND " 
@@ -195,9 +214,27 @@ public class RosterDataBase {
 	}
 	public Cursor queryByJId(String jid){
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
-		Cursor cursor = db.query(TABLE_NAME, null, JID + "=\"" + jid + "\"",
+		Cursor cursor = db.query(TABLE_NAME, null, ADMIN + "=\"" + mAdmin + "\" AND " + JID + "=\"" + jid + "\"",
 				null,null,null,null);
 		return cursor;
+	}
+	public boolean isUserExist(String jid){
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		Cursor cursor = db.query(TABLE_NAME, new String[]{ID}, ADMIN + "=\"" + mAdmin + "\" AND " + JID + "=\"" + jid + "\"",
+				null,null,null,null);
+		if( cursor.getCount()==-1 || cursor.getCount()==0){
+			return false;
+		}
+		return true;
+	}
+	public boolean isGroupNameExist(String groupName){
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		Cursor cursor = db.query(TABLE_NAME, new String[]{ID}, ADMIN + "=\"" + mAdmin + "\" AND " + GROUP_NAME + "=\"" + groupName + "\"",
+				null,null,null,null);
+		if( cursor.getCount()==-1 || cursor.getCount()==0){
+			return false;
+		}
+		return true;
 	}
 	public String[] getGroups(){
 		SQLiteDatabase db = dbHelper.getReadableDatabase();

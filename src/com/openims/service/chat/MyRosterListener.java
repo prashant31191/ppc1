@@ -41,6 +41,7 @@ public class MyRosterListener implements RosterListener {
 		// TODO Auto-generated method stub
 		Log.e(LOGTAG,TAG+"entriesDeleted");
 		Iterator<String> it = addresses.iterator();
+		
 		while(it.hasNext()){
 			String jid = it.next();
 			Log.i(LOGTAG,TAG+jid);
@@ -55,9 +56,12 @@ public class MyRosterListener implements RosterListener {
 		// TODO Auto-generated method stub
 		Log.e(LOGTAG,TAG+"entriesUpdated");
 		Iterator<String> it = addresses.iterator();
+		xmppManager.notifyRosterUpdated(null);
 		while(it.hasNext()){
 			Log.i(LOGTAG,TAG+it.next());
-			
+			String jid = it.next();
+			xmppManager.updateRoster(jid);
+			xmppManager.notifyRosterUpdated(jid);
 		}
 		//xmppManager.getRoster();
 

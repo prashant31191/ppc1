@@ -83,6 +83,7 @@ public class ChatMainFragment extends Fragment
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, PRE + "onCreate");
+		
 	}
 	
 	@Override
