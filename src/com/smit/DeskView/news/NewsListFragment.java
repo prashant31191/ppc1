@@ -20,6 +20,7 @@ import org.w3c.dom.NodeList;
 import com.smit.DeskView.commonclass.*;
 import com.smit.DeskView.commonclass.NewsMoveParse.ItemNewsInfo;
 import com.smit.DeskView.commonclass.VodVideoMoveParse.ItemVideoInfo;
+import com.smit.DeskView.vodvideo.VODVideoListFragment.VodVideoAdapter;
 import com.smit.EasyLauncher.R;
 
 import android.R.integer;
@@ -80,9 +81,14 @@ public class NewsListFragment extends ListFragment {
 			requestXml();
 		}else*/ {
 			String str=ReadVodVideoItemXML();
-			mMovieParse = new NewsMoveParse(str);
-			mMovieParse.parseDataStr();
-			setListAdapter(new VodVideoAdapter());
+			if (str!=null) {
+				mMovieParse = new NewsMoveParse(str);
+				if (mMovieParse!=null) {
+					mMovieParse.parseDataStr();
+					setListAdapter(new VodVideoAdapter());
+				}		
+			}
+			
 			
 		}		
 			
@@ -150,6 +156,22 @@ public class NewsListFragment extends ListFragment {
 		}
 	};
 
+	public boolean ShowCurList(){
+		String str=ReadVodVideoItemXML();
+		if (str!=null) {
+			mMovieParse = new NewsMoveParse(str);
+			if (mMovieParse!=null) {
+				mMovieParse.parseDataStr();
+				setListAdapter(new VodVideoAdapter());	
+			}else {
+				return false;
+			}		
+		}else {
+			return false;
+		}	
+		return true;
+	}
+	
 	public void ParseXml(String str) {
 
 	}

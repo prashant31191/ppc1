@@ -71,7 +71,8 @@
 			<fragment class="com.smit.DeskView.vodvideo.VODVideoListFragment"
 	  	android:layout_gravity="center"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
+		android:layout_height="fill_parent"
+		android:id="@+id/vodvideo_listdragment_fragment" />
 		</FrameLayout>
 	</LinearLayout>
 

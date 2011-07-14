@@ -78,11 +78,15 @@ public class VODVideoListFragment extends ListFragment {
 			requestXml();
 		}else*/ {
 			String str=ReadVodVideoItemXML();
-			mMovieParse = new VodVideoMoveParse(str);
-			mMovieParse.parseDataStr();
-			mMovieParse.downloadMoviePic();
-			setListAdapter(new VodVideoAdapter());	
-			getListView().bringToFront();
+			if (str!=null) {
+				mMovieParse = new VodVideoMoveParse(str);
+				if (mMovieParse!=null) {
+					mMovieParse.parseDataStr();
+					mMovieParse.downloadMoviePic();
+					setListAdapter(new VodVideoAdapter());	
+				}		
+			}
+		
 			 
 		}		
 			
@@ -164,6 +168,23 @@ public class VODVideoListFragment extends ListFragment {
 			}
 		}
 	};
+	
+	public boolean ShowCurList(){
+		String str=ReadVodVideoItemXML();
+		if (str!=null) {
+			mMovieParse = new VodVideoMoveParse(str);
+			if (mMovieParse!=null) {
+				mMovieParse.parseDataStr();
+				mMovieParse.downloadMoviePic();
+				setListAdapter(new VodVideoAdapter());	
+			}else {
+				return false;
+			}		
+		}else {
+			return false;
+		}	
+		return true;
+	}
 
 	public void ParseXml(String str) {
 

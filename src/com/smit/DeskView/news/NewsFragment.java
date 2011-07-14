@@ -221,7 +221,9 @@ public class NewsFragment extends Fragment {
 			listFrame.setVisibility(View.VISIBLE);
 			vodvideo_flash.setVisibility(View.GONE);
 			vodvideo_loading.setVisibility(View.GONE);		
-			
+			if(!showNewsList()){
+				SetCurShow(SHOW_FLASH);
+			}
 			break;
 		}
 		default:
@@ -231,16 +233,14 @@ public class NewsFragment extends Fragment {
 		curMyStatus=curStatus;
 	}
 
-	void showVodVideoList() {
+	private boolean showNewsList() {
 
 		newsListFragment = (NewsListFragment) getFragmentManager()
-				.findFragmentById(R.id.news_listdragment);
+				.findFragmentById(R.id.news_listdragment_fragment);
 		if (newsListFragment == null) {
-			newsListFragment = new NewsListFragment();
-			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			ft.replace(R.id.news_listdragment, newsListFragment);
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
+			return false;
+		}else {
+			return newsListFragment.ShowCurList();
 		}
 
 	}
@@ -288,8 +288,8 @@ public class NewsFragment extends Fragment {
 					mMovieParse = new NewsMoveParse(str); 
 					mMovieParse.parseDataStr();
 					if (mMovieParse!=null && mMovieParse.getItemCount()>0) {
-						SetCurShow(SHOW_LIST);
 						WriteVodVideoItemXML(str); 
+						SetCurShow(SHOW_LIST);
 						//showVodVideoList();
 					}else {
 						SetCurShow(SHOW_FLASH);
