@@ -207,19 +207,11 @@ public class BaseActivity extends FragmentActivity
                 mService.send(msg);
                 
             } catch (RemoteException e) {
-            }
-            
-            // As part of the sample, tell the user what happened.
-            Toast.makeText(BaseActivity.this, "connect",
-                    Toast.LENGTH_SHORT).show();
+            }            
         }
 
-        public void onServiceDisconnected(ComponentName className) {
-           
-            mService = null;            
-            // As part of the sample, tell the user what happened.
-            Toast.makeText(BaseActivity.this, "Disconnected",
-                    Toast.LENGTH_SHORT).show();
+        public void onServiceDisconnected(ComponentName className) {           
+            mService = null;
         }
     };
     

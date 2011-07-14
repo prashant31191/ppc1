@@ -79,7 +79,7 @@ public class IMWidgetFragment extends Fragment
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, PRE + "onCreate");
 		
-		if(savedInstanceState == null){
+		/*if(savedInstanceState == null){
 			final FragmentTransaction ft = getFragmentManager().beginTransaction();
 			mFriendFragment = new FriendListFragment();
 	        ft.add(R.id.im_center, mFriendFragment,TAG_FRIEND).commit();
@@ -87,8 +87,8 @@ public class IMWidgetFragment extends Fragment
 		}else{			
 			mFriendFragment = (FriendListFragment)getFragmentManager()
 				.findFragmentByTag(TAG_FRIEND);
-		}
-		mFriendFragment.setOnAvater(this);
+		}*/
+		
 		myApplication = (MyApplication)mActivity.getApplication();
 		
 		statusReceiver = new IMStatusReceiver();
@@ -130,7 +130,10 @@ public class IMWidgetFragment extends Fragment
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {		
-		super.onActivityCreated(savedInstanceState);		
+		super.onActivityCreated(savedInstanceState);
+		mFriendFragment = (FriendListFragment)getFragmentManager()
+			.findFragmentById(R.id.friend_list_fragment);
+		mFriendFragment.setOnAvater(this);
 		doBindService();		
 	}
 
@@ -249,14 +252,12 @@ public class IMWidgetFragment extends Fragment
      * Class for interacting with the main interface of the service.
      */
     private ServiceConnection mConnection = new ServiceConnection() {
+    	
         public void onServiceConnected(ComponentName className,
                 IBinder service) {
         	
-            mService = new Messenger(service);
-            Log.d(TAG, PRE + "Attached.");
-
-            // We want to monitor the service for as long as we are
-            // connected to it.
+            mService = new Messenger(service);          
+          
             try {
                 Message msg = Message.obtain(null,
                 		PushServiceUtil.MSG_REGISTER_CLIENT);
@@ -264,19 +265,11 @@ public class IMWidgetFragment extends Fragment
                 mService.send(msg);
 
             } catch (RemoteException e) {                
-            }
-            
-            // As part of the sample, tell the user what happened.
-            Toast.makeText(IMWidgetFragment.this.mActivity, "connect",
-                    Toast.LENGTH_SHORT).show();
+            }           
         }
 
         public void onServiceDisconnected(ComponentName className) {            
             mService = null;
-            
-            // As part of the sample, tell the user what happened.
-            Toast.makeText(IMWidgetFragment.this.mActivity, "Disconnected",
-                    Toast.LENGTH_SHORT).show();
         }
     };
     

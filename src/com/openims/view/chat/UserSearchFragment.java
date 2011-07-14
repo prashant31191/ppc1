@@ -29,12 +29,14 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -94,7 +96,8 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		Log.d(TAG, PRE + "onCreate");
 		MyApplication app = (MyApplication)mActivity.getApplication();
 		xmppConnection = app.getConnection();
-		setRetainInstance(true); // save result
+		setRetainInstance(true); // save result		
+		
 	}
 	
 	@Override
@@ -381,6 +384,10 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 
 			listView.setAdapter(mSchedule);	
 			mProgress.setVisibility(View.GONE);
+			// TODO can't hide input method
+			InputMethodManager inputMgr = (InputMethodManager)mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputMgr.hideSoftInputFromInputMethod(mEditInput.getWindowToken(),
+					0);
 		}    	
     }
     class UserTask extends AsyncTask<Object, Void, Exception> {
@@ -511,7 +518,8 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 					Utility.showToast(mActivity, R.string.search_input_null,
 							Toast.LENGTH_LONG);
 					return;
-				}
+				}				
+				
 				UserSearchTask userSearch = new UserSearchTask(checkBoxNickName.isChecked(),
 						checkBoxUsername.isChecked(),checkBoxEmail.isChecked(),input);
 				userSearch.execute();

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res/com.smit.EasyLauncher"
   android:layout_width="match_parent"
   android:layout_height="match_parent" 
   android:orientation="vertical"
@@ -63,15 +64,19 @@
     <FrameLayout android:id="@+id/im_center"
     	android:layout_width="match_parent" 
    	 	android:layout_height="match_parent"
-		android:layout_weight="10"
-		android:background="@color/widget_bg"
-		android:visibility="gone">
+		android:layout_weight="10"		
+		>
+		<fragment class="com.openims.view.chat.widget.FriendListFragment"	  	
+			android:id="@+id/friend_list_fragment" 
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"			 
+			app:editable="false"/>
    	</FrameLayout>
+   	
    	<RelativeLayout android:id="@+id/im_unlogin"
     	android:layout_width="match_parent" 
    	 	android:layout_height="match_parent"
-		android:layout_weight="10"
-		android:background="@color/widget_bg">
+		android:layout_weight="10" android:visibility="gone">
    		<Button android:layout_height="wrap_content" 
    			android:id="@+id/im_btn_login" 
    			android:layout_centerInParent="true"
@@ -87,22 +92,21 @@
    	</RelativeLayout>
    	<TextView android:id="@+id/line" 
    	     	android:layout_width="match_parent" 
-   	     	android:layout_height="1dp"   	     	
-   	     	android:background="@color/light_black">
+   	     	android:layout_height="1dip" 
+   	     	android:background="@drawable/s0_bar_cut_off_land">
    	</TextView>
    	
    	<LinearLayout android:id="@+id/linearLayout2" 
     	android:layout_width="match_parent" 
-    	android:layout_height="wrap_content"    	
-    	android:background="@color/widget_bg"
-    	
+    	android:layout_height="40dip"     	
     	>
     	<Button 
    	     	android:id="@+id/btn_im_setting" 
    	     	android:layout_width="wrap_content" 
    	     	android:layout_height="wrap_content"
    	     	android:background="@drawable/s0_add_friend_button_qqwideget"   	     	
-   	     	android:layout_margin="2dp">
+   	     	android:layout_marginLeft="5dp"
+   	     	android:layout_gravity="center">
    	     </Button>
    	     <TextView android:text="TextView" 
    	     	android:id="@+id/textView3" 
@@ -116,8 +120,8 @@
    	     	android:id="@+id/more" 
    	     	android:layout_width="wrap_content" 
    	     	android:layout_height="wrap_content"
-   	     	android:background="@drawable/s0_stat_button_more"
-   	     	android:layout_margin="2dp">
+   	     	android:background="@drawable/s0_stat_button_more"   	     	
+   	     	android:layout_gravity="center">
    	     </Button>
    	     <TextView android:text="TextView" 
    	     	android:id="@+id/textView2" 
@@ -131,7 +135,8 @@
    	     	android:layout_width="wrap_content" 
    	     	android:layout_height="wrap_content"
    	     	android:background="@drawable/s0_add_friend_button_qqwideget"
-   	     	android:layout_margin="2dp">
+   	     	android:layout_marginRight="5dp"
+   	     	android:layout_gravity="center">
    	     </Button>
     </LinearLayout>
    	 
