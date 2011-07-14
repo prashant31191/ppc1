@@ -1,4 +1,4 @@
-package com.openims.view;
+package com.openims.view.pushContent;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

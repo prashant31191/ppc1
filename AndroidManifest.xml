@@ -95,9 +95,11 @@
         <activity android:name="com.openims.view.pcAssistant.AssistantActivity" 
     			  android:label="@string/pcAssistant">        		  
     	</activity>
-    	<activity android:label="@string/app_name" android:name="com.openims.view.PushActivity">				  
+    	<activity android:name="com.openims.view.pushContent.PushActivity"
+    				android:label="@string/app_name" >				  
 		</activity>
-		<activity android:launchMode="singleInstance" android:name="com.openims.view.chat.MultiChatActivity">
+		<activity android:name="com.openims.view.chat.MultiChatActivity"
+					android:launchMode="singleInstance" >
 		</activity>
 		
         
@@ -126,7 +128,7 @@
 		</service>
 		
 		<!-- For Push Client -->
-		<receiver android:name="com.openims.view.PushServiceReceiver">    	
+		<receiver android:name="com.openims.view.pushContent.PushServiceReceiver">    	
 		    <intent-filter>
 		        <action android:name="com.openims.pushService.RECEIVE" />
 		        <category android:name="com.openims.demo" />
@@ -162,6 +164,5 @@
 		<activity android:name="com.openims.view.chat.UserManageActivity"></activity>
 		
     </application>
-    
     
 </manifest>

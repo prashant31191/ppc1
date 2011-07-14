@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.smit.EasyLauncher.R;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
-import com.openims.view.PushServiceReceiver;
+import com.openims.view.pushContent.PushServiceReceiver;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;

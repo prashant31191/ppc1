@@ -10,7 +10,7 @@ import java.net.URLConnection;
 
 import org.apache.http.util.ByteArrayBuffer;
 
-import com.openims.view.PushContentListFragment;
+import com.openims.view.pushContent.PushContentListFragment;
 
 import android.util.Log;
 

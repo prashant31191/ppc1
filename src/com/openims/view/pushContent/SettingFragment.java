@@ -1,4 +1,4 @@
-package com.openims.view;
+package com.openims.view.pushContent;
 
 import com.smit.EasyLauncher.R;
 

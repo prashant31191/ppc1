@@ -15,7 +15,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.openims.utility.LogUtil;
-import com.openims.view.PushContentListFragment;
+import com.openims.view.pushContent.PushContentListFragment;
 
 /**
  * This is not a real download task.

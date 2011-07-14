@@ -1,4 +1,4 @@
-package com.openims.view;
+package com.openims.view.pushContent;
 
 
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import com.smit.EasyLauncher.R;
 import com.openims.model.pushService.PushContentDB;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
-import com.openims.view.PushContentListFragment.DownloadAsyncTask;
+import com.openims.view.pushContent.PushContentListFragment.DownloadAsyncTask;
 
 public class PushCursorAdapter extends CursorAdapter{
 

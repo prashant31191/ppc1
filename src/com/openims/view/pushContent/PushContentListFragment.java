@@ -1,4 +1,4 @@
-package com.openims.view;
+package com.openims.view.pushContent;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -103,8 +103,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 				pushContentDB.queryItems(),true,this);
 		
 		this.setListAdapter(pushAdapter);	
-		//this.setEmptyText("nodat");
-		//this.getListView().setEmptyView(emptyView)
+		
 		
 	}
 	
@@ -275,7 +274,8 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		Log.e(TAG, PRE + "onCreateView");
-		return super.onCreateView(inflater, container, savedInstanceState);
+		View v = inflater.inflate(R.layout.pc_custom_list_empty, container);
+		return v;
 	}
 
 	@Override
@@ -284,6 +284,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		close = false;
 		super.onActivityCreated(savedInstanceState);
 		getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+		
 	}
 
 	@Override

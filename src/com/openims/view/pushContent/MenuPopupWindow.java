@@ -1,4 +1,4 @@
-package com.openims.view;
+package com.openims.view.pushContent;
 
 import java.util.zip.Inflater;
 

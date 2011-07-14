@@ -39,7 +39,7 @@ import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.XmppManager;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
-import com.openims.view.PushActivity;
+import com.openims.view.pushContent.PushActivity;
 
 /**
  * 用于接收PUSH过来的消息
