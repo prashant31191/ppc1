@@ -53,6 +53,7 @@ import com.openims.utility.Utility;
 import com.openims.view.chat.MultiChatActivity;
 import com.openims.view.chat.OnAvater;
 import com.openims.view.chat.ProgressFragment;
+import com.openims.view.chat.UserSearchFragment;
 import com.openims.widgets.DragDropListener;
 import com.smit.EasyLauncher.R;
 
@@ -130,7 +131,10 @@ public class FriendListFragment extends Fragment
 		mFriendListView = (FriendGroupListView)v.findViewById(R.id.listview_friend);
 		mFriendListView.setEditable(mEditable);
 		indicatorGroup = (LinearLayout)v.findViewById(R.id.indicatorGroup);
-		//indicatorGroup.setBackgroundColor(0x55ff0000);		
+		//indicatorGroup.setBackgroundColor(0x55ff0000);
+		if(mEditable){
+			indicatorGroup.setVisibility(View.INVISIBLE);
+		}
 		
         mAdapter = new RosterExpandableListAdapter(mActivity); 
         inflater.inflate(mEditable?R.layout.im_friend_item_group_edit:
@@ -335,12 +339,12 @@ public class FriendListFragment extends Fragment
 	                groups.add(g);
 	            }
 	            int index = groups.indexOf(g);
-	            if(entry.userName.endsWith(mAdminJid)){
-	            	return;
-	            }
 	            if (children.size() < index + 1) {
 	                children.add(new ArrayList<MyRosterEntry>());
 	            }
+	            if(entry.userName.endsWith(mAdminJid)){
+	            	return;
+	            }	            
 	            children.get(index).add(entry);
 	        }
 	        
@@ -449,7 +453,21 @@ public class FriendListFragment extends Fragment
 	        	}	        	
 	            return children.get(groupPosition).size();
 	        }	       
-	        
+	        private String[] getTargetGroups(int groupPosition){
+	        	String[] groupStrings = new String[getGroupCount()-1];
+	        	MyRosterGroup rosterGroup = groups.get(groupPosition);
+	        	Iterator<MyRosterGroup> it = groups.iterator();
+	        	int i = 0;
+	        	while(it.hasNext()){
+	        		MyRosterGroup tempGroup = it.next();
+	        		if(tempGroup.equals(rosterGroup)){
+	        			continue;
+	        		}
+	        		groupStrings[i] = tempGroup.groupName;
+	        		i++;
+	        	}
+	        	return groupStrings;
+	        }
 	        public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
 	                View convertView, ViewGroup parent) {
 	        	View view;
@@ -465,13 +483,15 @@ public class FriendListFragment extends Fragment
 	            	
 	            }else{
 	            	View viewDel = view.findViewById(R.id.im_entry_delete);
-	            	viewDel.setTag(entry.Jid);
+	            	viewDel.setTag(entry);
 	            	viewDel.setOnClickListener(FriendListFragment.this);
 	            	ImageView viewEdit = (ImageView)view.findViewById(R.id.im_entry_edit);
-	            	viewEdit.setTag(entry.Jid);
-	            	viewEdit.setTag(R.integer.tag_nickname,entry.userName);
-	            	viewEdit.setTag(R.integer.tag_groupname,entry.groupName);
+	            	viewEdit.setTag(entry);
 	            	viewEdit.setOnClickListener(FriendListFragment.this);
+	            	View viewMove = view.findViewById(R.id.im_entry_move);
+	            	viewMove.setOnClickListener(FriendListFragment.this);
+	            	viewMove.setTag(entry);
+	            	viewMove.setTag(R.integer.tag_groupname, getTargetGroups(groupPosition));
 	            }	        	
 	        	
 	            TextView textView = (TextView)view.findViewById(R.id.username);
@@ -597,7 +617,8 @@ public class FriendListFragment extends Fragment
 	    	private Boolean bAddGroup = false;
 	    	private Boolean bDeleteUser = false;
 	    	private Boolean bDeleteGroup = false;
-	    	private Boolean bMove2Group = false;
+	    	private Boolean bMoveGroup2Group = false;
+	    	private Boolean bMoveUser2Group = false;
 	    	
 	    	public void addUser(String userJid, String nickName, String groupName){
 	    		bAddUser = true;
@@ -605,6 +626,13 @@ public class FriendListFragment extends Fragment
 	    		this.nickName = nickName;
 	    		this.groupName = groupName;
 	    	}
+	    	public void moveUser2Group(String userJid, String nickName, String groupName){
+	    		bMoveUser2Group = true;
+	    		this.userJid = userJid;
+	    		this.nickName = nickName;
+	    		this.groupName = groupName;
+	    	}
+	    	
 	    	public void editUser(String userJid, String nickName, String groupName){
 	    		bEditUser = true;
 	    		this.userJid = userJid;
@@ -624,8 +652,8 @@ public class FriendListFragment extends Fragment
 	    		this.oldGroupName = oldGroupName;
 	    		this.groupName = groupName;
 	    	}
-	    	public void move2Group(String oldGroupName,String groupName){
-	    		bMove2Group = true;
+	    	public void moveGroup2Group(String oldGroupName,String groupName){
+	    		bMoveGroup2Group = true;
 	    		this.oldGroupName = oldGroupName;
 	    		this.groupName = groupName;
 	    	}
@@ -640,7 +668,7 @@ public class FriendListFragment extends Fragment
 															   		
 				}else if(bDeleteGroup){
 					
-				}else if(bMove2Group){
+				}else if(bMoveGroup2Group){
 					
 				}
 				showProgressDialog(true);
@@ -653,7 +681,7 @@ public class FriendListFragment extends Fragment
 			   	
 			   	RosterGroup myGroup = null;
 			   	try {   		
-			   		if(bAddUser || bEditUser){
+			   		if(bAddUser || bEditUser || bMoveUser2Group){
 			   			myGroup = roster.getGroup(groupName);
 				   		if(myGroup == null){
 				   			myGroup = roster.createGroup(groupName);
@@ -674,7 +702,7 @@ public class FriendListFragment extends Fragment
 			   		}else if(bDeleteUser){
 						RosterEntry rosterEntry = roster.getEntry(userJid);
 						roster.removeEntry(rosterEntry);											   		
-					}else if(bDeleteGroup || bMove2Group){
+					}else if(bDeleteGroup || bMoveGroup2Group){
 						RosterGroup rosterGroup = roster.getGroup(oldGroupName);
 						Iterator<RosterEntry> it = rosterGroup
 								.getEntries().iterator();
@@ -717,10 +745,12 @@ public class FriendListFragment extends Fragment
 		   			nString = R.string.del_user_suc;		   		
 				}else if(bDeleteGroup){
 					nString = R.string.del_group_suc;
-				}else if(bMove2Group){
+				}else if(bMoveGroup2Group){
 					nString = R.string.edit_group_suc;
 				}else if(bEditUser){
 					nString = R.string.edit_user_suc;
+				}else if(bMoveUser2Group){
+					nString = R.string.move_user_suc;
 				}
 				showProgressDialog(false);
 				reRoadData();
@@ -822,18 +852,19 @@ public class FriendListFragment extends Fragment
 	public void onClick(View v) {
 		switch(v.getId()){
 		case R.id.im_entry_delete:
-			showDeleteUserDialog((String)v.getTag());
+			showDeleteUserDialog((MyRosterEntry)v.getTag());
 			break;
 		case R.id.im_entry_edit:
-			showEditUserDialog((String)v.getTag(), 
-					(String)v.getTag(R.integer.tag_nickname),
-					(String)v.getTag(R.integer.tag_groupname));
+			showEditUserDialog((MyRosterEntry)v.getTag());
 			break;
 		case R.id.im_group_delete:
 			showDeleteGroupDialog((String)v.getTag());
 			break;
 		case R.id.im_group_edit:
 			showEditGroupNameDialog((String)v.getTag());
+			break;
+		case R.id.im_entry_move:
+			showMoveEntryGroup((MyRosterEntry)v.getTag(),(String[])v.getTag(R.integer.tag_groupname));
 			break;
 		}
 		
@@ -842,9 +873,11 @@ public class FriendListFragment extends Fragment
 	private void showProgressDialog(boolean bShow){
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ProgressFragment prev = (ProgressFragment)getFragmentManager().findFragmentByTag("dialog_progress");
-        if(bShow == false){        	
-        	prev.dismiss();
-            return;
+        if(prev != null){        	
+        	prev.dismiss();          
+        }
+        if(bShow == false){
+        	return;
         }
 
     	if (prev != null) {
@@ -857,76 +890,71 @@ public class FriendListFragment extends Fragment
 		fragment.show(getFragmentManager(), "dialog_progress");
 		
 	}
-	private void showDeleteGroupDialog(final String groupName){
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag("dialog_friend");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
+	private void showDeleteGroupDialog(String groupName){
+		clearDialogBackStack();
         
 		EditDialogFragment fragment = EditDialogFragment.newInstance(this,
-				EditDialogFragment.REQCODE_DEL_GROUP,groupName);
+				EditDialogFragment.REQCODE_DEL_GROUP,groupName,null);
 		fragment.show(getFragmentManager(), "dialog_friend");
 	}
-	private void showDeleteUserDialog(final String userJid){
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag("dialog_friend");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
+	private void showDeleteUserDialog(MyRosterEntry userEntry){
+		clearDialogBackStack();
         
 		EditDialogFragment fragment = EditDialogFragment.newInstance(this,
-				EditDialogFragment.REQCODE_DEL_USER,userJid);
+				EditDialogFragment.REQCODE_DEL_USER,null,userEntry);
 		fragment.show(getFragmentManager(), "dialog_friend");
 	}
-	private void showEditUserDialog(String userJid,String nickName,String groupName){		
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag("dialog_friend");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
+	private void showEditUserDialog(MyRosterEntry userEntry){		
+		clearDialogBackStack();
         
 		EditDialogFragment fragment = EditDialogFragment.newInstance(this,
-				EditDialogFragment.REQCODE_EDIT_USER,userJid);
-		fragment.setParam2(nickName);
-		fragment.setParam3(groupName);
+				EditDialogFragment.REQCODE_EDIT_USER,null,userEntry);
+		
 		fragment.show(getFragmentManager(), "dialog_friend");
 	}
 	private void showEditGroupNameDialog(String groupName){		
+		clearDialogBackStack();
+        
+		EditDialogFragment fragment = EditDialogFragment.newInstance(this,
+				EditDialogFragment.REQCODE_EDIT_GROUP,groupName,null);
+		fragment.show(getFragmentManager(), "dialog_friend");
+	}
+	private void showMoveEntryGroup(MyRosterEntry userEntry,String[] groups){
+		
+		clearDialogBackStack();
+		EditDialogFragment fragment = EditDialogFragment.newInstance(this,
+				EditDialogFragment.REQCODE_MOVE_USER,null,userEntry);
+		fragment.setTargetGroups(groups);
+		fragment.show(getFragmentManager(), "dialog_friend");
+	}
+	private void clearDialogBackStack(){
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag("dialog_friend");
         if (prev != null) {
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        
-		EditDialogFragment fragment = EditDialogFragment.newInstance(this,
-				EditDialogFragment.REQCODE_EDIT_GROUP,groupName);
-		fragment.show(getFragmentManager(), "dialog_friend");
 	}
 	private void excuChangeGroup(String groupname,String oldGroupName){
-		if(xmppConnection == null ||
-				xmppConnection.isAuthenticated() == false){
-			Utility.showToast(mActivity, R.string.im_connect_fail,
-					Toast.LENGTH_SHORT);
+		if(isConnectionOk() == false){
 			return;
 		}
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
+		if(roster.isGroupNameExist(groupname)){
+			String tips = mActivity.getResources()
+				.getString(R.string.im_groupname_exist,groupname);
+			Utility.showToast(mActivity, tips, Toast.LENGTH_SHORT);
+			return;
+		}
 		int nRowCount = roster.updateGroupName(groupname,oldGroupName);		
 		roster.close();
 		
 		UserTask userTask = new UserTask();
-		userTask.move2Group(oldGroupName, groupname);
+		userTask.moveGroup2Group(oldGroupName, groupname);
 		userTask.execute();
 	}
 	private void excuAddGroup(String groupname){
-		if(xmppConnection == null ||
-				xmppConnection.isAuthenticated() == false){
-			Utility.showToast(mActivity, R.string.im_connect_fail,
-					Toast.LENGTH_SHORT);
+		if(isConnectionOk() == false){
 			return;
 		}
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
@@ -944,10 +972,7 @@ public class FriendListFragment extends Fragment
 		userTask.execute();
 	}
 	private void excuDeleteGroup(String groupName){
-		if(xmppConnection == null ||
-				xmppConnection.isAuthenticated() == false){
-			Utility.showToast(mActivity, R.string.im_connect_fail,
-					Toast.LENGTH_SHORT);
+		if(isConnectionOk() == false){
 			return;
 		}
 		String defaultGroupName = getResources().getString(R.string.im_default_group_name);
@@ -959,12 +984,9 @@ public class FriendListFragment extends Fragment
 		userTask.execute();
 	}
 	private void excuDeleteUser(String userJid){
-		if(xmppConnection == null ||
-				xmppConnection.isAuthenticated() == false){
-			Utility.showToast(mActivity, R.string.im_connect_fail,
-					Toast.LENGTH_SHORT);
+		if(isConnectionOk() == false){
 			return;
-		}	
+		}
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
 		roster.deleteRoster(userJid);
 		roster.close();
@@ -973,12 +995,9 @@ public class FriendListFragment extends Fragment
 		userTask.execute();
 	}
 	private void excuEditUser(String userJid,String nickName,String groupName){
-		if(xmppConnection == null ||
-				xmppConnection.isAuthenticated() == false){
-			Utility.showToast(mActivity, R.string.im_connect_fail,
-					Toast.LENGTH_SHORT);
+		if(isConnectionOk() == false){
 			return;
-		}	
+		}
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
 		roster.updateColumn(userJid, RosterDataBase.USER_NAME, nickName);
 		roster.close();
@@ -986,10 +1005,33 @@ public class FriendListFragment extends Fragment
 		userTask.editUser(userJid,nickName,groupName);
 		userTask.execute();
 	}
+	private boolean isConnectionOk(){
+		if(xmppConnection == null ||
+				xmppConnection.isAuthenticated() == false){
+			Utility.showToast(mActivity, R.string.im_connect_fail,
+					Toast.LENGTH_SHORT);
+			return false;
+		}	
+		return true;
+	}
+	private void excuMoveGroup(String userJid,String nickName,
+						String groupName,String oldGroup){
+		if(isConnectionOk() == false){
+			return;
+		}
+		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
+		roster.updateColumn(userJid, RosterDataBase.GROUP_NAME, groupName);
+		if(roster.isGroupNameExist(oldGroup) == false){
+			roster.insert(mAdminJid, mAdminJid, oldGroup, null);
+		}
+		roster.close();
+		UserTask userTask = new UserTask();
+		userTask.moveUser2Group(userJid,nickName, groupName);
+		userTask.execute();
+	}
 	public static class EditDialogFragment extends DialogFragment{
 		
-		private static String PARAM1 = "param1";
-		private static String PARAM2 = "param2";
+		private static String GROUPNAME = "param1";
 		public static int REQCODE_EDIT_GROUP = 1;
 		public static int REQCODE_DEL_GROUP = 2;
 		public static int REQCODE_ADD_GROUP = 3;
@@ -997,34 +1039,38 @@ public class FriendListFragment extends Fragment
 		public static int REQCODE_DEL_USER = 5;
 		public static int REQCODE_MOVE_USER = 6;
 
-		String param1;
-		String param2;
-		String param3;
+		String groupName;
+		MyRosterEntry userEntry;
+		String[] targetGroups;
+		Integer selPosition = 0;
 		
 		FriendListFragment targetFragment;
+		
 		int reqCode = REQCODE_EDIT_GROUP;
 		
 		public static EditDialogFragment newInstance(Fragment targetFragment,int reqCode,
-				String groupName){
+				String groupName,MyRosterEntry userEntry){
 			EditDialogFragment fragment = new EditDialogFragment();
 			Bundle args = new Bundle();
-			args.putString(PARAM1, groupName);
+			args.putString(GROUPNAME, groupName);
 			fragment.setArguments(args);
+			fragment.setUserEntry(userEntry);
 			fragment.setTargetFragment(targetFragment, reqCode);
 			return fragment;
 		}
-		public void setParam2(String p){
-			param2 = p;
+		public void setUserEntry(MyRosterEntry entry){
+			userEntry = entry;
 		}
-		public void setParam3(String p){
-			param3 = p;
+		
+		public void setTargetGroups(String[] groups){
+			targetGroups = groups;
 		}
 		
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			
 			Bundle args = getArguments();
-			param1 = args.getString(PARAM1);
+			groupName = args.getString(GROUPNAME);
 			targetFragment = (FriendListFragment)getTargetFragment();
 			reqCode = getTargetRequestCode();
 			
@@ -1040,7 +1086,7 @@ public class FriendListFragment extends Fragment
 			if(reqCode == REQCODE_EDIT_GROUP ||
 					reqCode == REQCODE_ADD_GROUP){
 				String tips = getActivity().getResources()
-					.getString(R.string.im_change_group,param1);
+					.getString(R.string.im_change_group,groupName);
 				if(reqCode == REQCODE_ADD_GROUP){
 					tips = getActivity().getResources().getString(R.string.im_new_group);
 				}
@@ -1056,7 +1102,7 @@ public class FriendListFragment extends Fragment
 						String newGroupName = editText.getEditableText().toString();
 						// TODO: when input is empty we should do something ...
 						if(reqCode == REQCODE_EDIT_GROUP){
-							targetFragment.excuChangeGroup(newGroupName,param1);				
+							targetFragment.excuChangeGroup(newGroupName,groupName);				
 						}else if(reqCode == REQCODE_ADD_GROUP){
 							targetFragment.excuAddGroup(newGroupName);
 						}
@@ -1064,7 +1110,7 @@ public class FriendListFragment extends Fragment
 				});
 			}else if(reqCode == REQCODE_DEL_GROUP){
 				String tips = getActivity().getResources()
-					.getString(R.string.im_del_group_commit,param1);
+					.getString(R.string.im_del_group_commit,groupName);
 			
 				builder.setTitle(R.string.im_import_note);
 				builder.setIcon(R.drawable.icon);
@@ -1074,12 +1120,12 @@ public class FriendListFragment extends Fragment
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						targetFragment.excuDeleteGroup(param1);					
+						targetFragment.excuDeleteGroup(groupName);					
 					}			
 				});				
 			}else if(reqCode == REQCODE_DEL_USER){
 				String tips = getActivity().getResources()
-					.getString(R.string.im_del_user_commit,param1);
+					.getString(R.string.im_del_user_commit,userEntry.userName);
 		
 				builder.setTitle(R.string.im_import_note);
 				builder.setIcon(R.drawable.icon);
@@ -1089,12 +1135,12 @@ public class FriendListFragment extends Fragment
 	
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						targetFragment.excuDeleteUser(param1);					
+						targetFragment.excuDeleteUser(userEntry.Jid);					
 					}			
 				});		
 			}else if(reqCode == REQCODE_EDIT_USER){
 				String tips = getActivity().getResources()
-					.getString(R.string.im_change_nickname,param2);
+					.getString(R.string.im_change_nickname,userEntry.userName);
 				
 				final View layout = View.inflate(getActivity(), R.layout.im_edit_group_input, null);
 				final EditText editText = (EditText)layout.findViewById(R.id.editText);
@@ -1106,12 +1152,26 @@ public class FriendListFragment extends Fragment
 	
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						String newGroupName = editText.getEditableText().toString();
+						String newNickName = editText.getEditableText().toString();
 						// TODO: when input is empty we should do something ...						
-						targetFragment.excuEditUser(param1, newGroupName,param3);			
+						targetFragment.excuEditUser(userEntry.Jid,newNickName,
+								userEntry.groupName);			
 						
 					}			
 				});
+			}else if(reqCode == REQCODE_MOVE_USER){
+				builder.setTitle(R.string.im_select_group);
+	            builder.setSingleChoiceItems(targetGroups, 0, new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int whichButton) {                  
+	                	selPosition = whichButton;
+	                }
+	            });
+	            builder.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int whichButton) {
+	                	targetFragment.excuMoveGroup(userEntry.Jid,userEntry.userName,
+	                			targetGroups[selPosition],userEntry.groupName);
+	                }
+	            });
 			}
 			
 			return builder.create();

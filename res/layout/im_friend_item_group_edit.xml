@@ -22,6 +22,15 @@
     	android:visibility="invisible"
     	android:layout_weight="10">
     </TextView>
+    <ImageView android:src="@drawable/im_user_move" 
+    	android:id="@+id/im_group_move" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="wrap_content"
+    	android:layout_gravity="center"
+    	android:adjustViewBounds="true"
+    	android:layout_marginRight="10dip"
+    	android:visibility="invisible">
+    </ImageView>
     <ImageView android:src="@drawable/im_user_edit" 
     	android:id="@+id/im_group_edit" 
     	android:layout_height="wrap_content" 
@@ -38,12 +47,5 @@
     	android:adjustViewBounds="true"
     	android:layout_marginRight="10dip">
     </ImageView>
-    <ImageView android:src="@drawable/im_user_move" 
-    	android:id="@+id/im_group_move" 
-    	android:layout_height="wrap_content" 
-    	android:layout_width="wrap_content"
-    	android:layout_gravity="center"
-    	android:adjustViewBounds="true"
-    	android:layout_marginRight="10dip">
-    </ImageView>
+    
 </LinearLayout>

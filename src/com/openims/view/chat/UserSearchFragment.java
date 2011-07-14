@@ -604,6 +604,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		UserTask userTask = new UserTask();
 	 	userTask.addUser(jid,nickName,groupName);
 	 	userTask.execute(new Object());
+	 	mActivity.setResult(1);
 	}
 }
 

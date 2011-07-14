@@ -1,6 +1,7 @@
 package com.openims.view.chat;
 
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,6 +32,7 @@ public class UserManageActivity extends BaseActivity implements OnClickListener{
 		mFriendList.setOnAvater(this);
 		mFriendList.setEditable(true);
 		findViewById(R.id.add_group).setOnClickListener(this);
+		findViewById(R.id.add_user).setOnClickListener(this);
 	}
 	
 	@Override
@@ -45,6 +47,19 @@ public class UserManageActivity extends BaseActivity implements OnClickListener{
 		super.onDestroy();
 		
 	}
+	
+	
+
+	@Override
+	protected void onActivityResult(int arg0, int arg1, Intent arg2) {
+		// TODO Auto-generated method stub
+		if(arg1 != 0){
+			mFriendList.reRoadData();
+		}
+		super.onActivityResult(arg0, arg1, arg2);
+	}
+
+
 
 	/**
      * Handler of incoming messages from service.
@@ -71,6 +86,12 @@ public class UserManageActivity extends BaseActivity implements OnClickListener{
 		case R.id.add_group:
 			showAddGrouDialog(true);
 			break;
+		case R.id.add_user:
+			Intent intent = new Intent(this,UserSearchActivity.class);
+			//startActivity(intent);
+			startActivityForResult(intent, 0);
+			
+			break;
 		default:
 			break;
 		}
@@ -88,7 +109,7 @@ public class UserManageActivity extends BaseActivity implements OnClickListener{
         	return;
         }
 		EditDialogFragment fragment = EditDialogFragment.newInstance(mFriendList,
-				EditDialogFragment.REQCODE_ADD_GROUP,"");
+				EditDialogFragment.REQCODE_ADD_GROUP,"",null);
 		fragment.show(getSupportFragmentManager(), "add_group");
 	}
 }

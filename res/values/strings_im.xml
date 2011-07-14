@@ -99,5 +99,7 @@
     <string name="im_input_nickname_hit">请输入新的昵称</string>
     <integer name="tag_nickname">0</integer>
     <integer name="tag_groupname">0</integer>
+    <string name="move_user_suc">已经移动联系人到新分组</string>
+    <string name="add_user">点击搜索添加联系人</string>
     
 </resources>

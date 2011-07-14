@@ -115,7 +115,8 @@ public class FriendGroupListView extends ExpandableListView
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
 		
-		if(mEditable == false){
+		// TODO no need this function now
+		if(true/*mEditable == false*/){
 			return super.onTouchEvent(ev);
 		}
 		final int action = ev.getAction();
