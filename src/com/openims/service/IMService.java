@@ -100,7 +100,15 @@ public class IMService extends Service  {
         	}
         }else if(PushServiceUtil.ACTION_SERVICE_LOGIN.equals(action)){
         	//TODO get login information and write to preference
-        	// setLogin(,,);
+        	
+    		String username = intent.getStringExtra(PushServiceUtil.XMPP_USERNAME);
+    		String password = intent.getStringExtra(PushServiceUtil.XMPP_PASSWORD);
+            
+    		Log.d("username=",   username);
+            Log.d("password=",   password);
+            setLogin(username,password,true);
+//    		xmppManager.setUsername(username);
+//    		xmppManager.setPassword(password);
         	login();
         }
     }
