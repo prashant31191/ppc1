@@ -39,6 +39,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 import com.smit.EasyLauncher.R;
 import com.openims.model.MyApplication;
+import com.openims.model.SharedData;
 import com.openims.model.chat.MessageRecord;
 import com.openims.model.chat.RosterDataBase;
 import com.openims.service.IMService;
@@ -226,6 +227,7 @@ public class MultiChatActivity extends FragmentActivity
 	protected void onPause() {
 		Log.i(TAG, PRE + "onPause");		
 		super.onPause();
+		SharedData.getInstance().setShowNewMessageNotify(true);
 	}
 	@Override
 	protected void onRestart() {
@@ -236,6 +238,7 @@ public class MultiChatActivity extends FragmentActivity
 	protected void onResume() {
 		Log.i(TAG, PRE + "onResume");
 		super.onResume();
+		SharedData.getInstance().setShowNewMessageNotify(false);
 	}
 
 	@Override

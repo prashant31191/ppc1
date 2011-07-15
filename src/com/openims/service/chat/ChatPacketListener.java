@@ -4,13 +4,21 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
+import com.openims.model.SharedData;
 import com.openims.model.chat.MessageRecord;
 import com.openims.model.chat.RosterDataBase;
 import com.openims.service.XmppManager;
 import com.openims.utility.DataAccessException;
 import com.openims.utility.LogUtil;
+import com.openims.view.chat.MultiChatActivity;
+import com.smit.EasyLauncher.R;
 
 public class ChatPacketListener implements PacketListener{
 	
@@ -45,6 +53,29 @@ public class ChatPacketListener implements PacketListener{
                 roster.updateUnReadMsg(fromJid, 1, id);
                 roster.close();
                 xmppManager.notifyNewMessage(fromJid);
+                
+                // send notification to task bar
+                if(SharedData.getInstance().isShowNewMessageNotify()){
+                	NotificationManager mNotificationManager = 
+                		(NotificationManager) xmppManager.getContext().
+                		getSystemService(Context.NOTIFICATION_SERVICE);
+                	
+                	Intent intent = new Intent(xmppManager.getContext(),
+                    		MultiChatActivity.class);
+                	intent.putExtra(MultiChatActivity.ACCOUNT_JID, fromJid);
+                	PendingIntent pendingIntent = PendingIntent.getActivity(
+                			xmppManager.getContext(),0, intent, 0);  
+                	
+                	Notification notification = new Notification(R.drawable.icon,
+                			xmppManager.getContext().getResources()
+                			.getString(R.string.im_new_message), 
+                			System.currentTimeMillis());
+                	notification.flags = Notification.FLAG_AUTO_CANCEL;                	
+                	
+                	notification.setLatestEventInfo(xmppManager.getContext(),
+                			fromJid, message.getBody(), pendingIntent);
+                	mNotificationManager.notify(1, notification);
+                }
                 
             } catch(DataAccessException e) {
             	e.printStackTrace();

@@ -21,7 +21,7 @@ public class MyApplication extends Application {
 		new HashMap<String,  SoftReference<Drawable>>();
 	private int nIndexAvater = 0;
 	private String mAdminJid = null;
-	private String serveName = null;
+	private String serveName = null;	
 	
 	private XMPPConnection connection;
 	
