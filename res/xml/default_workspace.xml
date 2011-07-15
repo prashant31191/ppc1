@@ -46,6 +46,13 @@
 		launcher:y="0" 
 		launcher:spanX="2" 
 		launcher:spanY="4" />
+		<ownwidget 
+        launcher:viewid="4"
+        launcher:screen="4"
+		launcher:x="0" 
+		launcher:y="0" 
+		launcher:spanX="2" 
+		launcher:spanY="4" />
 		  <!-- appwidget
         launcher:packageName="com.android.deskclock"
         launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
