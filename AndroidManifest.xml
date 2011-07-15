@@ -20,7 +20,7 @@
 		android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
 		android:protectionLevel="normal" android:label="@string/permlab_write_settings"
 		android:description="@string/permdesc_write_settings" />
-
+	<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 	<uses-permission android:name="android.permission.CALL_PHONE" />
 	<uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 	<uses-permission android:name="android.permission.GET_TASKS" />
@@ -57,7 +57,9 @@
 	 <activity android:name="com.smit.DeskView.commonclass.MediaPlayer_Video"
 	  android:label="@string/app_name">
      </activity>
-	
+	 <activity android:name="com.smit.EasyLauncher.LoginActivity" android:theme="@style/Transparent"
+	  android:label="@string/app_name">
+     </activity>
 	<activity android:name="com.smit.DeskView.commonclass.FlashPlayerActivity"
 	  android:label="@string/app_name">
      </activity>

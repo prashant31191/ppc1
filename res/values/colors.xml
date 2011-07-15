@@ -40,4 +40,5 @@
     <color name="write">#ffffffff</color>
     <color name="red">#ffff0000</color>
     <color name="vodvideo_title_color">#ff4bafec</color>
+    <color name="transparent_background">#40000000</color>  
 </resources>

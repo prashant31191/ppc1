@@ -5,8 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+
+
+
+
 import com.smit.DeskView.vodvideo.VODVideoFragment;
 import com.smit.MyView.MyViewctrl;
+
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -36,6 +41,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -56,18 +62,24 @@ import android.text.TextUtils;
 import android.text.method.TextKeyListener;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -91,10 +103,11 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private ImageButton mPagebutton1,mPagebutton2,mPagebutton3,mPagebutton4,mPagebutton5;
     private ImageButton mSetbutton,mNewsbutton,mMoviebutton,mMusicButton,mTvbutton,mAppbutton;
     private ImageView mhomeImageView,imRecy=null;
+    private ImageButton mLoginButton;
     private AppWidgetManager mAppWidgetManager;
     private LauncherAppWidgetHost mAppWidgetHost;
     private LayoutInflater mInflater;
-    
+	private Context	mContext;	
     private Animation myAnimation_Rotate;  //旋转
     
     private CellLayout.CellInfo mAddItemCellInfo;
@@ -109,6 +122,8 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     static final int NUMBER_CELLS_Y = 4;
 
     private LinearLayout mLineLayout; 
+    private WindowManager mWindowManager;
+    private LinearLayout mControlView;
     
     private static final Object sLock = new Object();
     private static int sScreen = DEFAULT_SCREEN;
@@ -122,8 +137,6 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     public int curdir;
     public Rect rcRecy=null;
     private boolean mWorkspaceLoading = true;
-    private ImageView mPreviousView;
-    private ImageView mNextView;
     private ImageView mBgImage;
 	static final int APPWIDGET_HOST_ID = 1024;
 	//private LinearLayout preview;
@@ -136,7 +149,6 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 	private static final int REQUEST_PICK_APPWIDGET = 9;
 	private static final int REQUEST_PICK_WALLPAPER = 10;
 	
-    private static final String PREFERENCES = "EasyLauncher.preferences";
     
     private static final int MENU_GROUP_ADD = 1;
     private static final int MENU_GROUP_WALLPAPER = MENU_GROUP_ADD + 1;
@@ -202,6 +214,9 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private int heightOrig;
     static int mCurrentConfiguration=-1;
     
+    private View mControl;
+    private static boolean isFirstInit=true;
+    
     private SpannableStringBuilder mDefaultKeySsb = null;
 	
     private ArrayList<ItemInfo> mDesktopItems = new ArrayList<ItemInfo>();
@@ -216,6 +231,17 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 		}else {
 			curdir=SCREEN_H;
 		}
+        if(mCurrentConfiguration==-1||mCurrentConfiguration==curdir)
+        {
+        	isFirstInit=true;
+        	mCurrentConfiguration=curdir;
+        }
+        else
+        {
+        	mCurrentConfiguration=curdir;
+        	isFirstInit=false;
+        }
+        mContext = this;
         mDesktopItems.clear();
         mModel = new LauncherModel();
         mModel.initialize(this);
@@ -226,11 +252,13 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         mAppWidgetHost.startListening();
         
         registerContentObservers();
-        setWallpaperDimension();
+        //setWallpaperDimension();
+      //  setTheme(R.style.Transparent);
         setContentView(R.layout.easylauncher);
-        
-       // tvView=createTvView(item);
-       // preview
+        View destopv=findViewById(R.id.destop);
+    	myAnimation_Rotate= AnimationUtils.loadAnimation(this,R.anim.my_initrotate_action);
+    	//View dragLayer;
+    	
         setupViews();
         
         
@@ -241,7 +269,14 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         if (!mRestoring) {
             mModel.startLoader(this, true, mLocaleChanged);
         }
+        if(!isFirstInit)
+        destopv.startAnimation(myAnimation_Rotate);
+        //isFirstInit=false;
         
+    }
+    public static boolean isFirstInit()
+    {
+    	return isFirstInit;
     }
     public void setPageButton()
     {
@@ -286,6 +321,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 		@SuppressWarnings("deprecation")
 		BitmapDrawable myNewBitmapDrawable = new BitmapDrawable(
 				resizedBitmap);
+		//resizedBitmap.recycle();
 
 		mBgImage.setImageDrawable(myNewBitmapDrawable);
     }
@@ -321,6 +357,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 		DragController dragController = mDragController;
 
         dragLayer = (DragLayer) findViewById(R.id.drag_layer);
+
         dragLayer.setDragController(dragController);
         
         mWorkspace = (Workspace) dragLayer.findViewById(R.id.workspace);
@@ -328,14 +365,29 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         workspace.setHapticFeedbackEnabled(false);
         DeleteZone deleteZone = (DeleteZone) dragLayer.findViewById(R.id.delete_zone);
         mDeleteZone = deleteZone;
+        
+       // LinearLayout favorite = (LinearLayout) mInflater.inflate(R.layout.control, null, false);
+        mControlView=(LinearLayout) View.inflate(getApplicationContext(), R.layout.control, null);
+        mControl=mControlView.findViewById(R.id.all_apps_button_cluster);
+//       WindowManager wm=(WindowManager)getApplicationContext()
+//    	.getSystemService("window"); 
+//    	WindowManager.LayoutParams wmParams =new WindowManager.LayoutParams(); 
+//    	wmParams.type=WindowManager.LayoutParams.TYPE_SYSTEM_ALERT; 
+//    	wmParams.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+//    	wmParams.width=60;//WindowManager.LayoutParams.WRAP_CONTENT; 
+//   	wmParams.height=(int) 400;//WindowManager.LayoutParams.WRAP_CONTENT; 
+//  	wm.addView(mControl,wmParams);
+ 
+  	
+        
       //  mailView=(ImageView)findViewById(R.id.iconmail);
-       
-        mSetbutton=(ImageButton)findViewById(R.id.bt_setting);
-        mNewsbutton=(ImageButton)findViewById(R.id.bt_info);
-        mMoviebutton=(ImageButton)findViewById(R.id.bt_movie);
-        mMusicButton=(ImageButton)findViewById(R.id.bt_music);
-        mTvbutton=(ImageButton)findViewById(R.id.bt_tv);
-        mAppbutton=(ImageButton)findViewById(R.id.bt_allapp);
+        mLoginButton=(ImageButton)findViewById(R.id.bt_login);
+        mSetbutton=(ImageButton)mControlView.findViewById(R.id.bt_setting);
+        mNewsbutton=(ImageButton)mControlView.findViewById(R.id.bt_info);
+        mMoviebutton=(ImageButton)mControlView.findViewById(R.id.bt_movie);
+        mMusicButton=(ImageButton)mControlView.findViewById(R.id.bt_music);
+        mTvbutton=(ImageButton)mControlView.findViewById(R.id.bt_tv);
+        mAppbutton=(ImageButton)mControlView.findViewById(R.id.bt_allapp);
         mSetbutton.setOnClickListener(controlbt_click);
         mNewsbutton.setOnClickListener(controlbt_click);
         mMoviebutton.setOnClickListener(controlbt_click);
@@ -353,15 +405,19 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         mPagebutton3.setOnClickListener(page3_click);
         mPagebutton4.setOnClickListener(page4_click);
         mPagebutton5.setOnClickListener(page5_click);
+        
+        mLoginButton.setOnClickListener(login_click);
         mBgImage=(ImageView) findViewById(R.id.bgimage);
-		mySourceBmp = BitmapFactory.decodeResource(getResources(),
-				R.drawable.s5_bg);
+      //  mBgImage.setBackgroundResource(R.drawable.s0_bg);//(R.drawable.s0_bg);//BitmapFactory.decodeResource(getResources(),
+				//R.drawable.s0_bg);
+        mySourceBmp=BitmapFactory.decodeResource(getResources(),
+				R.drawable.s0_bg);
 		widthOrig = mySourceBmp.getWidth();
 		heightOrig = mySourceBmp.getHeight();
 		
 		// 绋嬪簭鍒氳繍琛岋紝鍔犺浇榛樿鐨凞rawable
 		mBgImage.setImageBitmap(mySourceBmp);
-		setBgImage();
+	//	setBgImage();
         workspace.setOnLongClickListener(this);
       // workspace.setOnLongClickListener(this);
         workspace.setDragController(dragController);
@@ -369,9 +425,12 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
        // mWorkspace.setBackgroundDrawable(R.drawable.bg_icon);
         //mWorkspace.setBackgroundResource(R.drawable.bg_icon_0);
        /// mWorkspace.
+
+  	
+    	
         deleteZone.setLauncher(this);
         deleteZone.setDragController(dragController);
-        deleteZone.setHandle(findViewById(R.id.all_apps_button_cluster));
+        deleteZone.setHandle(mControl);
         
         dragController.setDragScoller(workspace);
         dragController.setScrollView(dragLayer);
@@ -385,25 +444,46 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         mDefaultKeySsb = new SpannableStringBuilder();
         Selection.setSelection(mDefaultKeySsb, 0);
 
-       // mhomeImageView=(ImageView)findViewById(R.id.backhome);
-	   // mhomeImageView.setOnClickListener(this);
-       // imRecy=(ImageView)findViewById(R.id.Recybk);
-        
-       // push_pop_amation = AnimationUtils.loadAnimation(this, R.anim.push_alpha_translate_out);
-	   // push_in_amation= AnimationUtils.loadAnimation(this, R.anim.push_alpha_translate_in);
-	  //  netmivie_pop_amation=AnimationUtils.loadAnimation(this, R.anim.netmovie_alpha_translate_out);
-	  //  netmivie_in_amation=AnimationUtils.loadAnimation(this, R.anim.netmovie_alpha_translate_in);
-	
-	  //  unreadmail_visble_amation=AnimationUtils.loadAnimation(this, R.anim.mail_visable);
-	  //  unreadmail_gone_amation=AnimationUtils.loadAnimation(this, R.anim.mail_gone);
-	
-//	    quit_recy_in_amation=AnimationUtils.loadAnimation(this, R.anim.quit_recy_in);
-//	    quit_recy_out_amation=AnimationUtils.loadAnimation(this, R.anim.quit_recy_out);
-//        if (GetScreenDir()==SCREEN_H) {
-//			rcRecy=new Rect(690,150,800,300);
-//		}else {
-//			rcRecy=new Rect(400,200,480,300);
-//		}
+        mWindowManager=(WindowManager)getApplicationContext()
+	    	.getSystemService("window"); 
+	    	
+	    	WindowManager.LayoutParams wmParams =new WindowManager.LayoutParams(); 
+	    	wmParams.type=WindowManager.LayoutParams.TYPE_SYSTEM_ALERT; 
+	    	wmParams.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+	    		|WindowManager.LayoutParams.ALPHA_CHANGED
+	    		|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
+	    	wmParams.width=WindowManager.LayoutParams.WRAP_CONTENT; 
+	    	wmParams.height=WindowManager.LayoutParams.WRAP_CONTENT; 
+	    	wmParams.format = PixelFormat.TRANSLUCENT;
+	    	wmParams.windowAnimations = 0;
+	        if (curdir!=SCREEN_V) {
+	        	wmParams.gravity=Gravity.CENTER_VERTICAL|Gravity.RIGHT;
+			}else {
+				wmParams.gravity=Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM;
+			}
+	    	//wmParams.gravity=Gravity.CENTER_VERTICAL|Gravity.RIGHT;
+	    	//wmParams.alpha=(float) 0.4;
+	    	
+		  // 	Button b = new Button(getApplicationContext());
+		   //	favorite.setOnTouchListener(l)
+	    	mControlView.setOnClickListener(new OnClickListener(){
+				@Override
+				public void onClick(View arg0) {				
+				}
+				
+			});;
+			mControlView.setOnTouchListener(new OnTouchListener()
+			{
+
+				@Override
+				public boolean onTouch(View arg0, MotionEvent arg1) {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				
+			});;
+			//b.setText("hello");
+			mWindowManager.addView(mControlView, wmParams);
  
 	}
     @Override
@@ -458,9 +538,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 //          /* 若当下为竖排，则更改为横排呈现 */
 //          setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 //        }
-    	//myAnimation_Rotate= AnimationUtils.loadAnimation(this,R.anim.my_rotate_action);
-    	//View dragLayer;
-		//dragLayer.startAnimation(myAnimation_Rotate);
+
 	//	setContentView(R.layout.easylauncher);
 		//setupViews();
 		//this.
@@ -637,6 +715,28 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 			{
 				mWorkspace.snapToScreen(3);
 			}
+		}
+		
+	};
+	private ImageButton.OnClickListener login_click=new ImageButton.OnClickListener()
+	{
+
+		@Override
+		public void onClick(View arg0) {
+			// TODO Auto-generated method stub
+					Intent intent = new Intent();
+					//Bundle extras = new Bundle();
+					
+					//extras.putString("indexHTMLPath", info.getPath());
+					//intent.putExtras(extras);
+					intent.setClass(mContext, LoginActivity.class);
+					//LoginActivity
+					startActivity(intent);	
+//			final LoginView mQuickAction 	= new LoginView(arg0);
+//			//mQuickAction.window.getContentView().setf
+//			mQuickAction.show();
+			
+
 		}
 		
 	};
@@ -1105,10 +1205,17 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         // Do not call super here
         mSavedInstanceState = savedInstanceState;
     }
-
+@Override
+protected void onStop() {
+	// TODO Auto-generated method stub
+	//mWindowManager.removeView(mControlView);
+	//mWindowManager.
+	super.onStop();
+}
     @Override
     protected void onSaveInstanceState(Bundle outState) {
     	int page=mWorkspace.getCurrentScreen();
+    	//mWindowManager.removeView(mControlView);
         outState.putInt(RUNTIME_STATE_CURRENT_SCREEN, page);
         super.onSaveInstanceState(outState);
         /*
@@ -1169,7 +1276,11 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         unbindDesktopItems();
 
         getContentResolver().unregisterContentObserver(mWidgetObserver);
-        
+        mWindowManager.removeView(mControlView);
+        mySourceBmp.recycle();
+      //  mBgImage.destroyDrawingCache();
+      // mWindowManager.mWindowManagermWindowManager
+       //mBgImage.getDrawable().
         //dismissPreview(mPreviousView);
        // dismissPreview(mNextView);
 
@@ -1764,91 +1875,91 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         v.setTag(null);
     }
 
-    private void showPreviews(View anchor) {
-        showPreviews(anchor, 0, mWorkspace.getChildCount());
-    }
-
-    private void showPreviews(final View anchor, int start, int end) {
-        final Resources resources = getResources();
-        final Workspace workspace = mWorkspace;
-
-        CellLayout cell = ((CellLayout) workspace.getChildAt(start));
-        
-        float max = workspace.getChildCount();
-        
-        final Rect r = new Rect();
-        resources.getDrawable(R.drawable.preview_background).getPadding(r);
-        int extraW = (int) ((r.left + r.right) * max);
-        int extraH = r.top + r.bottom;
-
-        int aW = cell.getWidth() - extraW;
-        float w = aW / max;
-
-        int width = cell.getWidth();
-        int height = cell.getHeight();
-        int x = cell.getLeftPadding();
-        int y = cell.getTopPadding();
-        width -= (x + cell.getRightPadding());
-        height -= (y + cell.getBottomPadding());
-
-        float scale = w / width;
-
-        int count = end - start;
-
-        final float sWidth = width * scale;
-        float sHeight = height * scale;
-
-        LinearLayout preview = new LinearLayout(this);
-
-        PreviewTouchHandler handler = new PreviewTouchHandler(anchor);
-        ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>(count);
-
-        for (int i = start; i < end; i++) {
-            ImageView image = new ImageView(this);
-            cell = (CellLayout) workspace.getChildAt(i);
-
-            final Bitmap bitmap = Bitmap.createBitmap((int) sWidth, (int) sHeight,
-                    Bitmap.Config.ARGB_8888);
-
-            final Canvas c = new Canvas(bitmap);
-            c.scale(scale, scale);
-            c.translate(-cell.getLeftPadding(), -cell.getTopPadding());
-            cell.dispatchDraw(c);
-
-            image.setBackgroundDrawable(resources.getDrawable(R.drawable.preview_background));
-            image.setImageBitmap(bitmap);
-            image.setTag(i);
-            image.setOnClickListener(handler);
-            image.setOnFocusChangeListener(handler);
-            image.setFocusable(true);
-            if (i == mWorkspace.getCurrentScreen()) image.requestFocus();
-
-            preview.addView(image,
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-            bitmaps.add(bitmap);            
-        }
-
-        final PopupWindow p = new PopupWindow(this);
-        p.setContentView(preview);
-        p.setWidth((int) (sWidth * count + extraW));
-        p.setHeight((int) (sHeight + extraH));
-        p.setAnimationStyle(R.style.AnimationPreview);
-        p.setOutsideTouchable(true);
-        p.setFocusable(true);
-        p.setBackgroundDrawable(new ColorDrawable(0));
-        p.showAsDropDown(anchor, 0, 0);
-
-        p.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            public void onDismiss() {
-                dismissPreview(anchor);
-            }
-        });
-
-        anchor.setTag(p);
-        anchor.setTag(R.id.workspace, preview);
-      //  anchor.setTag(R.id.icon, bitmaps);        
-    }
+//    private void showPreviews(View anchor) {
+//        showPreviews(anchor, 0, mWorkspace.getChildCount());
+//    }
+//
+//    private void showPreviews(final View anchor, int start, int end) {
+//        final Resources resources = getResources();
+//        final Workspace workspace = mWorkspace;
+//
+//        CellLayout cell = ((CellLayout) workspace.getChildAt(start));
+//        
+//        float max = workspace.getChildCount();
+//        
+//        final Rect r = new Rect();
+//        resources.getDrawable(R.drawable.preview_background).getPadding(r);
+//        int extraW = (int) ((r.left + r.right) * max);
+//        int extraH = r.top + r.bottom;
+//
+//        int aW = cell.getWidth() - extraW;
+//        float w = aW / max;
+//
+//        int width = cell.getWidth();
+//        int height = cell.getHeight();
+//        int x = cell.getLeftPadding();
+//        int y = cell.getTopPadding();
+//        width -= (x + cell.getRightPadding());
+//        height -= (y + cell.getBottomPadding());
+//
+//        float scale = w / width;
+//
+//        int count = end - start;
+//
+//        final float sWidth = width * scale;
+//        float sHeight = height * scale;
+//
+//        LinearLayout preview = new LinearLayout(this);
+//
+//        PreviewTouchHandler handler = new PreviewTouchHandler(anchor);
+//        ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>(count);
+//
+//        for (int i = start; i < end; i++) {
+//            ImageView image = new ImageView(this);
+//            cell = (CellLayout) workspace.getChildAt(i);
+//
+//            final Bitmap bitmap = Bitmap.createBitmap((int) sWidth, (int) sHeight,
+//                    Bitmap.Config.ARGB_8888);
+//
+//            final Canvas c = new Canvas(bitmap);
+//            c.scale(scale, scale);
+//            c.translate(-cell.getLeftPadding(), -cell.getTopPadding());
+//            cell.dispatchDraw(c);
+//
+//            image.setBackgroundDrawable(resources.getDrawable(R.drawable.preview_background));
+//            image.setImageBitmap(bitmap);
+//            image.setTag(i);
+//            image.setOnClickListener(handler);
+//            image.setOnFocusChangeListener(handler);
+//            image.setFocusable(true);
+//            if (i == mWorkspace.getCurrentScreen()) image.requestFocus();
+//
+//            preview.addView(image,
+//                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//
+//            bitmaps.add(bitmap);            
+//        }
+//
+//        final PopupWindow p = new PopupWindow(this);
+//        p.setContentView(preview);
+//        p.setWidth((int) (sWidth * count + extraW));
+//        p.setHeight((int) (sHeight + extraH));
+//        p.setAnimationStyle(R.style.AnimationPreview);
+//        p.setOutsideTouchable(true);
+//        p.setFocusable(true);
+//        p.setBackgroundDrawable(new ColorDrawable(0));
+//        p.showAsDropDown(anchor, 0, 0);
+//
+//        p.setOnDismissListener(new PopupWindow.OnDismissListener() {
+//            public void onDismiss() {
+//                dismissPreview(anchor);
+//            }
+//        });
+//
+//        anchor.setTag(p);
+//        anchor.setTag(R.id.workspace, preview);
+//      //  anchor.setTag(R.id.icon, bitmaps);        
+//    }
 
     class PreviewTouchHandler implements View.OnClickListener, Runnable, View.OnFocusChangeListener {
         private final View mAnchor;
