@@ -44,7 +44,7 @@
 	<string name="vodvideo_widget_decript">"没有描述信息"</string>
 	<string name="vodvideo_widget_flash">"刷新"</string>
 	<string name="vodvideo_widget_try_again">"可以再试试"</string>
-<<<<<<< HEAD
+
 	<string name="tvlive_widget_name">电视直播</string>
 	
 	    <string name="strInputAccHint">输入帐号</string>
@@ -56,8 +56,7 @@
     <string name="opt_silent">静音登录</string>
     <string name="opt_openVibra">开启振动</string>
     <string name="opt_acceptGroupMsg">接收群消息</string>
-=======
-	<string name="tvlive_widget_name">电视直播</string>    
+ 
 	<string name="news_widget_name">新闻资讯</string>
 	
 	<string name="weather_widget_city">北京</string>
@@ -69,5 +68,4 @@
 	<string name="weather_back">返回</string>
 	<string name="weather_noresult">没有符合的搜索结果</string>
 	<string name="weather_cancel">取消</string>
->>>>>>> f39a9707e0ef0d07b3ee99eb940cbc98672f9e3c
 </resources>

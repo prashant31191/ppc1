@@ -185,8 +185,8 @@ public class CustomPopupWindow {
 	public void showLikeQuickAction(int xOffset, int yOffset) {
 		preShow();
 
-		window.setAnimationStyle(R.style.Animations_PopUpMenu_Center);
-
+		window.setAnimationStyle(R.style.Animations_PopDownMenu_Center);
+								 
 		int[] location = new int[2];
 		anchor.getLocationOnScreen(location);
 

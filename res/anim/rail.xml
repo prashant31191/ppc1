@@ -3,10 +3,6 @@
 <translate
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:fromXDelta="100%p"
-<<<<<<< HEAD
+
     android:toXDelta="0"
     android:duration="325" />
-=======
-    android:toXDelta="50%p"
-    android:duration="325" />
->>>>>>> f39a9707e0ef0d07b3ee99eb940cbc98672f9e3c
