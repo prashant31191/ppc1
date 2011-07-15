@@ -79,9 +79,8 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 	private ProgressBar mProgress;
 	
 	private XMPPConnection xmppConnection;
-	
-	//TODO
 	private String mAdminJid = "test2@smit";
+	private String mServerName = "@smit";
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -96,6 +95,8 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		Log.d(TAG, PRE + "onCreate");
 		MyApplication app = (MyApplication)mActivity.getApplication();
 		xmppConnection = app.getConnection();
+		mAdminJid = app.getAdminJid();
+		mServerName = app.getServeName();
 		setRetainInstance(true); // save result		
 		
 	}
@@ -285,7 +286,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
         	Iterator<? extends Map<String,String>> it = mData.iterator();
         	while(it.hasNext()){
         		Map<String, String> item = it.next();
-        		String username = item.get(USERNAME)+PushServiceUtil.SERVER_NAME;
+        		String username = item.get(USERNAME)+mServerName;
         		if(usrJid.equalsIgnoreCase(username)){
         			item.put(HAD_ADD, "true");
         			break;
@@ -367,7 +368,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 				if(userNames.hasNext()){
 					String username = (String)userNames.next();
 					map.put(USERNAME, username);
-					Boolean bExist = rosterDb.isUserExist(username+PushServiceUtil.SERVER_NAME);
+					Boolean bExist = rosterDb.isUserExist(username+mServerName);
 					map.put(HAD_ADD, Boolean.toString(bExist));
 				}
 				
@@ -536,7 +537,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 	
 	void showDialog(String user) { 
         String[] groups = null;
-        RosterDataBase rosterDb = new RosterDataBase(getActivity(),"test2@smit");
+        RosterDataBase rosterDb = new RosterDataBase(getActivity(),mAdminJid);
         groups = rosterDb.getGroups();
         if(groups == null){
         	Utility.showToast(mActivity, R.string.im_no_group,
@@ -589,7 +590,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
                 public void onClick(DialogInterface dialog, int whichButton) {
 
                 	UserSearchFragment fragment = (UserSearchFragment)getTargetFragment();
-                	fragment.excuAddUser2Group(userName+PushServiceUtil.SERVER_NAME,userName,groups[position]);
+                	fragment.excuAddUser2Group(userName,userName,groups[position]);
                 }
             })
             .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
@@ -610,7 +611,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 			return;
 		}
 		UserTask userTask = new UserTask();
-	 	userTask.addUser(jid,nickName,groupName);
+	 	userTask.addUser(jid+mServerName,nickName,groupName);
 	 	userTask.execute(new Object());
 	 	mActivity.setResult(1);
 	}

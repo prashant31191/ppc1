@@ -99,16 +99,14 @@ public class IMService extends Service  {
         		login();
         	}
         }else if(PushServiceUtil.ACTION_SERVICE_LOGIN.equals(action)){
-        	//TODO get login information and write to preference
-        	
+        	// TODO need to logout before login when had login.
     		String username = intent.getStringExtra(PushServiceUtil.XMPP_USERNAME);
     		String password = intent.getStringExtra(PushServiceUtil.XMPP_PASSWORD);
             
     		Log.d("username=",   username);
             Log.d("password=",   password);
-            setLogin(username,password,true);
-//    		xmppManager.setUsername(username);
-//    		xmppManager.setPassword(password);
+            setLogin(username,password,false);
+
         	login();
         }
     }
@@ -250,6 +248,7 @@ public class IMService extends Service  {
         editor.putString(PushServiceUtil.XMPP_PASSWORD, password);
         editor.putBoolean(PushServiceUtil.XMPP_AUTO_LOGIN, bAutoLogin);
         editor.commit();
+        xmppManager.initUserInf();
     }
     private void initSetting(){    	
     	

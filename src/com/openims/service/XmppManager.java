@@ -112,7 +112,7 @@ import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 /**
  * This class deal with login logout send message and broadcast
- * it is smack centre
+ * it is smack center
  * @author ANDREW CHAN (chenyzpower@gmail.com)
  *
  */
@@ -128,6 +128,7 @@ public class XmppManager{
     private String username;
     private String password;
     private	String resource = null;
+    private String mAdminJid;
     private SharedPreferences sharedPrefs;
     
     private XMPPConnection connection;
@@ -162,11 +163,7 @@ public class XmppManager{
         taskTracker = imservice.getTaskTracker();
         sharedPrefs = imservice.getSharedPreferences();
         
-        xmppHost = sharedPrefs.getString(PushServiceUtil.XMPP_HOST, "localhost");
-        xmppPort = sharedPrefs.getInt(PushServiceUtil.XMPP_PORT, 5222);
-        username = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, "");
-        password = sharedPrefs.getString(PushServiceUtil.XMPP_PASSWORD, "");
-        resource = sharedPrefs.getString(PushServiceUtil.XMPP_RESOURCE, "");
+        initUserInf();
         
         connectionListener = new PersistentConnectionListener(this);
         notificationPacketListener = new NotificationPacketListener(this);
@@ -180,6 +177,14 @@ public class XmppManager{
         
         configure(ProviderManager.getInstance());
     }
+    public void initUserInf(){
+    	xmppHost = sharedPrefs.getString(PushServiceUtil.XMPP_HOST, "localhost");
+        xmppPort = sharedPrefs.getInt(PushServiceUtil.XMPP_PORT, 5222);
+        username = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, "");
+        password = sharedPrefs.getString(PushServiceUtil.XMPP_PASSWORD, "");
+        resource = sharedPrefs.getString(PushServiceUtil.XMPP_RESOURCE, "");
+    }
+    
     /**
      * dynamic create resource
      * @return
@@ -197,8 +202,10 @@ public class XmppManager{
     public void connect() {
         Log.d(LOGTAG, "connect()...");
         submitLoginTask();
-        //runTask();
     }
+    /**
+     * log out
+     */
     public void disconnect() {
         Log.d(LOGTAG, "disconnect()...");
         if (getConnection() != null && 
@@ -310,7 +317,7 @@ public class XmppManager{
         this.connection = connection;
     }  
     public String getUserNameWithHostName(){
-    	return username+PushServiceUtil.SERVER_NAME;
+    	return mAdminJid;
     }
     private void setUsername(String username) {
         this.username = username;
@@ -553,11 +560,10 @@ public class XmppManager{
                     xmppManager.getConnection().login(
                             xmppManager.username,
                             xmppManager.getPassword(), getResource());
-                    Log.d(LOGTAG, "Loggedn in successfully");
-                    broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_SUC); 
+                    Log.d(LOGTAG, "Loggedn in successfully"); 
                     
-                    getRoster();
                     initAfterLogin(); 
+                    broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_SUC); 
 
                 } catch (XMPPException e) {
                     Log.e(LOGTAG, "LoginTask.run()... xmpp error");
@@ -568,7 +574,7 @@ public class XmppManager{
                     String errorMessage = e.getMessage();
                     if (errorMessage != null
                         && errorMessage.contains(INVALID_CREDENTIALS_ERROR_CODE)) {
-                        xmppManager.reregisterAccount();
+                        //xmppManager.reregisterAccount();
                         return;
                     }                    
 
@@ -855,14 +861,23 @@ public class XmppManager{
 		try {
 			leafNode.send(payloadItem);
 			Log.d(LOGTAG,TAG+"Send info" + message);
-		} catch (XMPPException e) {
-			// TODO Auto-generated catch block
+		} catch (XMPPException e) {			
 			e.printStackTrace();
 			broadcastStatus(PushServiceUtil.PUSH_STATUS_SENDFAIL);
 			// 发送失败
 		}
     }
     private void initAfterLogin(){
+    	
+    	// get server name
+    	String serverName = getConnection().getServiceName();
+    	mAdminJid = username + "@"+serverName;
+    	Editor editor = sharedPrefs.edit();
+    	editor.putString(PushServiceUtil.XMPP_HOSTNAME,"@"+serverName);
+    	editor.commit();
+    	
+    	getRoster();
+    	 
     	// connection listener
         if (getConnectionListener() != null) {
             getConnection().addConnectionListener(
@@ -897,7 +912,8 @@ public class XmppManager{
         				+";From:"+packet.getFrom());
         		Log.i(LOGTAG,TAG+packet.toXML());
         	}
-        },notFilter);                    
+        },notFilter);    
+        
         List<String> topics = getTopicNode();
         listenTopic(topics);
         new ServiceDiscoveryManager(connection);//for file transfer
@@ -906,13 +922,14 @@ public class XmppManager{
     		fileTransferManager = new FileTransferManager(connection);
     		fileTransferManager.addFileTransferListener(new FileReceiver(this));
     	}catch(Exception e){
-    		e.printStackTrace();
-    		return;
-    	}
-    	// TODO 要求服务器，保证覆盖唯一的    	
+    		Log.e(LOGTAG,"get file manager listener error");
+    		e.printStackTrace();    		
+    	}    	
+    	
+    	// send device information to server
     	UserQueryIQ iq = new UserQueryIQ();
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
-    	iq.setUserAccount(username+PushServiceUtil.SERVER_NAME);
+    	iq.setUserAccount(mAdminJid);
     	iq.setResource(getResource());
     	iq.setDeviceName("SMIT1800");
     	iq.setOpCodeSave();
@@ -920,55 +937,23 @@ public class XmppManager{
         
     	UserQueryIQ iqQuery = new UserQueryIQ();
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
-    	iq.setUserAccount(username+PushServiceUtil.SERVER_NAME);
+    	iq.setUserAccount(mAdminJid);
     	iq.setResource(getResource());
     	iq.setDeviceName("SMIT1800");
     	iqQuery.setOpCodeQueryOfflinePush();
     	this.sendPacket(iqQuery);
     	
-    	//userSearch();
+    	// share connection
     	MyApplication app = (MyApplication)this.imservice.getApplication();
-    	app.setConnection(getConnection());
+    	app.setConnection(getConnection(),username+"@"+serverName);
+    	app.setServeName("@"+serverName);
     }
-    public void userSearch(){
-    	UserSearchManager search = new UserSearchManager(connection);
-    	
-    	try {
-    		List<String> list = (List<String>)search.getSearchServices();
-			String searchService = list.get(0);
-			Form from = search.getSearchForm(searchService);
-			String title = from.getTitle();
-			String type = from.getType();
-			Iterator<FormField> it = from.getFields();
-			while(it.hasNext()){
-				FormField fromField = it.next();
-				String fieldType = fromField.getType();
-				String v = fromField.getVariable();
-				String label = fromField.getLabel();
-			}
-			
-			Form answerForm = from.createAnswerForm();
-            answerForm.setAnswer("Username", true);
-            answerForm.setAnswer("search", "test*");
-			ReportedData data =search.getSearchResults(answerForm, searchService);
-			Iterator<Row> itRow = data.getRows();
-			while(itRow.hasNext()){
-				Row row = itRow.next();
-				Iterator<String> i = row.getValues(null);
-			}
-			title = data.getTitle();
-		} catch (XMPPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-    }
+   
     public void updateRoster(String jid){
     	Roster roster = connection.getRoster();
     	RosterEntry entry = roster.getEntry(jid);
     	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,
-    			username+PushServiceUtil.SERVER_NAME);
+    			mAdminJid);
     	String presenceInf = roster.getPresence(jid).getType().name();
     	
     	Collection<RosterGroup> clGroup = entry.getGroups();
@@ -981,8 +966,7 @@ public class XmppManager{
     	rosterDataBase.close();    	
     }
     public void deleteRoster(String jid){
-    	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,
-    			username+PushServiceUtil.SERVER_NAME);
+    	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,mAdminJid);
     	rosterDataBase.deleteRoster(jid);
     	rosterDataBase.close();   
     }
@@ -991,8 +975,7 @@ public class XmppManager{
     	
     	Collection<RosterGroup> crg = roster.getGroups();
     	Iterator<RosterGroup> iterator = crg.iterator();
-    	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,
-    			username+PushServiceUtil.SERVER_NAME);
+    	RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,mAdminJid);
     	rosterDataBase.removeAll();  // delete all
     	while(iterator.hasNext()){
     		RosterGroup rg = (RosterGroup)iterator.next();

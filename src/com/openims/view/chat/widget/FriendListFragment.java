@@ -53,16 +53,14 @@ import com.openims.utility.Utility;
 import com.openims.view.chat.MultiChatActivity;
 import com.openims.view.chat.OnAvater;
 import com.openims.view.chat.ProgressFragment;
-import com.openims.view.chat.UserSearchFragment;
 import com.openims.widgets.DragDropListener;
 import com.smit.EasyLauncher.R;
 
 public class FriendListFragment extends Fragment 
-		implements OnChildClickListener, DragDropListener ,
-		OnScrollListener,OnClickListener{
+		implements OnChildClickListener, DragDropListener,
+					OnScrollListener, OnClickListener{
 
-	private static final String TAG = LogUtil
-					.makeLogTag(FriendListFragment.class);
+	private static final String TAG = LogUtil.makeLogTag(FriendListFragment.class);
 	private static final String PRE = "FriendListFragment--";
 
 	private Activity mActivity;
@@ -84,11 +82,9 @@ public class FriendListFragment extends Fragment
 
 	private LinearLayout indicatorGroup = null;
 	private int indicatorGroupId;
-	private int indicatorGroupHeight;	
-    
-	private static final String NICKNAME = "nick_name";
+	private int indicatorGroupHeight;
 	
-	  @Override
+	@Override
 	public void onInflate(Activity activity, AttributeSet attrs,
 			Bundle savedInstanceState) {		
 		super.onInflate(activity, attrs, savedInstanceState);
@@ -108,14 +104,12 @@ public class FriendListFragment extends Fragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, PRE + "onCreate");	
-		SharedPreferences sharedPrefs = mActivity.getSharedPreferences(
-				PushServiceUtil.SHARED_PREFERENCE_NAME,
-				Context.MODE_PRIVATE);
-		mAdminJid = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, null)+"@smit";
+		Log.d(TAG, PRE + "onCreate");
 		
 		MyApplication app = (MyApplication)mActivity.getApplication();
+		mAdminJid = app.getAdminJid();
 		xmppConnection = app.getConnection();
+		
 		indicatorGroupId = -1;
 		indicatorGroupHeight = 0;	
 		
@@ -178,6 +172,10 @@ public class FriendListFragment extends Fragment
 	}
 	
 	public void reRoadData(){
+		
+		MyApplication app = (MyApplication)mActivity.getApplication();
+		mAdminJid = app.getAdminJid();
+		xmppConnection = app.getConnection();
 		   
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
         try {
@@ -204,25 +202,17 @@ public class FriendListFragment extends Fragment
 			}
 			
 			mAdapter.notifyDataSetChanged();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {			
 			Log.e(TAG, PRE + "—œ÷ÿ¥ÌŒÛ");
 			e.printStackTrace();
 		}   
 		roster.close();	
 	}
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {		
-		super.onActivityCreated(savedInstanceState);		
-		
-		
-	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.d(TAG, PRE + "onStart");
-		
+		Log.d(TAG, PRE + "onStart");		
 	}
 
 	@Override
@@ -275,7 +265,11 @@ public class FriendListFragment extends Fragment
         startActivity(intent);	
 		return true;
 	}
-	
+	/**
+	 * define my own data
+	 * @author ANDREW CHAN (chenyzpower@gmail.com)
+	 *
+	 */
 	public class MyRosterGroup {
 		public MyRosterGroup(String groupName){
 			this.groupName = groupName;
@@ -290,9 +284,7 @@ public class FriendListFragment extends Fragment
 				return groupName.equals(r.groupName);
 			}
 			return false;
-		}
-		
-		
+		}		
 	}
 	public class MyRosterEntry {
 		public Integer id;
@@ -327,7 +319,7 @@ public class FriendListFragment extends Fragment
 	        public RosterExpandableListAdapter(Context context){
 	        	mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	        	
-	        }
+	        }	        
 	        public void initData(){
 	        	groups = new ArrayList<MyRosterGroup>();
 		        children = new ArrayList<ArrayList<MyRosterEntry>>();
@@ -347,8 +339,6 @@ public class FriendListFragment extends Fragment
 	            }	            
 	            children.get(index).add(entry);
 	        }
-	        
-	       
 
 	        public Object getGroup(int groupPosition) {
 	            return groups.get(groupPosition);
@@ -361,23 +351,27 @@ public class FriendListFragment extends Fragment
 	        public long getGroupId(int groupPosition) {
 	            return groupPosition;
 	        }
+	        /**
+	         * Calculate group information
+	         */
 	        private void initGroupChildCount(int groupPosition){
 	        	MyRosterGroup group = groups.get(groupPosition);
-	        	if(group.totalNum == -1){
-	        		group.onlineNum = 0;
-	        		group.totalNum = getChildrenCount(groupPosition);
-	        		if(group.totalNum == 0){
-	        			return;
-	        		}
-	        		ArrayList<MyRosterEntry> arrayEntry = children.get(groupPosition);	        		
-	        		Iterator<MyRosterEntry> it = arrayEntry.iterator();
-	        		while(it.hasNext()){
-	        			MyRosterEntry entry = it.next();
-	        			if(entry.isOnline){
-	        				group.onlineNum++;
-	        			}
-	        		}
+	        	if(group.totalNum != -1){
+	        		return;
 	        	}
+	        	group.onlineNum = 0;
+        		group.totalNum = getChildrenCount(groupPosition);
+        		if(group.totalNum == 0){
+        			return;
+        		}
+        		ArrayList<MyRosterEntry> arrayEntry = children.get(groupPosition);	        		
+        		Iterator<MyRosterEntry> it = arrayEntry.iterator();
+        		while(it.hasNext()){
+        			MyRosterEntry entry = it.next();
+        			if(entry.isOnline){
+        				group.onlineNum++;
+        			}
+        		}
 	        }
 	        public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
 	                ViewGroup parent) {
@@ -452,7 +446,12 @@ public class FriendListFragment extends Fragment
 	        		return 0;
 	        	}	        	
 	            return children.get(groupPosition).size();
-	        }	       
+	        }
+	        /**
+	         * for user move to other groups
+	         * @param groupPosition
+	         * @return
+	         */
 	        private String[] getTargetGroups(int groupPosition){
 	        	String[] groupStrings = new String[getGroupCount()-1];
 	        	MyRosterGroup rosterGroup = groups.get(groupPosition);
@@ -517,13 +516,13 @@ public class FriendListFragment extends Fragment
 	 	        	textView.setText("focus");
 	            }
 	            view.setTag(R.integer.tag_group, groupPosition);
-	            view.setTag(R.integer.tag_child, childPosition);
-	            
+	            view.setTag(R.integer.tag_child, childPosition);            
 	            
 	            return view;
 	        }
+	        
 	        public boolean isChildSelectable(int groupPosition, int childPosition) {
-	            return true;
+	            return mEditable?false:true;
 	        }
 
 	        public boolean hasStableIds() {
@@ -535,6 +534,7 @@ public class FriendListFragment extends Fragment
 	    		Log.e(TAG, PRE + avaterJid);
 	    		this.notifyDataSetChanged();
 	    	}
+	        
 			@Override
 			public void onDrag(int position, View itemView) {
 				if(itemView != null){
@@ -791,11 +791,11 @@ public class FriendListFragment extends Fragment
 		
 		ExpandableListView listView = (ExpandableListView)view;
 		int npos = view.pointToPosition(1,1);
-		if(npos != ListView.INVALID_POSITION){
+		if(npos != AdapterView.INVALID_POSITION){
 			long pos = listView.getExpandableListPosition(npos);
 			int childPos = ExpandableListView.getPackedPositionChild(pos);
 			int groupPos = ExpandableListView.getPackedPositionGroup(pos);
-			if(childPos == listView.INVALID_POSITION){
+			if(childPos == AdapterView.INVALID_POSITION){
 				View groupView = listView.getChildAt(npos - listView.getFirstVisiblePosition());
 				indicatorGroupHeight = groupView.getHeight();
 				if(indicatorGroupHeight == 0){
@@ -826,7 +826,6 @@ public class FriendListFragment extends Fragment
 			}
 		}
 		MarginLayoutParams layoutParams = (MarginLayoutParams)indicatorGroup.getLayoutParams();
-		//layoutParams.height = imageHeight;
 		
 		layoutParams.topMargin = imageHeight-indicatorGroupHeight;
 		indicatorGroup.setLayoutParams(layoutParams);
@@ -866,8 +865,7 @@ public class FriendListFragment extends Fragment
 		case R.id.im_entry_move:
 			showMoveEntryGroup((MyRosterEntry)v.getTag(),(String[])v.getTag(R.integer.tag_groupname));
 			break;
-		}
-		
+		}		
 	}
 	
 	private void showProgressDialog(boolean bShow){
@@ -936,7 +934,7 @@ public class FriendListFragment extends Fragment
         ft.addToBackStack(null);
 	}
 	private void excuChangeGroup(String groupname,String oldGroupName){
-		if(isConnectionOk() == false){
+		if(isConnectionOk() == false || groupname.isEmpty()){
 			return;
 		}
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
@@ -946,7 +944,7 @@ public class FriendListFragment extends Fragment
 			Utility.showToast(mActivity, tips, Toast.LENGTH_SHORT);
 			return;
 		}
-		int nRowCount = roster.updateGroupName(groupname,oldGroupName);		
+		roster.updateGroupName(groupname,oldGroupName);		
 		roster.close();
 		
 		UserTask userTask = new UserTask();
@@ -977,7 +975,7 @@ public class FriendListFragment extends Fragment
 		}
 		String defaultGroupName = getResources().getString(R.string.im_default_group_name);
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
-		int nRowCount = roster.updateGroupName(defaultGroupName,groupName);
+		roster.updateGroupName(defaultGroupName,groupName);
 		roster.close();
 		UserTask userTask = new UserTask();
 		userTask.deleteGroup(groupName, defaultGroupName);
@@ -995,7 +993,7 @@ public class FriendListFragment extends Fragment
 		userTask.execute();
 	}
 	private void excuEditUser(String userJid,String nickName,String groupName){
-		if(isConnectionOk() == false){
+		if(isConnectionOk() == false || nickName.isEmpty()){
 			return;
 		}
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);

@@ -12,39 +12,37 @@ import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
-import com.smit.EasyLauncher.R;
 import com.openims.model.chat.VCardDataBase;
+import com.smit.EasyLauncher.R;
 
 public class MyApplication extends Application {
 	
 	private final HashMap<String, SoftReference<Drawable>> cache = 
 		new HashMap<String,  SoftReference<Drawable>>();
 	private int nIndexAvater = 0;
-	private String userJid = "test2@smit";
-
+	private String mAdminJid = null;
+	private String serveName = null;
+	
 	private XMPPConnection connection;
 	
+	
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		// TODO Auto-generated method stub
+	public void onConfigurationChanged(Configuration newConfig) {	
 		super.onConfigurationChanged(newConfig);
 	}
 
 	@Override
-	public void onCreate() {
-		// TODO Auto-generated method stub
+	public void onCreate() {		
 		super.onCreate();		
 	}
 
 	@Override
-	public void onLowMemory() {
-		// TODO Auto-generated method stub
+	public void onLowMemory() {		
 		super.onLowMemory();
 	}
 
 	@Override
-	public void onTerminate() {
-		// TODO Auto-generated method stub
+	public void onTerminate() {		
 		super.onTerminate();
 	}	
 	
@@ -60,9 +58,11 @@ public class MyApplication extends Application {
 				cache.remove(jid);
 			}
 		}
+		if(mAdminJid == null){
+			return null;
+		}
 		
-		
-		VCardDataBase vc = new VCardDataBase(MyApplication.this,userJid);
+		VCardDataBase vc = new VCardDataBase(MyApplication.this,mAdminJid);
 		Cursor c = vc.queryByJId(jid);
 		if(nIndexAvater == 0){
 			nIndexAvater = c.getColumnIndex(VCardDataBase.Avater);
@@ -78,9 +78,9 @@ public class MyApplication extends Application {
 		// 3
 		Drawable draw;
 		if(b == null){			
-			draw = MyApplication.this.getResources().getDrawable(R.drawable.icon);
+			draw = getResources().getDrawable(R.drawable.icon);
 		}else{
-			draw = new BitmapDrawable(new ByteArrayInputStream(b));
+			draw = new BitmapDrawable(getResources(),new ByteArrayInputStream(b));
 		}		
 		
 		cache.put(jid, new SoftReference<Drawable>(draw));
@@ -92,9 +92,21 @@ public class MyApplication extends Application {
 	public XMPPConnection getConnection() {
 		return connection;
 	}
-
-	public void setConnection(XMPPConnection connection) {
+    public String getAdminJid(){
+    	return mAdminJid;
+    }
+	public void setConnection(XMPPConnection connection,String adminJid) {
 		this.connection = connection;
+		this.mAdminJid = adminJid;
 	}
+
+	public String getServeName() {
+		return serveName;
+	}
+
+	public void setServeName(String serveName) {
+		this.serveName = serveName;
+	}
+	
 	
 }

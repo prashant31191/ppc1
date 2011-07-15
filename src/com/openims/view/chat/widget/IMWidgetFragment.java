@@ -37,26 +37,15 @@ import com.openims.view.chat.OnAvater;
 import com.openims.view.chat.UserManageActivity;
 import com.openims.view.chat.UserSearchActivity;
 import com.openims.view.setting.Setting.InnerReceiver;
+import com.smit.EasyLauncher.LoginActivity;
 import com.smit.EasyLauncher.R;
 
 public class IMWidgetFragment extends Fragment 
 						implements OnClickListener,OnAvater{
 
-	private static final String TAG = LogUtil
-					.makeLogTag(IMWidgetFragment.class);
+	private static final String TAG = LogUtil.makeLogTag(IMWidgetFragment.class);					
 	private static final String PRE = "IMWidgetFragment--";
 
-	private Activity mActivity;
-	
-	private MyApplication myApplication;
-	private final HashMap<String,OnAvaterListener> avaterListeners = 
-		new HashMap<String,OnAvaterListener>();
-	
-	private static final String TAG_FRIEND = "TAG_FRIEND";
-	
-	private FriendListFragment mFriendFragment;
-	private ToggleButton mBtnFriend;
-	private ToggleButton mBtnRecent;
 	
 	/** Messenger for communicating with service. */
 	private Messenger mService = null;
@@ -66,8 +55,18 @@ public class IMWidgetFragment extends Fragment
      * Target we publish for clients to send messages to IncomingHandler.
      */
     final Messenger mMessenger = new Messenger(new IncomingHandler());
+    
+	private final HashMap<String,OnAvaterListener> avaterListeners = 
+				new HashMap<String,OnAvaterListener>();
+	
+	private FriendListFragment mFriendFragment;
+	private ToggleButton mBtnFriend;
+	private ToggleButton mBtnRecent;
    
-    private IMStatusReceiver statusReceiver;
+    private Activity mActivity;	
+	private MyApplication myApplication;
+    private IMStatusReceiver statusReceiver;    
+    
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -79,20 +78,10 @@ public class IMWidgetFragment extends Fragment
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, PRE + "onCreate");
 		
-		/*if(savedInstanceState == null){
-			final FragmentTransaction ft = getFragmentManager().beginTransaction();
-			mFriendFragment = new FriendListFragment();
-	        ft.add(R.id.im_center, mFriendFragment,TAG_FRIEND).commit();
-			
-		}else{			
-			mFriendFragment = (FriendListFragment)getFragmentManager()
-				.findFragmentByTag(TAG_FRIEND);
-		}*/
-		
-		myApplication = (MyApplication)mActivity.getApplication();
-		
+		myApplication = (MyApplication)mActivity.getApplication();		
 		statusReceiver = new IMStatusReceiver();
 	}
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -102,13 +91,10 @@ public class IMWidgetFragment extends Fragment
 		mBtnFriend = (ToggleButton)v.findViewById(R.id.btn_friend);
 		mBtnFriend.setOnClickListener(this);
 		mBtnFriend.setChecked(true);		
-		//v.findViewById(R.id.btn_group).setOnClickListener(this);
-		mBtnRecent = (ToggleButton)v.findViewById(R.id.btn_recent);
-		mBtnRecent.setOnClickListener(this);
-		View btnSetting = v.findViewById(R.id.btn_im_setting);
-		btnSetting.setOnClickListener(this);
+		
+		mBtnRecent = (ToggleButton)v.findViewById(R.id.btn_recent);		
+		View btnSetting = v.findViewById(R.id.btn_im_setting);		
 		View btnAddFriend = v.findViewById(R.id.btn_add_friend);
-		btnAddFriend.setOnClickListener(this);
 		
 		View contentLayout = v.findViewById(R.id.im_center);
 		View loginTips = v.findViewById(R.id.im_unlogin);
@@ -125,6 +111,12 @@ public class IMWidgetFragment extends Fragment
 			
 			loginTips.setVisibility(View.VISIBLE);
 		}
+		
+		btnSetting.setOnClickListener(this);
+		mBtnRecent.setOnClickListener(this);
+		btnAddFriend.setOnClickListener(this);
+		v.findViewById(R.id.im_btn_login).setOnClickListener(this);
+		
 		return v;
 	}
 	
@@ -142,7 +134,7 @@ public class IMWidgetFragment extends Fragment
 		super.onStart();
 		Log.d(TAG, PRE + "onStart");
 		IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(IMStatusReceiver.ACTION);
+        intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
         mActivity.registerReceiver(statusReceiver, intentFilter);   
 	}
 
@@ -189,9 +181,7 @@ public class IMWidgetFragment extends Fragment
 				return;
 			}
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			ft.replace(R.id.im_center, mFriendFragment);
-			//ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-			//ft.addToBackStack(null);
+			ft.replace(R.id.im_center, mFriendFragment);			
 			ft.commit();
 			mBtnFriend.setChecked(true);
 			mBtnRecent.setChecked(false);			
@@ -202,9 +192,7 @@ public class IMWidgetFragment extends Fragment
 				return;
 			}
 			FragmentTransaction ft1 = getFragmentManager().beginTransaction();
-			ft1.replace(R.id.im_center, new RecentChatListFragment());
-			//ft1.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-			//ft1.addToBackStack(null);
+			ft1.replace(R.id.im_center, new RecentChatListFragment());			
 			ft1.commit();
 			mBtnFriend.setChecked(false);
 			mBtnRecent.setChecked(true);	    	
@@ -215,6 +203,9 @@ public class IMWidgetFragment extends Fragment
 			break;
 		case R.id.btn_im_setting:
 			mActivity.startActivity(new Intent(mActivity,UserManageActivity.class));	
+			break;
+		case R.id.im_btn_login:
+			mActivity.startActivity(new Intent(mActivity,LoginActivity.class));
 			break;
 		}		
 	}
@@ -231,7 +222,6 @@ public class IMWidgetFragment extends Fragment
                 	String jid = (String)msg.obj;
                 	OnAvaterListener listener = avaterListeners.get(jid);
                 	if(listener != null){  
-                		//myApplication.getAvater(jid)
                 		listener.avater(jid, null);
                 		avaterListeners.remove(jid);
                 	}
@@ -306,7 +296,7 @@ public class IMWidgetFragment extends Fragment
 		if(d != null){
 			return d;
 		}
-		// notify jia zai
+		// Request vcard from service
 		Resources r = getResources();
 		d = r.getDrawable(R.drawable.icon);
 		
@@ -336,17 +326,44 @@ public class IMWidgetFragment extends Fragment
 		}
 		return false;
 	}
-	public class IMStatusReceiver extends BroadcastReceiver{
-	    
-    	public final static String ACTION = "com.openims.setting.Receiver"; 
+	/**
+	 * refresh UI after login
+	 */
+	private void refreshUI(){
+		myApplication = (MyApplication)mActivity.getApplication();
+		View v = getView();
+		if(v != null){
+			View btnSetting = v.findViewById(R.id.btn_im_setting);
+			View btnAddFriend = v.findViewById(R.id.btn_add_friend);
+			
+			View contentLayout = v.findViewById(R.id.im_center);
+			View loginTips = v.findViewById(R.id.im_unlogin);;
+			if(isLogin()){
+				btnSetting.setVisibility(View.VISIBLE);
+				btnAddFriend.setVisibility(View.VISIBLE);
+				contentLayout.setVisibility(View.VISIBLE);
+				loginTips.setVisibility(View.GONE);
+				if(mFriendFragment != null){
+					mFriendFragment.reRoadData();
+				}
+			}else{
+				btnSetting.setVisibility(View.GONE);
+				btnAddFriend.setVisibility(View.GONE);
+				contentLayout.setVisibility(View.GONE);
+				
+				loginTips.setVisibility(View.VISIBLE);
+			}
+		}
+	}
+	public class IMStatusReceiver extends BroadcastReceiver{	    
+    
     	@Override
     	public void onReceive(Context context,Intent intent){
     		String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
     		Log.d(TAG,PRE+"STATUSE:"+status);
-    		if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_SUC)){
-    			
-    		}else{
-    			
+    		if(PushServiceUtil.PUSH_STATUS_LOGIN_SUC.equals(status) ||
+    		   PushServiceUtil.PUSH_STATUS_LOGOUT.equals(status) ){
+    			refreshUI();
     		}
     	}
     }

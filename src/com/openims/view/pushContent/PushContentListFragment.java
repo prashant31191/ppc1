@@ -283,7 +283,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		Log.e(TAG, PRE + "onActivityCreated");
 		close = false;
 		super.onActivityCreated(savedInstanceState);
-		getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+		getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
 		
 	}
 

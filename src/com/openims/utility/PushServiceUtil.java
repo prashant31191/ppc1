@@ -6,7 +6,7 @@ import android.graphics.ColorMatrixColorFilter;
 
 public class PushServiceUtil{
 	public static final String PACKAGE_NAME = "com.smit.EasyLauncher";
-	public static final String SERVER_NAME = "@smit";
+	
     // the action for service
     //public final static String ACTION_IMSERVICE = "com.openims.service.IMService";
     public static final String ACTION_SERVICE_STATUS = "com.openims.service.IMService.STATUS";
@@ -97,6 +97,7 @@ public class PushServiceUtil{
     public static final String XMPP_RESOURCE = "XMPP_RESOURCE";
     public static final String XMPP_HOSTNAME = "XMPP_HOSTNAME";
     public static final String XMPP_AUTO_LOGIN = "XMPP_AUTO_LOGIN";
+    public static final String XMPP_HOST_NAME = "XMPP_HOST_NAME";  //default is "@smit"
     // PREFERENCE KEYS
     public static final String API_KEY = "API_KEY";
     public static final String VERSION = "VERSION";
@@ -115,12 +116,7 @@ public class PushServiceUtil{
      * the client where callbacks should be sent.
      */
     public static final int MSG_REGISTER_CLIENT = 1;
-    
-    /**
-     * Command to the service to unregister a client, ot stop receiving callbacks
-     * from the service.  The Message's replyTo field must be a Messenger of
-     * the client as previously given with MSG_REGISTER_CLIENT.
-     */
+
     public static final int MSG_UNREGISTER_CLIENT = 2;    
 
     public static final int MSG_NEW_MESSAGE = 4;

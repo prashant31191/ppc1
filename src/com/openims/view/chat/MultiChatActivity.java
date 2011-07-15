@@ -56,8 +56,7 @@ public class MultiChatActivity extends FragmentActivity
 	private static final String TAG_CHAT_MAIN = "chatMain";
 	private static final String TAG_HISTORY = "history";
 	private static final String TAG_ACCOUNT_INF = "information";
-	public  static final String ACCOUNT_JID = "ACCOUNT_JID";
-	private  static final String ACCOUNT_JID_NEW = "ACCOUNT_JID_NEW";
+	public  static final String ACCOUNT_JID = "ACCOUNT_JID";	
 
 	private HorizontialListView chatUserListview;
 	private MessageBoxAdapter mMessageBoxAdapter;	
@@ -93,15 +92,12 @@ public class MultiChatActivity extends FragmentActivity
 		View v = this.findViewById(R.id.layout_root);
 		v.setDrawingCacheEnabled(true);
 		
-		// initial global data
-		SharedPreferences sharedPrefs = getSharedPreferences(
-				PushServiceUtil.SHARED_PREFERENCE_NAME,
-				Context.MODE_PRIVATE);
-		mMyJid = sharedPrefs.getString(PushServiceUtil.XMPP_USERNAME, null)+"@smit";
+		// initial global data		
 		Intent intent = getIntent();		
 		mYourJid  = intent.getStringExtra(ACCOUNT_JID);
 		
 		myApplication = (MyApplication)getApplication();
+		mMyJid = myApplication.getAdminJid();
 		
 		// initial main chat fragment
 		if(bundle == null){
@@ -189,37 +185,6 @@ public class MultiChatActivity extends FragmentActivity
 		});	
 	}
 	
-	private void getScreen()
-	   {
-	    View content = findViewById(R.id.layout_root);
-	    Bitmap bitmap = content.getDrawingCache();
-	    File file = new File( Environment.getExternalStorageDirectory() + "/test.png");
-	    try 
-	    {
-	        file.createNewFile();
-	        FileOutputStream ostream = new FileOutputStream(file);
-	        bitmap.compress(CompressFormat.PNG, 100, ostream);
-	        ostream.close();
-	    } 
-	    catch (Exception e) 
-	    {
-	        e.printStackTrace();
-	    }
-	}
-
-
-	@Override
-	protected void onActivityResult(int arg0, int arg1, Intent arg2) {
-		Log.i(TAG, PRE + "onActivityResult");
-		super.onActivityResult(arg0, arg1, arg2);
-	}
-
-	@Override
-	public void onAttachedToWindow() {
-		Log.i(TAG, PRE + "onAttachedToWindow");
-		super.onAttachedToWindow();
-	}
-
 	@Override
 	public void onAttachFragment(Fragment fragment) {
 		Log.i(TAG, PRE + "onAttachFragment");
@@ -239,27 +204,9 @@ public class MultiChatActivity extends FragmentActivity
 	}
 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		Log.i(TAG, PRE + "onContextItemSelected");
-		return super.onContextItemSelected(item);
-	}
-
-	@Override
-	public void onContextMenuClosed(Menu menu) {
-		Log.i(TAG, PRE + "onContextMenuClosed");
-		super.onContextMenuClosed(menu);
-	}	
-
-	@Override
 	public void onLowMemory() {
 		Log.i(TAG, PRE + "onLowMemory");
 		super.onLowMemory();
-	}
-
-	@Override
-	protected void onNewIntent(Intent intent) {
-		Log.i(TAG, PRE + "onNewIntent");
-		super.onNewIntent(intent);
 	}
 	
 	@Override
@@ -346,7 +293,6 @@ public class MultiChatActivity extends FragmentActivity
 	public void onNothingSelected(AdapterView<?> parent) {		
 		Log.e(TAG, PRE + "onNothingSelected");
 	}
-	
     
     /**
      * Handler of incoming messages from service.
@@ -437,19 +383,11 @@ public class MultiChatActivity extends FragmentActivity
                 msg.replyTo = mMessenger;
                 mService.send(msg);                
             } catch (RemoteException e) {
-            }
-            
-            // As part of the sample, tell the user what happened.
-            Toast.makeText(MultiChatActivity.this, "connect",
-                    Toast.LENGTH_SHORT).show();
+            	e.printStackTrace();
+            }         
         }
-
-        public void onServiceDisconnected(ComponentName className) {
-           
-            mService = null;            
-            // As part of the sample, tell the user what happened.
-            Toast.makeText(MultiChatActivity.this, "Disconnected",
-                    Toast.LENGTH_SHORT).show();
+        public void onServiceDisconnected(ComponentName className) {           
+            mService = null; 
         }
     };
     
@@ -506,7 +444,6 @@ public class MultiChatActivity extends FragmentActivity
         try {
 			mService.send(msg);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return d;		

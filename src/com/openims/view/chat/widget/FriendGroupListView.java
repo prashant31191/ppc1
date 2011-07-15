@@ -19,7 +19,7 @@ import com.openims.utility.LogUtil;
 import com.openims.widgets.DragDropListener;
 
 public class FriendGroupListView extends ExpandableListView 
-	implements OnScrollListener{
+	{
 
 	private static final String TAG = LogUtil
 	.makeLogTag(FriendGroupListView.class);
@@ -35,12 +35,6 @@ public class FriendGroupListView extends ExpandableListView
 	static Integer ntime = 0;
 	
 	private ImageView mDragView;
-	
-	private View firstGroupView;
-	private View secondGroupView;
-	private ImageView indicatorGroup = null;
-	private int indicatorGroupId = -1;
-	private int indicatorGroupHeight = 0;
 
 	private boolean mEditable = false;
 	private DragDropListener mDragListener;
@@ -57,8 +51,6 @@ public class FriendGroupListView extends ExpandableListView
 
 	public FriendGroupListView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		indicatorGroup = new ImageView(context);
-		//this.setOnScrollListener(this);
 	}
 	
 	
@@ -69,49 +61,7 @@ public class FriendGroupListView extends ExpandableListView
 	public void setEditable(boolean isEdit){
 		mEditable = isEdit;
 	}
-	
-	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
 		
-		int npos = pointToPosition(1,0);
-		if(npos != INVALID_POSITION){
-			long pos = this.getExpandableListPosition(npos);
-			int childPos = getPackedPositionChild(pos);
-			int groupPos = getPackedPositionGroup(pos);
-			if(childPos == INVALID_POSITION){
-				//group
-				firstGroupView = getChildAt(npos-getFirstVisiblePosition());
-				Log.e(TAG,PRE + "START JIE TU");
-				if(childPos != indicatorGroupId){
-					indicatorGroupId = groupPos;	
-					indicatorGroup.setImageBitmap(firstGroupView.getDrawingCache());
-				}
-			}
-		}
-		if(firstGroupView != null){
-			int height = firstGroupView.getHeight();
-			int nEndPos = pointToPosition(1,height);
-			if(nEndPos != INVALID_POSITION){
-				long pos = this.getExpandableListPosition(nEndPos);
-				int childPos = getPackedPositionChild(pos);
-				int groupPos = getPackedPositionGroup(pos);
-				if(groupPos != indicatorGroupId){
-					//group
-					View viewNext = getChildAt(nEndPos-getFirstVisiblePosition());
-					indicatorGroupHeight = viewNext.getTop();
-					Log.e(TAG,PRE + "START UP MOVE");
-				}
-			}
-		}
-		ViewParent viewParent = view.getParent();
-				
-	}
-	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		
-	}	
-	
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
 		
