@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/news"
+	android:layout_gravity="center"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+	<fragment class="com.smit.DeskView.news.NewsFragment"
+	  	android:layout_gravity="center"
+		android:id="@+id/news_bk" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" />
+</LinearLayout>

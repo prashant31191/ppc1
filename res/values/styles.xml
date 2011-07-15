@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
 /*
 * Copyright (C) 2008 The Android Open Source Project
@@ -105,6 +106,30 @@
 	</style>
 
 
+<<<<<<< HEAD
+=======
+	<!-- below add by chenyz -->
+	<style name="Animations" />
+
+	<!-- PopDownMenu -->
+	<style name="Animations.PopDownMenu" />
+	
+	<style name="Animations.PopDownMenu.Left">
+		<item name="@android:windowEnterAnimation">@anim/grow_from_topleft_to_bottomright</item>
+		<item name="@android:windowExitAnimation">@anim/shrink_from_bottomright_to_topleft</item>
+	</style>
+	
+	<style name="Animations.PopDownMenu.Right">
+		<item name="@android:windowEnterAnimation">@anim/grow_from_topright_to_bottomleft</item>
+		<item name="@android:windowExitAnimation">@anim/shrink_from_bottomleft_to_topright</item>
+	</style>
+	
+	<style name="Animations.PopDownMenu.Center">
+		<item name="@android:windowEnterAnimation">@anim/grow_from_top</item>
+		<item name="@android:windowExitAnimation">@anim/shrink_from_bottom</item>
+	</style>
+	
+>>>>>>> f39a9707e0ef0d07b3ee99eb940cbc98672f9e3c
 	<!-- PopUpMenu -->
 	<style name="Animations.PopUpMenu" />
 	
@@ -123,6 +148,7 @@
 		<item name="@android:windowExitAnimation">@anim/shrink_from_top</item>
 	</style>
 	
+<<<<<<< HEAD
 	<style name="MyCheckBox" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:textSize">16.0sp</item>
         <item name="android:textColor">@color/qq_checkbox_text_color</item>
@@ -147,3 +173,7 @@
 		<item name="@android:windowExitAnimation">@anim/my_scaleout_action</item>
 	--></style>
   </resources>
+=======
+
+</resources>
+>>>>>>> f39a9707e0ef0d07b3ee99eb940cbc98672f9e3c

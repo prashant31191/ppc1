@@ -16,7 +16,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import com.smit.DeskView.commonclass.*;
 import com.smit.DeskView.commonclass.VodVideoMoveParse.ItemVideoInfo;
 import com.smit.EasyLauncher.R;
@@ -41,6 +40,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -62,6 +63,13 @@ public class VODVideoListFragment extends ListFragment {
 	private static String VIDEO_ITEM_FILE = "data/data/com.smit.EasyLauncher/files/vodvideo.xml";// 视屏文件
 
 	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setRetainInstance(true);
+	}
+	
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
@@ -70,11 +78,16 @@ public class VODVideoListFragment extends ListFragment {
 			requestXml();
 		}else*/ {
 			String str=ReadVodVideoItemXML();
-			mMovieParse = new VodVideoMoveParse(str);
-			mMovieParse.parseDataStr();
-			mMovieParse.downloadMoviePic();
-			setListAdapter(new VodVideoAdapter());
-			
+			if (str!=null) {
+				mMovieParse = new VodVideoMoveParse(str);
+				if (mMovieParse!=null) {
+					mMovieParse.parseDataStr();
+					mMovieParse.downloadMoviePic();
+					setListAdapter(new VodVideoAdapter());	
+				}		
+			}
+		
+			 
 		}		
 			
 		getListView().setCacheColorHint(0);		
@@ -87,44 +100,39 @@ public class VODVideoListFragment extends ListFragment {
 				if (curItem!=null && curItem.getSrcUrl(0)!=null
 						&&curItem.getSrcUrl(0).length()>0) {
 					
-					/* Intent intent = new Intent();   
-		    		 intent.setClass(getActivity(),MediaPlayer_Video.class);
+					WebView mWebView=new WebView(getActivity());
+					WebSettings mWebSetting = null;
+					if (mWebSetting == null) {
+						mWebSetting = mWebView.getSettings();
+					}
+
+						mWebSetting.setJavaScriptEnabled(true);
+						mWebSetting.setSupportZoom(true);
+						mWebSetting.setJavaScriptCanOpenWindowsAutomatically(true);
+						// mWebSetting.setAllowFileAccess(true);
+						mWebSetting.setPluginsEnabled(true);
+						mWebView.loadUrl(curItem.getSrcUrl(0));
 					
-		    		 Bundle myBund = new Bundle();// 创建Bundle，用于保存要传送的数据
-					String mystr = curItem.getSrcUrl(0);
-					myBund.putString("media", mystr);// KEY-VALUE保存起来
-					intent.putExtras(myBund);// 设置Intent要传送的包
-		    		 
-		    		 startActivity(intent); */
-					
-					Intent intent = new Intent();
+						
+					/*Intent intent = new Intent();
 					intent.setClass(getActivity(), FlashPlayerActivity.class);
 					Bundle myBund = new Bundle();// 创建Bundle，用于保存要传送的数据
 					String mystr = curItem.getSrcUrl(0);
 					myBund.putString("media", mystr);// KEY-VALUE保存起来
 					intent.putExtras(myBund);// 设置Intent要传送的包
-					getActivity().startActivity(intent);
+					getActivity().startActivity(intent);*/
 					
-				    /*if(writeXMLFile(curItem.getVideoName(), "1", curItem.getSrcUrl(0)))
-					{
-						doesSwfPlayerExists();			
-						try
-						{
-							Intent intent = new Intent();
-							intent.setClass(getActivity(), FlashPlayerActivity.class);
-							getActivity().startActivity(intent);
-						}
-						catch(Exception e)
-						{
-							Log.e("ERROR", e.getMessage());
-						}
-					}*/
 				}
 				
 			};
 		});
 	}
 	
+	@Override
+	public void onDetach() {
+		// TODO Auto-generated method stub
+		super.onDetach();
+	}
 	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -160,6 +168,23 @@ public class VODVideoListFragment extends ListFragment {
 			}
 		}
 	};
+	
+	public boolean ShowCurList(){
+		String str=ReadVodVideoItemXML();
+		if (str!=null) {
+			mMovieParse = new VodVideoMoveParse(str);
+			if (mMovieParse!=null) {
+				mMovieParse.parseDataStr();
+				mMovieParse.downloadMoviePic();
+				setListAdapter(new VodVideoAdapter());	
+			}else {
+				return false;
+			}		
+		}else {
+			return false;
+		}	
+		return true;
+	}
 
 	public void ParseXml(String str) {
 
@@ -182,7 +207,7 @@ public class VODVideoListFragment extends ListFragment {
 	   }
 	
 	public void requestXml() {
-		String Url = "http://192.168.0.195:8080/pring/video.do?columnKey=102";
+		String Url = CommonDataFun.myServerAddr+"video.do?columnKey=101";
 		try {
 			URL url = new URL(Url);
 			Thread mThread = new RequestXml(url, mHandler, GET_VOD_VIDEO_XML,
@@ -288,6 +313,7 @@ public class VODVideoListFragment extends ListFragment {
 		}
 
 		public int getCount() {
+			Log.e(Tag, "============"+mMovieParse.getItemCount()+"============");
 			if (mMovieParse==null) {
 				return 0;
 			}else {
@@ -324,11 +350,12 @@ public class VODVideoListFragment extends ListFragment {
 			
 			if (curItem!=null&&isExistFile(curItem.getPicPath(0))) {
 				Bitmap bm = BitmapFactory.decodeFile(curItem.getPicPath(0));
-				Drawable drawable = new BitmapDrawable(bm);	
-				if(bm!=null&&drawable!=null)
-					vodvideo_cover.setBackgroundDrawable(drawable);	
-				else
+				Drawable drawable = new BitmapDrawable(bm);
+				if (bm==null||drawable==null) {
 					vodvideo_cover.setBackgroundResource(R.drawable.video_load);
+				}else {
+					vodvideo_cover.setBackgroundDrawable(drawable);	
+				}		
 			}else {
 				vodvideo_cover.setBackgroundResource(R.drawable.video_load);
 			}
@@ -381,12 +408,6 @@ public class VODVideoListFragment extends ListFragment {
 		try {
 			if (!destfile2.isFile()) {
 				destfile2.createNewFile();
-
-				// FileOutputStream fos =
-				// c.openFileOutput("testvideo.3gp",Context.MODE_PRIVATE);
-				// fos.write(buffer);
-
-				// fos.close();
 				
 		    	try {
 		    		AssetManager am = c.getAssets();
@@ -397,10 +418,7 @@ public class VODVideoListFragment extends ListFragment {
 					e.printStackTrace();
 				}
 
-				//AssetFileDescriptor aFD = c.getAssets().openFd("FlashPlayer/" + fileName);//"testvideo.3gp"
 				InputStream stream = c.getAssets().open("FlashPlayer/" + fileName);
-				//FileDescriptor fileDescriptor = aFD.getFileDescriptor();
-				//InputStream stream = aFD.createInputStream();
 
 				out = new FileOutputStream(destfile2);
 				int numread = 0;

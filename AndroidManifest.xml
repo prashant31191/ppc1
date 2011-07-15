@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.smit.EasyLauncher" android:versionCode="1"
 	android:versionName="1.0" 
-	>
+	>	
 
 	<permission android:name="com.smit.EasyLauncher.permission.INSTALL_SHORTCUT"
 		android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
@@ -38,8 +38,22 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	
+	<!-- add by chenyz -->
+	<instrumentation android:label="@string/testApp" android:targetPackage="com.openims" android:name="android.test.InstrumentationTestRunner"></instrumentation>
+  	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+  	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
+	<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"></uses-permission>
+	<supports-screens android:largeScreens="true"
+		android:normalScreens="true" 
+		android:smallScreens="true"
+		android:anyDensity="true" />		
+
+	<uses-sdk android:maxSdkVersion="11" android:minSdkVersion="7" android:targetSdkVersion="9"></uses-sdk>	
+
+	
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
-		android:theme="@android:style/Theme.NoTitleBar">
+		android:theme="@android:style/Theme.NoTitleBar" android:name="com.openims.model.MyApplication">
 		<activity android:name=".EasyLauncher"
 		android:screenOrientation="sensor" 
 		><!--
@@ -57,13 +71,101 @@
 	 <activity android:name="com.smit.DeskView.commonclass.MediaPlayer_Video"
 	  android:label="@string/app_name">
      </activity>
+
 	 <activity android:name="com.smit.EasyLauncher.LoginActivity" android:theme="@style/Transparent"
 	  android:label="@string/app_name">
-     </activity>
+     </activity>	
+	<provider android:name="com.smit.DeskView.commonclass.HistoryCityContentProvider" android:authorities="com.smit.DeskView.commonclass.HistoryCityContentProvider"/>
+
 	<activity android:name="com.smit.DeskView.commonclass.FlashPlayerActivity"
 	  android:label="@string/app_name">
      </activity>
-	</application>
 
-
-</manifest> 
+	<!-- add by chenyz -->
+      
+    	<activity android:name="com.openims.view.onlineHelper.ChatActivity"
+        		  android:label="@string/onlineHelper"
+        		  android:launchMode="singleInstance"
+        		  android:screenOrientation="behind">
+    	</activity>
+    	<activity android:name="com.openims.view.pubsub.MainActivity"
+        		  android:label="@string/topic"
+        		  android:launchMode="singleInstance">
+    	</activity>
+    	<activity android:name="com.openims.view.setting.Setting"
+                  android:label="@string/app_name">
+        </activity>
+        <activity android:name="com.openims.view.pcAssistant.AssistantActivity" 
+    			  android:label="@string/pcAssistant">        		  
+    	</activity>
+    	<activity android:name="com.openims.view.pushContent.PushActivity"
+    				android:label="@string/app_name" >				  
+		</activity>
+		<activity android:name="com.openims.view.chat.MultiChatActivity"
+					android:launchMode="singleInstance" >
+		</activity>
+		
+        
+        <!-- the core service -->
+        <service android:enabled="true"
+			android:name="com.openims.service.IMService"
+			android:label="IMService">
+			<intent-filter>
+				<action android:name="com.openims.service.IMService.LOGIN" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="com.openims.service.IMService.CONNECT" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="com.openims.service.IMService.STATUS" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="com.openims.service.IMService.MESSAGE" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="com.openims.service.IMService.REGISTER" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="com.openims.service.IMService.PUBSUB" />
+			</intent-filter>			
+		</service>
+		
+		<!-- For Push Client -->
+		<receiver android:name="com.openims.view.pushContent.PushServiceReceiver">    	
+		    <intent-filter>
+		        <action android:name="com.openims.pushService.RECEIVE" />
+		        <category android:name="com.openims.demo" />
+		    </intent-filter>
+		    <intent-filter>
+		        <action android:name="com.openims.pushService.REGISTRATION" />
+		        <category android:name="com.openims.demo" />
+		    </intent-filter>
+		    <intent-filter>
+		        <action android:name="com.openims.CONNECT_STATUS" />
+		        <category android:name="com.openims.demo" />
+		    </intent-filter>
+		</receiver>
+		
+		<!-- start service -->
+		<receiver android:name="com.openims.view.setting.SystemReceiver">
+        	<intent-filter>
+        		<action android:name="android.intent.action.BOOT_COMPLETED"/>
+        	</intent-filter>
+        </receiver>
+        
+        <!-- below is for test -->
+        <activity android:name="com.openims.demo.MainActivity" android:label="@string/app_name">
+        		  <intent-filter>
+        		  	<action android:name="android.intent.action.MAIN" /> 
+        		  	<category android:name="android.intent.category.LAUNCHER" />
+        		  </intent-filter>
+    	</activity>
+		<uses-library android:name="android.test.runner"></uses-library>
+		<activity android:name="com.openims.view.chat.widget.IMActivity"></activity>	
+    	<!-- end test -->
+		<activity android:name="com.openims.view.chat.UserSearchActivity"></activity>
+		<activity android:name="com.openims.view.chat.UserManageActivity"></activity>
+		
+    </application>
+    
+</manifest>

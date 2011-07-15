@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent" 
+  android:orientation="vertical"  
+  >
+    
+    <LinearLayout android:id="@+id/linearLayout1"
+    	android:layout_width="match_parent"     		 
+    	android:layout_height="wrap_content" 
+    	android:orientation="vertical"  	
+    	>   
+    	<LinearLayout android:id="@+id/linearLayout2"
+    		android:layout_width="wrap_content"     			 
+    		android:layout_height="wrap_content" 
+    		android:orientation="horizontal"
+    		android:layout_gravity="center">
+    		<EditText android:id="@+id/et_search_input"
+    			android:layout_height="wrap_content" 
+    			android:layout_width="250dip"
+    			android:hint="@string/input_user_data">
+    		</EditText>
+    	    <Button android:text="@string/btn_search" 
+    	    	android:id="@+id/search" 
+    	    	android:layout_width="wrap_content" 
+    	    	android:layout_height="wrap_content"
+    	    	android:layout_marginLeft="10dip">
+    	    </Button>       
+    	</LinearLayout>
+    	<LinearLayout android:id="@+id/linearLayout3"
+    		android:layout_width="wrap_content" 
+    		android:layout_height="wrap_content" 
+    		android:orientation="horizontal"
+    		android:layout_gravity="center"> 
+    		<CheckBox android:text="@string/search_username"  
+    			android:id="@+id/checkBox_username" 
+    			android:checked="true"
+    			android:layout_width="wrap_content" 
+    			android:layout_height="wrap_content"
+    			>
+    		</CheckBox>
+    		<CheckBox android:text="@string/search_name" 
+    			android:id="@+id/checkBox_name" 
+    			android:layout_width="wrap_content" 
+    			android:layout_height="wrap_content"
+    			android:layout_marginLeft="10dip"></CheckBox>
+    		<CheckBox 
+    			android:text="@string/search_email" 
+    			android:id="@+id/checkBox_email" 
+    			android:layout_width="wrap_content" 
+    			android:layout_height="wrap_content"
+    			android:layout_marginLeft="10dip"></CheckBox>
+    		
+    	</LinearLayout>          
+    </LinearLayout>
+    <View android:id="@+id/view2" 
+    		android:layout_width="fill_parent" 
+    		android:layout_height="3dip"
+    		android:background="@color/light_black">
+    	</View>     
+    	
+	   
+    
+    <FrameLayout android:id="@+id/search_result_container"
+    	android:layout_width="fill_parent"     	 
+    	android:layout_height="1000dip"
+    	android:layout_weight="10" 
+    	 
+    	>    	
+    	 <ProgressBar android:id="@+id/searchProgressBar" 
+	    	android:layout_width="wrap_content" android:layout_height="wrap_content"
+	    	android:layout_gravity="right"
+	    	android:layout_marginRight="10dip">
+	    </ProgressBar>
+  		<ImageView android:id="@+id/search_result_listView_empty"     			
+  			android:src="@drawable/im_search_no_result" 
+  			android:layout_height="wrap_content" 
+  			android:layout_width="wrap_content"
+  			android:layout_gravity="center" 
+  			>
+  		</ImageView>
+		
+		<ListView android:id="@+id/search_result_listView"
+    		android:layout_height="fill_parent"  
+    		android:layout_width="fill_parent"    		
+			android:cacheColorHint="@color/transparent">
+    	</ListView>	
+    </FrameLayout>
+</LinearLayout>

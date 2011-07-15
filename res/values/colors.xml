@@ -37,6 +37,7 @@
     <color name="list_item_white">#ffffffff</color>
     <color name="list_item_blue">#ff4ed7fe</color>
     <color name="black">#ff000000</color>
+    <color name="myblack">#ff000000</color>
     <color name="write">#ffffffff</color>
     <color name="red">#ffff0000</color>
     <color name="vodvideo_title_color">#ff4bafec</color>

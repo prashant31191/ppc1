@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res/com.smit.EasyLauncher"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent" 
+  android:orientation="vertical"
+  android:background="@drawable/widget_frame_001"
+  >
+  <TextView android:id="@+id/textView1" 
+    	android:text="@string/im_name" 
+    	android:textColor="@color/white"
+    	android:textSize="20sp"
+    	android:layout_width="wrap_content" 
+    	android:layout_height="wrap_content"
+    	android:layout_margin="5dp"
+    	android:layout_marginTop="0dp"
+    	>
+    </TextView>
+    <LinearLayout android:id="@+id/linearLayout1" 
+    	android:layout_width="match_parent" 
+    	android:layout_height="wrap_content"
+    	android:background="#ff1c1c32"
+    	android:visibility="gone">
+    	<TextView android:id="@+id/view1" 
+        	android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"
+            android:layout_weight="3">
+        </TextView>
+        <ToggleButton 
+        	android:id="@+id/btn_friend" 
+        	android:textOn="" android:textOff=""
+        	android:layout_width="wrap_content" 
+        	android:layout_height="wrap_content"        	
+        	android:background="@drawable/icon_friend">
+        </ToggleButton>
+        <TextView android:id="@+id/view2" 
+        	android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"
+            android:layout_weight="4">
+        </TextView>
+        <!--<ToggleButton android:text="group" 
+        	android:id="@+id/btn_group" 
+        	android:layout_width="wrap_content" 
+        	android:layout_height="wrap_content"
+        	android:background="@drawable/quickaction_slider_btn"
+        	android:layout_weight="0"
+   	     	android:visibility="invisible">
+        </ToggleButton>
+        -->
+        <ToggleButton 
+        	android:id="@+id/btn_recent" 
+        	android:textOn="" android:textOff=""
+        	android:layout_width="wrap_content" 
+        	android:layout_height="wrap_content"        	
+        	android:background="@drawable/icon_recent">
+        </ToggleButton>
+        <TextView android:id="@+id/view3" 
+        	android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"
+            android:layout_weight="3">
+        </TextView>
+    </LinearLayout>
+    <FrameLayout android:id="@+id/im_center"
+    	android:layout_width="match_parent" 
+   	 	android:layout_height="match_parent"
+		android:layout_weight="10"		
+		>
+		<fragment class="com.openims.view.chat.widget.FriendListFragment"	  	
+			android:id="@+id/friend_list_fragment" 
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"			 
+			app:editable="false"/>
+   	</FrameLayout>
+   	
+   	<RelativeLayout android:id="@+id/im_unlogin"
+    	android:layout_width="match_parent" 
+   	 	android:layout_height="match_parent"
+		android:layout_weight="10" android:visibility="gone">
+   		<Button android:layout_height="wrap_content" 
+   			android:id="@+id/im_btn_login" 
+   			android:layout_centerInParent="true"
+			android:layout_width="wrap_content" 
+			android:text="@string/im_login">
+		</Button>
+   		<TextView android:layout_height="wrap_content" 
+   			android:layout_width="wrap_content" 
+   			android:id="@+id/textView4" 
+   			android:text="@string/im_not_login" 
+   			android:layout_below="@+id/im_btn_login" 
+   			android:layout_centerHorizontal="true"></TextView>
+   	</RelativeLayout>
+   	<TextView android:id="@+id/line" 
+   	     	android:layout_width="match_parent" 
+   	     	android:layout_height="1dip" 
+   	     	android:background="@drawable/s0_bar_cut_off_land">
+   	</TextView>
+   	
+   	<LinearLayout android:id="@+id/linearLayout2" 
+    	android:layout_width="match_parent" 
+    	android:layout_height="40dip"     	
+    	>
+    	<Button 
+   	     	android:id="@+id/btn_im_setting" 
+   	     	android:layout_width="wrap_content" 
+   	     	android:layout_height="wrap_content"
+   	     	android:background="@drawable/s0_add_friend_button_qqwideget"   	     	
+   	     	android:layout_marginLeft="5dp"
+   	     	android:layout_gravity="center">
+   	     </Button>
+   	     <TextView android:text="TextView" 
+   	     	android:id="@+id/textView3" 
+   	     	android:layout_width="wrap_content" 
+   	     	android:layout_height="wrap_content"
+   	     	android:layout_weight="5"
+   	     	android:visibility="invisible"
+   	     	>
+   	     </TextView>
+   	     <Button 
+   	     	android:id="@+id/more" 
+   	     	android:layout_width="wrap_content" 
+   	     	android:layout_height="wrap_content"
+   	     	android:background="@drawable/s0_stat_button_more"   	     	
+   	     	android:layout_gravity="center">
+   	     </Button>
+   	     <TextView android:text="TextView" 
+   	     	android:id="@+id/textView2" 
+   	     	android:layout_width="wrap_content" 
+   	     	android:layout_height="wrap_content"
+   	     	android:layout_weight="5"
+   	     	android:visibility="invisible">
+   	     </TextView>
+   	     <Button 
+   	     	android:id="@+id/btn_add_friend" 
+   	     	android:layout_width="wrap_content" 
+   	     	android:layout_height="wrap_content"
+   	     	android:background="@drawable/s0_add_friend_button_qqwideget"
+   	     	android:layout_marginRight="5dp"
+   	     	android:layout_gravity="center">
+   	     </Button>
+    </LinearLayout>
+   	 
+</LinearLayout>

@@ -45,6 +45,20 @@
         <include android:id="@+id/cell5" layout="@layout/workspace_screen" />
     </com.smit.EasyLauncher.Workspace>
     
+    <LinearLayout android:id="@+id/weather_lin"
+	android:layout_width="fill_parent" 
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:gravity="right"
+	android:paddingRight="20dp"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<fragment class="com.smit.DeskView.weather.WeatherFragment"
+		android:id="@+id/weather_frag" android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		 />
+</LinearLayout>
+    
     <!--LinearLayout android:id="@+id/video_l"
 	android:paddingLeft="200dp" android:paddingTop="30dp"
 	android:layout_width="wrap_content" android:layout_height="wrap_content"

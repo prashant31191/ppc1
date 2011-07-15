@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="40dp" android:orientation="horizontal">
+
+		<Button android:id="@+id/weatherpopback"
+			android:layout_width="0dp" android:layout_height="fill_parent"	
+			android:layout_weight="1"
+			android:textSize="18sp"
+			android:text="@string/weather_back"
+			android:background="@drawable/weather_popup_window_back"
+			android:textColor="@color/write"/>
+
+		<TextView android:id="@+id/weatherpoptips"
+			android:layout_width="0dp" android:layout_height="fill_parent"
+			android:text="@string/weather_pop_change_city"
+			android:textSize="20sp"
+			android:layout_weight="2"
+			android:gravity="center"/>
+				
+		<FrameLayout android:layout_width="50dp"
+		android:layout_height="fill_parent">		
+		<Button android:id="@+id/wetherpopsearch"
+			android:layout_width="50dp" 
+			android:layout_height="fill_parent"
+			android:background="@drawable/weather_popup_window_search"
+			android:textColor="@color/write"
+			android:textSize="18sp"
+			 />
+		<ImageView android:id="@+id/wetherpopsearchpic" 
+		android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="center"
+			android:background="@drawable/s0_city_search_icon_02"
+			 />	 
+		</FrameLayout>
+
+	</LinearLayout>
+
+	<LinearLayout android:layout_width="230dp"
+		android:layout_height="fill_parent"
+		android:layout_gravity="center_horizontal"		
+		android:orientation="vertical"
+		android:background="@drawable/s0_city_selector_inner_bg">
+		
+		<FrameLayout android:id="@+id/weatherframe_changecity"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		
+		<LinearLayout android:layout_width="fill_parent"
+				android:layout_height="fill_parent" 
+				android:gravity="center"
+				android:orientation="vertical">
+		
+			<LinearLayout android:layout_width="200dp"
+				android:layout_height="fill_parent" 
+				android:orientation="vertical">
+								
+				<TextView android:id="@+id/weatherpophistory"
+					android:layout_width="fill_parent"					
+					android:layout_height="0dp"
+					android:text="@string/weather_pop_histroy"
+					android:textSize="20sp"
+					android:layout_weight="1"
+					android:textColor="@color/black"/>
+					
+				<ListView android:id="@+id/weatherpophistorylist"
+					android:layout_width="fill_parent" 
+					android:layout_height="0dp"
+					android:layout_weight="3"
+					android:background="@drawable/s0_city_config_page_setting_bg"
+					android:cacheColorHint="#00000000" />
+
+				<LinearLayout android:id="@+id/weatherpophotcityLinear"
+					android:layout_width="fill_parent"
+					android:layout_height="0dp" 
+					android:orientation="horizontal"
+					android:layout_weight="1"
+					android:layout_marginTop="10dp"
+					android:gravity="center_vertical"
+					android:background="@drawable/s0_city_config_page_setting_bg"
+					>
+					
+					<TextView android:id="@+id/weatherpophotcity"
+						android:layout_width="0dp" 
+						android:layout_height="wrap_content"
+						android:layout_weight="3"
+						android:text="@string/weather_pop_hotcity"				
+						android:textColor="@color/black"
+						android:textSize="20sp" />
+						
+						<ImageView  android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:background="@drawable/s0_city_hotcity_tohot"
+						/>
+				</LinearLayout>
+				</LinearLayout>
+
+			</LinearLayout>
+		</FrameLayout>
+
+
+		<FrameLayout android:id="@+id/weatherframe_hotcity"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">	
+			<LinearLayout android:layout_width="fill_parent"
+				android:layout_height="fill_parent" 
+				android:gravity="center"
+				android:orientation="vertical">
+				
+			<ListView android:id="@+id/weatherpophotcitylist"
+				android:layout_width="200dp" 
+				android:layout_height="200dp"
+				android:background="@drawable/s0_city_config_page_setting_bg"
+				android:cacheColorHint="#00000000"/>
+				</LinearLayout>		
+		</FrameLayout>
+
+		<FrameLayout android:id="@+id/weatherframe_searchcity" 
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+				<LinearLayout android:layout_width="fill_parent"
+				android:layout_height="fill_parent" 
+				android:gravity="center"
+				android:orientation="vertical">
+		
+				<LinearLayout android:layout_width="200dp"
+				android:layout_height="40dp"				
+				android:orientation="horizontal"
+				android:gravity="center_vertical"
+				android:background="@drawable/s0_city_config_page_setting_bg">
+				<ImageView android:layout_width="wrap_content"
+				android:layout_height="wrap_content"				
+				android:background="@drawable/s0_city_search_icon_02"/>					
+												
+				<EditText android:id="@+id/weatherpopsearchedit"
+					android:layout_width="fill_parent"
+					android:background="@null"
+					android:singleLine="true"
+					android:layout_height="35dp"
+					
+					 />
+				</LinearLayout>
+				<LinearLayout 
+				android:layout_width="200dp"
+				android:layout_height="fill_parent"				
+				android:layout_marginTop="5dp"
+				android:orientation="vertical"
+				android:gravity="center">
+					<ListView android:id="@+id/weatherpopsearchlist"
+					android:background="@drawable/s0_city_config_page_setting_bg"
+					android:layout_width="200dp" 
+					android:layout_height="160dp"	
+				android:cacheColorHint="#00000000" />
+				</LinearLayout>
+			</LinearLayout>
+		</FrameLayout>
+
+	</LinearLayout>
+
+</LinearLayout>

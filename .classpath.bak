@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+<<<<<<< HEAD
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/classlib"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry exported="true" kind="lib" path="D:/android/workspace/EasyLauncher/lib/android-support-v4.jar"/>
+=======
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/class"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/asmack.jar" sourcepath="F:/d/xmpp/asmack-2010.05.07-source"/>
+	<classpathentry kind="lib" path="lib/android-support-v4.jar" sourcepath="E:/Android/eclipse-for-android-win32/eclipse-for-android-win32/sdk/extras/android/compatibility/v4/src"/>
+>>>>>>> f39a9707e0ef0d07b3ee99eb940cbc98672f9e3c
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent" 
+  android:orientation="vertical"
+  android:background="@drawable/s0_frame_activity_inner">
+  
+  	<LinearLayout
+	  xmlns:android="http://schemas.android.com/apk/res/android"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content" 
+	  android:orientation="horizontal"
+	  android:background="@drawable/s0_frame_activity_inner">
+	    
+	    <ImageButton android:id="@+id/header_left" 
+	    	android:text="@string/mchat_detail_inf"  
+	    	android:layout_width="wrap_content" 
+	    	android:layout_height="wrap_content"
+	    	android:layout_marginLeft="10dip"
+	    	android:layout_gravity="center"
+	    	android:src="@drawable/btn_back_arrow"
+	    	android:background="@null"
+	    	android:visibility="invisible">
+	    </ImageButton>
+	    <TextView android:id="@+id/header_title" 
+	    	android:text="@string/mchat_history" 
+	    	android:layout_weight="10"
+	    	android:textColor="@color/black"
+	    	android:textSize="18sp"
+	    	android:layout_width="0px" 
+	    	android:layout_height="20dip"
+	    	android:layout_gravity="center"
+	    	android:gravity="center">
+	    </TextView>
+	    <ImageButton android:id="@+id/header_right"
+	    	android:layout_height="wrap_content" 
+	    	android:layout_width="wrap_content"    	
+	    	android:text="back" 	    	
+	    	android:layout_marginRight="10dip"
+	    	android:layout_gravity="center"
+	    	android:src="@drawable/btn_forword_arrow"
+	    	android:background="@null">
+		</ImageButton>
+	</LinearLayout>
+	
+	
+	<ListView android:id="@+id/listView" 
+			android:layout_height="wrap_content" 
+			android:layout_width="fill_parent"
+			android:cacheColorHint="@color/transparent"
+			>
+	</ListView>
+	    
+</LinearLayout>

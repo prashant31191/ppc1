@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.PublicKey;
 
+import com.smit.DeskView.commonclass.CommonDataFun;
 import com.smit.DeskView.commonclass.RequestXml;
 import com.smit.DeskView.commonclass.VodVideoMoveParse;
 import com.smit.DeskView.vodvideo.VODVideoListFragment.VodVideoAdapter;
@@ -47,46 +48,84 @@ public class VODVideoFragment extends Fragment {
 	private static String VIDEO_ITEM_FILE_DIR = "data/data/com.smit.EasyLauncher/files";// 视屏文件
 	private static String VIDEO_ITEM_FILE = "data/data/com.smit.EasyLauncher/files/vodvideo.xml";// 视屏文件
 
-	
-	FrameLayout vodvideo_flash,vodvideo_loading;
+	FrameLayout vodvideo_flash, vodvideo_loading;
 	private ImageView vodvideo_image_loading;
 	private VODVideoListFragment vodListFragment;
 	private Button vodvideo_button_flash;
-	private View listFrame;
+	private FrameLayout listFrame;
+
+	RequestXml mThread = null;
+	public static boolean existInstance = false;
+
+	public final static int SHOW_LAODING = 0;
+	public final static int SHOW_FLASH = 1;
+	public final static int SHOW_LIST = 2;
 	
-	RequestXml mThread=null;
+	public int curMyStatus=SHOW_LAODING;
+
+	 
 	
-	public final static int SHOW_LAODING=0;
-	public final static int SHOW_FLASH=1;
-	public final static int SHOW_LIST=2;
-	
-	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+
+		existInstance = true;
+		setRetainInstance(true);
+	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setupView();
-	
-		if(checkWifiIscon())
-		{
-			requestXml();
-			mHandler.postDelayed(mRunnable, 1000);
-			
-			SetCurShow(SHOW_LAODING);
-		}else {
-			String str=ReadVodVideoItemXML();
-			if (str!=null) {
-				mMovieParse = new VodVideoMoveParse(str);
-				mMovieParse.parseDataStr();
-			}		
-			if (IsExistvodMove(mMovieParse)) {
-				SetCurShow(SHOW_LIST);
-				showVodVideoList();
-			}else {
-				SetCurShow(SHOW_FLASH);
-			}
-		}	
 
+		setupView(getView());
+		if (existInstance) {
+			if (checkWifiIscon()) {
+				requestXml();
+				mHandler.postDelayed(mRunnable, 700);
+
+				SetCurShow(SHOW_LAODING);
+			} else {
+				String str = ReadVodVideoItemXML();
+				if (str != null) {
+					mMovieParse = new VodVideoMoveParse(str);
+					mMovieParse.parseDataStr();
+				}
+				if (IsExistvodMove(mMovieParse)) {
+					SetCurShow(SHOW_LIST);
+					//showVodVideoList();
+				} else {
+					SetCurShow(SHOW_FLASH);
+				}
+			}
+		}else {
+			
+			if (curMyStatus==SHOW_LAODING) {
+				
+			}else{
+				SetCurShow(curMyStatus);
+				/*String str = ReadVodVideoItemXML();
+				if (str != null) {
+					mMovieParse = new VodVideoMoveParse(str);
+					mMovieParse.parseDataStr();
+				}
+				if (IsExistvodMove(mMovieParse)) {
+					SetCurShow(SHOW_LIST);
+					//showVodVideoList();
+				} else {
+					SetCurShow(SHOW_FLASH);
+				}*/
+			}		
+		}	
+		existInstance =false;
+	
+	}
+	
+	@Override
+	public void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+		
 	}
 
 	@Override
@@ -100,119 +139,128 @@ public class VODVideoFragment extends Fragment {
 			Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		mInflater = inflater;
+		View view = inflater.inflate(R.layout.vodvideo_widget_home_page,
+				container, false);
 
-		return inflater.inflate(R.layout.vodvideo_widget_home_page, container,
-				false);
+		
+		return view;
 
 		// return super.onCreateView(inflater, container, savedInstanceState);
 	}
-	
+
 	@Override
 	public void onDetach() {
 		// TODO Auto-generated method stub
 		super.onDetach();
-		
-		if(mThread!=null){
-			mThread.stopThread();
-			mThread=null;
-		}
-		if (mHandler!=null) {
-			mHandler.removeCallbacks(mRunnable);
-		}
+
 	}
-	
+
 	@Override
 	public void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
-	
+
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
-		
+
+		if (mThread != null) {
+			mThread.stopThread();
+			mThread = null;
+		}
+		if (mHandler != null) {
+			mHandler.removeCallbacks(mRunnable);
+		}
+		existInstance = false;
 	}
 
-	public void setupView() {
-		
-		vodvideo_loading=(FrameLayout)getView().findViewById(R.id.vodvideo_loading);
-		vodvideo_image_loading=(ImageView)(getView().findViewById(R.id.vodvideo_image_loading));
-		vodvideo_flash=(FrameLayout)getView().findViewById(R.id.vodvideo_flash);
-		vodvideo_button_flash=(Button)getView().findViewById(R.id.vodvideo_button_flash);
-		vodvideo_button_flash.setOnClickListener(new OnClickListener() {		
+	public void setupView(View view) {
+
+		vodvideo_loading = (FrameLayout) view
+				.findViewById(R.id.vodvideo_loading);
+		vodvideo_image_loading = (ImageView) (view
+				.findViewById(R.id.vodvideo_image_loading));
+		vodvideo_flash = (FrameLayout) view.findViewById(R.id.vodvideo_flash);
+		vodvideo_button_flash = (Button) view
+				.findViewById(R.id.vodvideo_button_flash);
+		vodvideo_button_flash.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				if(checkWifiIscon())
-				{
+				if (checkWifiIscon()) {
 					requestXml();
 					mHandler.postDelayed(mRunnable, 1000);
-					
+
 					SetCurShow(SHOW_LAODING);
-				}else {
-					String str=ReadVodVideoItemXML();
-					if (str!=null) {
+				} else {
+					String str = ReadVodVideoItemXML();
+					if (str != null) {
 						mMovieParse = new VodVideoMoveParse(str);
 						mMovieParse.parseDataStr();
-					}		
+					}
 					if (IsExistvodMove(mMovieParse)) {
 						SetCurShow(SHOW_LIST);
-						showVodVideoList();
-					}else {
+						//showVodVideoList();
+					} else {
 						SetCurShow(SHOW_FLASH);
 					}
-				}	
+				}
 			}
 		});
-		
-		listFrame = getView().findViewById(R.id.vodvideo_listdragment);
-		
-		moreImage = (ImageView) getView().findViewById(R.id.vodvideo_more);
+
+		listFrame = (FrameLayout) view.findViewById(R.id.vodvideo_listdragment);
+
+		moreImage = (ImageView) view.findViewById(R.id.vodvideo_more);
 		moreImage.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				//更多
-				
+				// 更多
+
 			}
 		});
 	}
-	
-	public void SetCurShow(int curStatus){
+
+	public void SetCurShow(int curStatus) {
 		switch (curStatus) {
-		case SHOW_LAODING:
-		{
+		case SHOW_LAODING: {
+			listFrame.setVisibility(View.GONE);
 			vodvideo_flash.setVisibility(View.GONE);
 			vodvideo_loading.setVisibility(View.VISIBLE);
-			
+
 			break;
 		}
-		case SHOW_FLASH:{
+		case SHOW_FLASH: {
+			listFrame.setVisibility(View.GONE);
 			vodvideo_flash.setVisibility(View.VISIBLE);
 			vodvideo_loading.setVisibility(View.GONE);
 			break;
 		}
-		case SHOW_LIST:{
+		case SHOW_LIST: {
+			listFrame.setVisibility(View.VISIBLE);
 			vodvideo_flash.setVisibility(View.GONE);
 			vodvideo_loading.setVisibility(View.GONE);
+			if(!showVodVideoList()){
+				SetCurShow(SHOW_FLASH);
+			}
 			break;
 		}
 		default:
 			break;
 		}
+		curMyStatus=curStatus;
 	}
 
-	void showVodVideoList() {
+	private boolean showVodVideoList() {
 
-		vodListFragment = (VODVideoListFragment) getFragmentManager()
-				.findFragmentById(R.id.vodvideo_listdragment);
+			vodListFragment = (VODVideoListFragment) getFragmentManager()
+				.findFragmentById(R.id.vodvideo_listdragment_fragment);
 		if (vodListFragment == null) {
-			vodListFragment = new VODVideoListFragment();
-			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			ft.replace(R.id.vodvideo_listdragment, vodListFragment);
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
+			return false;
+		}else {
+			return vodListFragment.ShowCurList();
 		}
 
 	}
@@ -234,38 +282,39 @@ public class VODVideoFragment extends Fragment {
 			return false;
 		}
 	}
-	
-	   private Runnable mRunnable = new Runnable() {	
-			public void run() {
-				if (GobalFunVar.CUR_PIC<GobalFunVar.LOAD_COUNT-1) {
-					GobalFunVar.CUR_PIC++;
-				}else {
-					GobalFunVar.CUR_PIC=0;
-				}
-				mHandler.postDelayed(mRunnable, 1000);
-				vodvideo_image_loading.setBackgroundResource(GobalFunVar.LOAD_PIC[GobalFunVar.CUR_PIC]);
+
+	private Runnable mRunnable = new Runnable() {
+		public void run() {
+			if (GobalFunVar.CUR_PIC < GobalFunVar.LOAD_COUNT - 1) {
+				GobalFunVar.CUR_PIC++;
+			} else {
+				GobalFunVar.CUR_PIC = 0;
 			}
-			
-		};
+			mHandler.postDelayed(mRunnable, 700);
+			vodvideo_image_loading
+					.setBackgroundResource(GobalFunVar.LOAD_PIC[GobalFunVar.CUR_PIC]);
+		}
+
+	};
 
 	public Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case GET_VOD_VIDEO_XML: {
-				if (mThread==null) {
+				if (mThread == null) {
 					return;
 				}
 				String str = (String) msg.obj;
-				if (str != null && str.length() > 0) {	
-					mMovieParse = new VodVideoMoveParse(str); mMovieParse.parseDataStr();
-					if (mMovieParse!=null && mMovieParse.getItemCount()>0) {
+				if (str != null && str.length() > 0) {
+					mMovieParse = new VodVideoMoveParse(str);
+					mMovieParse.parseDataStr();
+					if (mMovieParse != null && mMovieParse.getItemCount() > 0) {
+						WriteVodVideoItemXML(str);
 						SetCurShow(SHOW_LIST);
-						WriteVodVideoItemXML(str); 
-						showVodVideoList();
-					}else {
+					} else {
 						SetCurShow(SHOW_FLASH);
-					}					 				 
-				}else {
+					}
+				} else {
 					SetCurShow(SHOW_FLASH);
 				}
 				break;
@@ -278,15 +327,14 @@ public class VODVideoFragment extends Fragment {
 	};
 
 	public void requestXml() {
-		String Url = "http://192.168.0.195:8080/pring/video.do?columnKey=102";
+		String Url = CommonDataFun.myServerAddr + "video.do?columnKey=101";
 		try {
 			URL url = new URL(Url);
-			if (mThread!=null) {
+			if (mThread != null) {
 				mThread.stopThread();
-				mThread=null;
+				mThread = null;
 			}
-			mThread = new RequestXml(url, mHandler, GET_VOD_VIDEO_XML,
-					null);
+			mThread = new RequestXml(url, mHandler, GET_VOD_VIDEO_XML, null);
 
 			mThread.start();
 		} catch (Exception e) {
@@ -367,31 +415,25 @@ public class VODVideoFragment extends Fragment {
 			file.mkdirs();
 		}
 	}
-	
-	public boolean IsExistvodMove(VodVideoMoveParse mMovieParse){
-		String str=ReadVodVideoItemXML();
-		if (str==null||mMovieParse.getItemCount()<=0) {
+
+	public boolean IsExistvodMove(VodVideoMoveParse mMovieParse) {
+		String str = ReadVodVideoItemXML();
+		if (str == null || mMovieParse.getItemCount() <= 0) {
 			return false;
-		}else {
+		} else {
 			return true;
 		}
 	}
-	
+
 	public static class GobalFunVar {
-		public static int CUR_PIC=0;
-		public final static int LOAD_COUNT=10;
-		public final static int LOAD_PIC[]={
-			R.drawable.s0_login_loading_00,
-			R.drawable.s0_login_loading_01,
-			R.drawable.s0_login_loading_02,
-			R.drawable.s0_login_loading_03,
-			R.drawable.s0_login_loading_04,
-			R.drawable.s0_login_loading_05,
-			R.drawable.s0_login_loading_06,
-			R.drawable.s0_login_loading_07,
-			R.drawable.s0_login_loading_08,
-			R.drawable.s0_login_loading_09,};
+		public static int CUR_PIC = 0;
+		public final static int LOAD_COUNT = 10;
+		public final static int LOAD_PIC[] = { R.drawable.s0_login_loading_00,
+				R.drawable.s0_login_loading_01, R.drawable.s0_login_loading_02,
+				R.drawable.s0_login_loading_03, R.drawable.s0_login_loading_04,
+				R.drawable.s0_login_loading_05, R.drawable.s0_login_loading_06,
+				R.drawable.s0_login_loading_07, R.drawable.s0_login_loading_08,
+				R.drawable.s0_login_loading_09, };
 	}
-	
 
 }

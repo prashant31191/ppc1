@@ -95,5 +95,7 @@
 		<attr name="scrollmovietitle" format="reference"></attr>
 	</declare-styleable> 
    
-
+	<declare-styleable name="FriendListFragment">
+        <attr format="boolean" name="editable"/>
+    </declare-styleable>
 </resources>

@@ -9,8 +9,7 @@
 		android:layout_marginTop="5px">
 
 	<LinearLayout android:orientation="vertical"
-		android:layout_width="0dp" android:layout_height="90dp"
-		android:layout_weight="1">
+		android:layout_width="90dp" android:layout_height="90dp">
 		<ImageView android:id="@+id/vodvideo_cover"
 			android:layout_width="90dp" android:layout_height="90dp"
 			android:layout_gravity="left" android:background="@drawable/video_load" />
@@ -18,20 +17,20 @@
 
 	<LinearLayout android:orientation="vertical"
 		android:layout_width="0dp" android:layout_height="90dp"
-		android:layout_weight="2"
+		android:layout_weight="1"
 		android:layout_marginLeft="4dp">
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="0dp"
 			android:layout_weight="1">
 			<com.smit.DeskView.commonclass.AlwaysMarqueeTextView
 				android:id="@+id/vodvideo_title" android:textColor="@color/vodvideo_title_color"
-				android:singleLine="true" android:ellipsize="marquee"
-				android:marqueeRepeatLimit="marquee_forever"
+				android:singleLine="true" 
 				android:layout_width="0dp" android:layout_height="wrap_content"
 				android:layout_weight="3" android:text="@string/vodvideo_widget_defvideo" />
 			<TextView android:id="@+id/vodvideo_time"
-				android:layout_width="0dp" android:layout_height="wrap_content"
-				android:layout_weight="1" android:text="@string/vodvideo_widget_deftime" />
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+				android:text="@string/vodvideo_widget_deftime" />
 		</LinearLayout>
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="0dp"

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:background="@drawable/s0_friend_group_bg">
+    <TextView android:text="TextView" 
+    	android:id="@+id/groupName" 
+    	android:textSize="18sp" 
+		android:textStyle="bold" 
+		android:textColor="@color/white"
+    	android:layout_width="wrap_content" 
+    	android:layout_height="50dip"
+    	android:gravity="center_vertical"
+    	android:layout_marginLeft="8dip"
+    	android:singleLine="true">
+    </TextView>
+   <TextView
+    	android:id="@+id/textView2"     	
+    	android:layout_width="wrap_content" 
+    	android:layout_height="wrap_content"
+    	android:visibility="invisible"
+    	android:layout_weight="10">
+    </TextView>
+    <ImageView android:src="@drawable/im_user_move" 
+    	android:id="@+id/im_group_move" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="wrap_content"
+    	android:layout_gravity="center"
+    	android:adjustViewBounds="true"
+    	android:layout_marginRight="10dip"
+    	android:visibility="invisible">
+    </ImageView>
+    <ImageView android:src="@drawable/im_user_edit" 
+    	android:id="@+id/im_group_edit" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="wrap_content"
+    	android:layout_gravity="center"
+    	android:adjustViewBounds="true"
+    	android:layout_marginRight="10dip">
+    </ImageView>
+    <ImageView android:src="@drawable/im_user_delete" 
+    	android:id="@+id/im_group_delete" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="wrap_content"
+    	android:layout_gravity="center"
+    	android:adjustViewBounds="true"
+    	android:layout_marginRight="10dip">
+    </ImageView>
+    
+</LinearLayout>

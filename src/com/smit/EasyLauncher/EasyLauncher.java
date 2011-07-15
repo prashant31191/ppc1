@@ -10,6 +10,7 @@ import java.util.LinkedList;
 
 
 import com.smit.DeskView.vodvideo.VODVideoFragment;
+import com.smit.DeskView.vodvideo.VODVideoListFragment;
 import com.smit.MyView.MyViewctrl;
 
 
@@ -2428,8 +2429,14 @@ protected void onStop() {
 //                            false);
                     break;
                 case LauncherSettings.Favorites.ITEM_TYPE_OWNEIDGET:
+                	if(item.id==0)
+                	{
+	                	final View NewView = createNewsView(item);
+	                	workspace.addInScreen(NewView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
+	                              false);
+                	}
                 	
-                	if(item.id==1)
+                	else if(item.id==1)
                 	{
                 		
 //                		final FrameLayout destop =(FrameLayout)findViewById(R.id.destop);
@@ -2443,6 +2450,17 @@ protected void onStop() {
                 	{
 	                	final View TvView = createTvView(item);
 	                	workspace.addInScreen(TvView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
+	                              false);
+                	}
+                	else if(item.id==3)
+                	{
+	                	final View TvView = createImView(item);
+	                	workspace.addInScreen(TvView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
+	                              false);
+                	}else if(item.id==4)
+                	{
+	                	final View pushContentView = createPushContentView(item);
+	                	workspace.addInScreen(pushContentView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
 	                              false);
                 	}
                 	//Button bt=preview.findViewById(R.id.)
@@ -2474,10 +2492,24 @@ protected void onStop() {
         return createOwnView(R.layout.tv,
                 (ViewGroup) mWorkspace.getChildAt(mWorkspace.getCurrentScreen()), info);
     }
+    View createImView(ItemInfo info) {
+        return createOwnView(R.layout.im,
+                (ViewGroup) mWorkspace.getChildAt(mWorkspace.getCurrentScreen()), info);
+    }
+    View createPushContentView(ItemInfo info) {
+        return createOwnView(R.layout.pushcontent,
+                (ViewGroup) mWorkspace.getChildAt(mWorkspace.getCurrentScreen()), info);
+    }    
     View createVideoView(ItemInfo info) {
         return createOwnView(R.layout.video,
                 (ViewGroup) mWorkspace.getChildAt(mWorkspace.getCurrentScreen()), info);
+
     }
+    View createNewsView(ItemInfo info) {
+        return createOwnView(R.layout.news,
+                (ViewGroup) mWorkspace.getChildAt(mWorkspace.getCurrentScreen()), info);
+    }
+
     View createOwnView(int layoutResId, ViewGroup parent, ItemInfo info) {
     	
     	LinearLayout favorite = (LinearLayout) mInflater.inflate(layoutResId, parent, false);

@@ -19,6 +19,7 @@ import org.w3c.dom.NodeList;
 
 import com.smit.DeskView.commonclass.*;
 import com.smit.DeskView.commonclass.VodVideoMoveParse.ItemVideoInfo;
+import com.smit.DeskView.vodvideo.VODVideoListFragment.VodVideoAdapter;
 import com.smit.EasyLauncher.R;
 
 import android.R.integer;
@@ -60,6 +61,15 @@ public class TVLiveListFragment extends ListFragment {
 	private static String TVLIVE_ITEM_FILE_DIR = "data/data/com.smit.EasyLauncher/files";// 视屏文件
 	private static String TVLIVE_ITEM_FILE = "data/data/com.smit.EasyLauncher/files/tvlive.xml";// 视屏文件
 
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		
+		setRetainInstance(true);
+	}
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -68,11 +78,18 @@ public class TVLiveListFragment extends ListFragment {
 			setListAdapter(new VodVideoAdapter());
 			requestXml();
 		}else*/ {
+			
 			String str=ReadVodVideoItemXML();
-			mMovieParse = new VodVideoMoveParse(str);
-			mMovieParse.parseDataStr();
-			mMovieParse.downloadMoviePic();
-			setListAdapter(new VodVideoAdapter());
+			if (str!=null) {
+				mMovieParse = new VodVideoMoveParse(str);
+				if (mMovieParse!=null) {
+					mMovieParse.parseDataStr();
+					mMovieParse.downloadMoviePic();
+					setListAdapter(new VodVideoAdapter());
+				}
+
+			}
+			
 			
 		}		
 			
@@ -136,6 +153,23 @@ public class TVLiveListFragment extends ListFragment {
 		}
 	};
 
+	public boolean ShowCurList(){
+		String str=ReadVodVideoItemXML();
+		if (str!=null) {
+			mMovieParse = new VodVideoMoveParse(str);
+			if (mMovieParse!=null) {
+				mMovieParse.parseDataStr();
+				mMovieParse.downloadMoviePic();
+				setListAdapter(new VodVideoAdapter());	
+			}else {
+				return false;
+			}		
+		}else {
+			return false;
+		}	
+		return true;
+	}
+	
 	public void ParseXml(String str) {
 
 	}
@@ -157,7 +191,7 @@ public class TVLiveListFragment extends ListFragment {
 	   }
 	
 	public void requestXml() {
-		String Url = "http://192.168.0.195:8080/pring/video.do?columnKey=102";
+		String Url = CommonDataFun.myServerAddr+"video.do?columnKey=102";
 		try {
 			URL url = new URL(Url);
 			Thread mThread = new RequestXml(url, mHandler, GET_VOD_VIDEO_XML,
@@ -300,7 +334,11 @@ public class TVLiveListFragment extends ListFragment {
 			if (curItem!=null&&isExistFile(curItem.getPicPath(0))) {
 				Bitmap bm = BitmapFactory.decodeFile(curItem.getPicPath(0));
 				Drawable drawable = new BitmapDrawable(bm);	
-				vodvideo_cover.setBackgroundDrawable(drawable);	
+				if (bm==null||drawable==null) {
+					vodvideo_cover.setBackgroundResource(R.drawable.video_load);
+				}else {
+					vodvideo_cover.setBackgroundDrawable(drawable);	
+				}		
 			}else {
 				vodvideo_cover.setBackgroundResource(R.drawable.video_load);
 			}

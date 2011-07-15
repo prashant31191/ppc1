@@ -3,10 +3,53 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/hello"
-    />
+    android:id="@+id/main"
+    android:background="@drawable/s0_frame_activity"
+     >
+<TextView
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content"
+	    android:layout_weight="1.0"
+	    android:layout_marginTop="100dip" 
+	    android:gravity="center_horizontal"
+	    android:text="@string/app_name"
+	    android:textSize="16sp" 
+	    android:textStyle="bold" 
+	    />
+<Button android:layout_width="wrap_content" 
+	android:text="Start Service" 
+	android:layout_height="wrap_content" 
+	android:id="@+id/startService">
+</Button>
+<Button android:layout_width="wrap_content" 
+	android:text="End Service" 
+	android:layout_height="wrap_content" 
+	android:id="@+id/EndService">
+</Button>
+<Button android:layout_width="wrap_content" 
+	android:text="Register Push" 
+	android:layout_height="wrap_content"
+	android:id="@+id/RegPush">
+</Button>
+<Button android:layout_width="wrap_content" 
+	android:text="Unregister Push" 
+	android:layout_height="wrap_content" 
+	android:id="@+id/UnregPush">
+</Button>
+<Button android:layout_width="wrap_content" 
+	android:text="@string/settings" 
+	android:layout_height="wrap_content" 
+	android:layout_gravity="center_horizontal" 
+	android:id="@+id/btn_settings">
+</Button>
+<Button android:layout_width="wrap_content" 
+	android:text="@string/onlineHelper" 
+	android:layout_height="wrap_content" 
+	android:id="@+id/chat">
+</Button>
+<Button android:layout_width="wrap_content" 
+	android:text="@string/topic" 
+	android:layout_height="wrap_content" 
+	android:id="@+id/topic">
+</Button>
 </LinearLayout>

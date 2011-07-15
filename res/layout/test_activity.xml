@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent" android:orientation="vertical">
+    <TableLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/tableLayout1">
+        <CheckBox android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/testPushRegester" android:text="test push register database"></CheckBox>
+        <CheckBox android:layout_height="wrap_content" android:id="@+id/testPushContentDB" android:text="test Push Content Database" android:layout_width="wrap_content"></CheckBox>
+    </TableLayout>
+    <Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/start" android:text="start test"></Button>
+</LinearLayout>

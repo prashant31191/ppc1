@@ -1,61 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/backhomeid" android:layout_width="360dp"
-	android:layout_height="360dp" android:background="@drawable/tvlive_background"
+	android:id="@+id/backhomeid" android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:background="@drawable/tvlive_background"
 	android:orientation="vertical">
 
 	<LinearLayout android:layout_width="fill_parent"
 		android:layout_height="40dp" android:orientation="horizontal">
-		<TextView android:id="@+id/tvlive_apname" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:textSize="20sp"
-			android:text="@string/tvlive_widget_name" android:textColor="@color/write" />
+		<TextView android:id="@+id/tvlive_apname"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:textSize="20sp" android:text="@string/tvlive_widget_name"
+			android:textColor="@color/write" />
 	</LinearLayout>
-	
-	<LinearLayout android:layout_width="300dp"
-		android:layout_height="280dp" android:orientation="vertical">
-		
+
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_weight="8"
+		android:orientation="vertical">
+
 		<FrameLayout android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:id="@+id/tvlive_loading"
-			android:visibility="visible">								
-		   <LinearLayout android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:id="@+id/tvlive_loading"
+			android:visibility="visible">
+			<LinearLayout android:layout_width="fill_parent"
 				android:layout_height="fill_parent" android:orientation="vertical"
 				android:gravity="center_horizontal">
-			
-			<ImageView android:id="@+id/tvlive_image_loading" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" 
-				android:background="@drawable/s0_login_loading_00">
-			</ImageView>			
+
+				<LinearLayout android:layout_width="wrap_content"
+					android:layout_height="fill_parent" android:orientation="horizontal"
+					android:gravity="center_vertical">
+
+					<ImageView android:id="@+id/tvlive_image_loading"
+						android:layout_width="wrap_content" android:layout_height="wrap_content"
+						android:background="@drawable/s0_login_loading_00">
+					</ImageView>
+				</LinearLayout>
 			</LinearLayout>
 		</FrameLayout>
-		
+
 		<FrameLayout android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:id="@+id/tvlive_flash"
+			android:layout_height="fill_parent" android:id="@+id/tvlive_flash"
 			android:visibility="visible">
-				<LinearLayout android:layout_width="300dp"
-				android:layout_height="fill_parent" android:orientation="horizontal"
-				android:gravity="center"
-				android:paddingTop="100dp">	
-								
-				<LinearLayout android:layout_width="fill_parent"
+			<LinearLayout android:layout_width="fill_parent"
 				android:layout_height="fill_parent" android:orientation="vertical"
-				android:gravity="center_horizontal">	
-										
-			<TextView android:id="@+id/tvlive_text_flash" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:textSize="20sp"
-				android:text="@string/vodvideo_widget_try_again" android:textColor="@color/write" />
-			
-			<Button android:id="@+id/tvlive_button_flash" android:layout_width="100dp"
-				android:layout_height="wrap_content" android:textSize="20sp"
-				android:text="@string/vodvideo_widget_flash" android:textColor="@color/write" />
-			</LinearLayout>
+				android:gravity="center_horizontal">
+
+				<LinearLayout android:layout_width="wrap_content"
+					android:layout_height="fill_parent" android:orientation="horizontal"
+					android:gravity="center_vertical">
+
+					<LinearLayout android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:orientation="vertical">
+						<TextView android:id="@+id/tvlive_text_flash"
+							android:layout_width="wrap_content" android:layout_height="wrap_content"
+							android:textSize="20sp" android:text="@string/vodvideo_widget_try_again"
+							android:textColor="@color/write" />
+
+						<Button android:id="@+id/tvlive_button_flash"
+							android:layout_width="100dp" android:layout_height="wrap_content"
+							android:textSize="20sp" android:text="@string/vodvideo_widget_flash"
+							android:textColor="@color/write" />
+					</LinearLayout>
+				</LinearLayout>
 			</LinearLayout>
 		</FrameLayout>
-		
-		<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
-			android:id="@+id/tvlive_listdragment"
-			android:visibility="visible"> 	
+
+		<FrameLayout android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:id="@+id/tvlive_listdragment"
+			android:visibility="visible">
+			
+				<fragment class="com.smit.DeskView.tvlive.TVLiveListFragment"
+	  	android:layout_gravity="center"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:id="@+id/tvlive_listdragment_fragment" />
 		</FrameLayout>
 	</LinearLayout>
 
