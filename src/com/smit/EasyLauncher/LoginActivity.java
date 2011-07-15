@@ -37,6 +37,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -56,18 +57,25 @@ public class LoginActivity extends Activity {
 	private EasyLauncher mLauncher;
 	private Animation myAnimation_Rotate;  //旋转
 	private LoginDataBaseAdapter m_MyDataBaseAdapter;
-	private static int			miCount			= 0;
-	TextView mTextView;
-	TextView mTextView01;
-	Button mBotton;
-	Button mBotton01;
-	ImageButton mBotton02;
-	ListView m_ListView	= null;
-	Context context;
-	ListViewAdapter adapter;
-	PopupWindow mPopupWindow = null;
+	private TextView mTextView1;
+	private TextView mTextView2;
+	private Button mBotton1;
+	private Button mBotton2;
+	private CheckBox  checkBox1;
+	private CheckBox  checkBox2;
+	private ImageButton mImageBotton;
+	private ListView m_ListView	= null;
+	private Context context;
+	private ListViewAdapter adapter;
+	private PopupWindow mPopupWindow = null;
 	private BroadcastReceiver receiver;
-	ProgressDialog m_Dialog;
+	private ProgressDialog m_Dialog;
+	
+	private String username;
+	private String password;
+	private String savepwd;
+	private boolean bAutoLogin;
+
 	
 	public void setLauncher(EasyLauncher launcher)
 	{
@@ -79,30 +87,43 @@ public class LoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setTheme(R.style.Transparent);
 		setContentView(R.layout.loginpage);
-		mTextView = (TextView)findViewById(R.id.login_edit_account);
-		mTextView01 = (TextView)findViewById(R.id.login_edit_pwd);
-        mBotton = (Button)findViewById(R.id.login_cb_savepwd);
-        mBotton01 = (Button)findViewById(R.id.login_btn_login);
-        mBotton02 = (ImageButton)findViewById(R.id.ImageButton02);
-        m_ListView = new ListView(this);
+		mTextView1 = (TextView)findViewById(R.id.login_edit_account);
+		mTextView2 = (TextView)findViewById(R.id.login_edit_pwd);
+        mBotton1 = (Button)findViewById(R.id.login_btn_register);
+        mBotton2 = (Button)findViewById(R.id.login_btn_login);
+        mImageBotton = (ImageButton)findViewById(R.id.ImageButton);
+		checkBox1 = (CheckBox) findViewById(R.id.login_cb_autoLogin);
+		checkBox2 = (CheckBox) findViewById(R.id.login_cb_savepwd);
+        m_ListView = new ListView(this);		
+		receiver = new InnerReceiver();
+        context = this;
         
 		m_MyDataBaseAdapter = new LoginDataBaseAdapter(this);		
 		m_MyDataBaseAdapter.open();		
-		
-		receiver = new InnerReceiver();
-        context = this;
 	
-        mBotton.setOnClickListener(new OnClickListener() {
+        mBotton1.setOnClickListener(new OnClickListener() {
     		public void onClick(View v) {
 
     		}
     	});
         
-        mBotton01.setOnClickListener(new OnClickListener() {
+        mBotton2.setOnClickListener(new OnClickListener() {
     		public void onClick(View v) {
 				
-	    		String username = mTextView.getText().toString();
-	    		String password = mTextView01.getText().toString();
+	    		username = mTextView1.getText().toString();
+	    		password = mTextView2.getText().toString();
+	    			    		
+	    		if(checkBox1.isChecked()){
+	    			bAutoLogin = true;
+	    		}else{
+	    			bAutoLogin = false;
+	    		}
+	    		
+	    		if(checkBox2.isChecked()){
+	    			savepwd = "1";
+	    		}else{
+	    			savepwd = "0";
+	    		}
 	    		
 	    		Log.d("username = ",   username);
 	            Log.d("password = ",   password);
@@ -110,12 +131,11 @@ public class LoginActivity extends Activity {
     			Intent intent = new Intent();
 				intent.putExtra(PushServiceUtil.XMPP_USERNAME, username);	
 				intent.putExtra(PushServiceUtil.XMPP_PASSWORD, password);	
+				intent.putExtra(PushServiceUtil.XMPP_AUTO_LOGIN, bAutoLogin);	
 //				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				intent.setAction(PushServiceUtil.ACTION_SERVICE_LOGIN);
 		    	startService(intent);		    	
 		    	
-//				startService(new Intent(PushServiceUtil.ACTION_SERVICE_STATUS));
-
 		    	m_Dialog = ProgressDialog.show
                 (
         		   context,
@@ -146,17 +166,21 @@ public class LoginActivity extends Activity {
 */    		}
     	});
         
-        mBotton02.setOnClickListener(new OnClickListener() {
+        mImageBotton.setOnClickListener(new OnClickListener() {
     		public void onClick(View v) {
 
     			if(mPopupWindow == null){
     				mPopupWindow = new PopupWindow(m_ListView,260,LinearLayout.LayoutParams.WRAP_CONTENT);  
     			}
+    			if(!mPopupWindow.isShowing()){
     			adapter = new ListViewAdapter(context);
     			m_ListView.setAdapter(adapter);
     			m_ListView.invalidate();   
     			mPopupWindow.showAsDropDown(findViewById(R.id.login_edit_account));
-   			}
+    			}else{
+    				mPopupWindow.dismiss();
+    			}
+    		}
     	});
         
         if(!EasyLauncher.isFirstInit())
@@ -211,7 +235,7 @@ public class LoginActivity extends Activity {
 	        int y = (int) event.getY();
 			if(!IsOnclickRecy(x,y)){
 				m_MyDataBaseAdapter.close();
-				finish();
+				LoginActivity.this.finish();
 			}
 		return super.onTouchEvent(event);
 	}
@@ -240,20 +264,22 @@ public class LoginActivity extends Activity {
 	/* 更新一条数据 */
 	public void UpData()
 	{	
-//		m_MyDataBaseAdapter.updateData(miCount, "修改的数据" + miCount);
+	//	m_MyDataBaseAdapter.updateData(miCount, "修改的数据" + miCount);
 	}
 
 	/* 向表中添加一条数据 */
 	public void AddData()
-	{
-		String number = mTextView.getText().toString();
-		String password = mTextView01.getText().toString();
-		System.out.println("num   : " + number);
-		if(m_MyDataBaseAdapter.fetchData(number).getCount() == 0)
+	{				
+		if(m_MyDataBaseAdapter.fetchData(username).getCount() == 0)
 		{
-		System.out.println("---insertData   : " + number);
-		m_MyDataBaseAdapter.insertData(number, password);
-//		miCount++;
+		System.out.println("---insertData0   : " + username);
+		m_MyDataBaseAdapter.insertData(username, password, savepwd);
+		}
+		
+		if(m_MyDataBaseAdapter.fetchData(username).getCount() == 1)
+		{
+		System.out.println("---updateData0   : " + username);
+		m_MyDataBaseAdapter.updateData(username, password, savepwd);
 		}
 	}
 
@@ -273,7 +299,7 @@ public class LoginActivity extends Activity {
 		{
 			/* 退出时，不要忘记关闭 */
 			m_MyDataBaseAdapter.close();
-			this.finish();
+			LoginActivity.this.finish();
 			return true;
 		}
 		return super.onKeyDown(keyCode, event);
@@ -299,8 +325,8 @@ public class LoginActivity extends Activity {
     	}
 
     	class ViewItem {
-    		TextView name_info;
-    		Button arrows_icon;
+    		TextView username;
+    		Button delete;
     	}
 
     	// Make a view to hold each row.
@@ -311,11 +337,11 @@ public class LoginActivity extends Activity {
     		
     		if(convertView == null)
     		{
-    			convertView = LayoutInflater.from(mContext).inflate(R.layout.list_item_icon_text,
+    			convertView = LayoutInflater.from(mContext).inflate(R.layout.list_username_item,
     					null);
     			m_ViewItem = new ViewItem();
-    			m_ViewItem.name_info = (TextView) convertView.findViewById(R.id.name_infor);
-    			m_ViewItem.arrows_icon = (Button) convertView.findViewById(R.id.select_icon);
+    			m_ViewItem.username = (TextView) convertView.findViewById(R.id.username);
+    			m_ViewItem.delete = (Button) convertView.findViewById(R.id.delete_icon);
     			convertView.setTag(m_ViewItem);
     		}
     		else
@@ -324,22 +350,27 @@ public class LoginActivity extends Activity {
     		}
     		
     		cursor.moveToPosition(position); 
-            final String idCol = cursor.getString(cursor.getColumnIndex(LoginDataBaseAdapter.KEY_NUM));   
+            final String name = cursor.getString(cursor.getColumnIndex(LoginDataBaseAdapter.KEY_NUM));   
             final String psw = cursor.getString(cursor.getColumnIndex(LoginDataBaseAdapter.KEY_PASSWORD));   
- 
-            m_ViewItem.name_info.setText(String.valueOf(idCol));   
-            m_ViewItem.name_info.setOnClickListener(new OnClickListener() {
+            final String rem = cursor.getString(cursor.getColumnIndex(LoginDataBaseAdapter.KEY_REMEMBER));   
+
+            m_ViewItem.username.setText(String.valueOf(name));   
+            m_ViewItem.username.setOnClickListener(new OnClickListener() {
 	    		public void onClick(View v) {
 	    			System.out.println("---chick  text---");
-	      			mTextView.setText(String.valueOf(idCol));
-	    			mTextView01.setText(psw);
+	      			mTextView1.setText(String.valueOf(name));
+	    			mTextView2.setText(psw);
+	    			if(rem.equals("1")){
+	    				checkBox2.setChecked(true);
+	    			}else{
+	    				checkBox2.setChecked(false);
+	    			}
 	    			mPopupWindow.dismiss();	
 	    		}
 	    	});
-//            m_ViewItem.arrows_icon.setBackgroundResource(R.drawable.bt_fav_del);			
-            m_ViewItem.arrows_icon.setOnClickListener(new OnClickListener() {
+            m_ViewItem.delete.setOnClickListener(new OnClickListener() {
 	    		public void onClick(View v) {
-	    			DeleteData(idCol);
+	    			DeleteData(name);
 	    		}
 	    	});
     		return convertView;
@@ -372,7 +403,6 @@ public class LoginActivity extends Activity {
     
     public class InnerReceiver extends BroadcastReceiver{
         
-//    	public final static String ACTION = "com.openims.setting.Receiver"; 
     	@Override
     	public void onReceive(Context context,Intent intent){
     		Log.d("login ----","intent : "+intent);
@@ -381,16 +411,7 @@ public class LoginActivity extends Activity {
 	    		Log.d("login ----","STATUSE:"+status);
 	    		if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_SUC)){
 	     			
-	    			AddData();
-	     			
-	     			SharedPreferences sharedPrefs = context.getSharedPreferences(PushServiceUtil.SHARED_PREFERENCE_NAME,
-	     	                Context.MODE_PRIVATE);;
-	                Editor editor = sharedPrefs.edit();
-	                editor.putString(PushServiceUtil.XMPP_USERNAME,
-	                		mTextView.getText().toString());
-	                editor.putString(PushServiceUtil.XMPP_PASSWORD,
-	                		mTextView01.getText().toString());
-	                editor.commit();
+	    			AddData();	     				     	
 					Toast.makeText(context, "登陆成功", Toast.LENGTH_SHORT).show();		
 	                
 	    		}else{
@@ -398,6 +419,8 @@ public class LoginActivity extends Activity {
 	
 	    		}
 	    		m_Dialog.dismiss();
+	    		m_MyDataBaseAdapter.close();
+	    		LoginActivity.this.finish();
     		}
     	}
     }
