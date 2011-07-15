@@ -7,7 +7,7 @@ android:layout_height="fill_parent"
 android:layout_width="fill_parent"
 >
 	
-	<TextView android:id="@+id/name_infor"
+	<TextView android:id="@+id/username"
 	android:layout_height="fill_parent"
 	android:layout_width="fill_parent" 
 	android:text="电影名称"
@@ -22,7 +22,7 @@ android:layout_width="fill_parent"
     /> 
 
 
-     <Button android:id="@+id/select_icon"
+     <Button android:id="@+id/delete_icon"
      android:layout_width="40dip" 
      android:layout_height="40dip"
      android:layout_gravity="right|center_vertical"

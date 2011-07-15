@@ -10,10 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public  class LoginDataBaseAdapter
 {
 	// 用于打印log
-	private static final String	TAG			= "LoginDataBaseAdapter";
-
-	// 表中一条数据的名称
-//	public static final String	KEY_ID		= "_id";												
+	private static final String	TAG			= "LoginDataBaseAdapter";												
 
 	// 表中一条数据的内容
 	public static final String	KEY_NUM		= "num";												
@@ -21,6 +18,9 @@ public  class LoginDataBaseAdapter
 	// 表中一条数据的id
 	public static final String	KEY_PASSWORD		= "password";
 
+	// 表中一条数据的名称
+	public static final String	KEY_REMEMBER	= "remember";
+	
 	// 数据库名称为data
 	private static final String	DB_NAME			= "Login.db";
 	
@@ -34,7 +34,7 @@ public  class LoginDataBaseAdapter
 	private Context				mContext		= null;
 	
 	//创建一个表
-	private static final String	DB_CREATE		= "CREATE TABLE " + DB_TABLE + " (" + KEY_NUM + " TEXT,"+ KEY_PASSWORD + " TEXT)";
+	private static final String	DB_CREATE		= "CREATE TABLE " + DB_TABLE + " (" + KEY_NUM + " TEXT,"+ KEY_PASSWORD +" TEXT,"+ KEY_REMEMBER + " TEXT)";
 
 	// 执行open（）打开数据库时，保存返回的数据库对象
 	private SQLiteDatabase		mSQLiteDatabase	= null;
@@ -95,11 +95,12 @@ public  class LoginDataBaseAdapter
 	}
 
 	/* 插入一条数据 */
-	public long insertData(String num, String data)
+	public long insertData(String num, String data , String remember)
 	{
 		ContentValues initialValues = new ContentValues();
 		initialValues.put(KEY_NUM, num);
 		initialValues.put(KEY_PASSWORD, data);
+		initialValues.put(KEY_REMEMBER, remember);
 
 		return mSQLiteDatabase.insert(DB_TABLE, null, initialValues);
 	}
@@ -113,7 +114,7 @@ public  class LoginDataBaseAdapter
 	/* 通过Cursor查询所有数据 */
 	public Cursor fetchAllData()
 	{
-		return mSQLiteDatabase.query(DB_TABLE, new String[] { KEY_NUM, KEY_PASSWORD }, null, null, null, null, null);
+		return mSQLiteDatabase.query(DB_TABLE, new String[] { KEY_NUM, KEY_PASSWORD, KEY_REMEMBER}, null, null, null, null, null);
 	}
 
 	/* 查询指定数据 */
@@ -122,7 +123,7 @@ public  class LoginDataBaseAdapter
 
 		Cursor mCursor =
 
-		mSQLiteDatabase.query(true, DB_TABLE, new String[] { KEY_NUM, KEY_PASSWORD }, KEY_NUM + " = '" + num + "'", null, null, null, null, null);
+		mSQLiteDatabase.query(true, DB_TABLE, new String[] { KEY_NUM, KEY_PASSWORD, KEY_REMEMBER}, KEY_NUM + " = '" + num + "'", null, null, null, null, null);
 
 		if (mCursor != null)
 		{
@@ -133,11 +134,12 @@ public  class LoginDataBaseAdapter
 	}
 
 	/* 更新一条数据 */
-	public boolean updateData(String num, String data)
+	public boolean updateData(String num, String data, String remember)
 	{
 		ContentValues args = new ContentValues();
-//		args.put(KEY_NUM, num);
+
 		args.put(KEY_PASSWORD, data);
+		args.put(KEY_REMEMBER, remember);
 
 		return mSQLiteDatabase.update(DB_TABLE, args, KEY_NUM + " = '" + num + "'", null) > 0;
 	}
