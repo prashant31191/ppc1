@@ -112,7 +112,7 @@ public class IMService extends Service  {
 //    		xmppManager.setPassword(password);
         	login();
         }else if(PushServiceUtil.ACTION_SERVICE_REGISTER_USER.equals(action)){
-        	xmppManager.registerAccount("t", "123456");
+        	xmppManager.registerAccount("chenyz", "123456");
         }
     }
     
