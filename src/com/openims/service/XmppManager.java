@@ -175,7 +175,7 @@ public class XmppManager{
     	
         topicMap = new HashMap<String,LeafNode>();
         
-        configure(ProviderManager.getInstance());
+        configure(ProviderManager.getInstance());        
     }
     public void initUserInf(){
     	xmppHost = sharedPrefs.getString(PushServiceUtil.XMPP_HOST, "localhost");
@@ -592,7 +592,61 @@ public class XmppManager{
             xmppManager.runTask();
         }
     }
-    
+    public void registerAccount(String userName,String psw){
+    	
+    	 final String newUsername = userName;
+         final String newPassword = psw;
+
+         Registration registration = new Registration();
+
+         PacketFilter packetFilter = new AndFilter(new PacketIDFilter(
+                 registration.getPacketID()), new PacketTypeFilter(
+                 IQ.class));
+
+         PacketListener packetListener = new PacketListener() {
+
+             public void processPacket(Packet packet) {
+                 Log.d("RegisterTask.PacketListener","processPacket().....");
+                 Log.d("RegisterTask.PacketListener", "packet=" + packet.toXML());
+
+                 if (packet instanceof IQ) {
+                     IQ response = (IQ) packet;
+                     if (response.getType() == IQ.Type.ERROR) {
+                         if (!response.getError().toString().contains(
+                                 "409")) {
+                             Log.e(LOGTAG,
+                                     "Unknown error while registering XMPP account! "
+                                             + response.getError().getCondition());
+                             broadcastStatus(PushServiceUtil.PUSH_STATUS_REGISTER_FAIL);
+                         }
+                     } else if (response.getType() == IQ.Type.RESULT) {
+                         //setUsername(newUsername);
+                         //setPassword(newPassword);
+                         Log.d(LOGTAG, "username=" + newUsername);
+                         Log.d(LOGTAG, "password=" + newPassword);
+
+                    /*     Editor editor = sharedPrefs.edit();
+                         editor.putString(PushServiceUtil.XMPP_USERNAME,
+                                 newUsername);
+                         editor.putString(PushServiceUtil.XMPP_PASSWORD,
+                                 newPassword);
+                         editor.commit();
+                         
+                         Log.i(LOGTAG,"Account registered successfully");*/
+                         broadcastStatus(PushServiceUtil.PUSH_STATUS_REGISTER_SUC);                                
+                     }
+                 }
+             }
+         };
+
+         connection.addPacketListener(packetListener, packetFilter);
+
+         registration.setType(IQ.Type.SET);                
+         registration.addAttribute("username", newUsername);
+         registration.addAttribute("password", newPassword);
+         connection.sendPacket(registration);
+    	
+    }
     public void broadcastStatus(String inf){
     	Intent intentSend = new Intent(PushServiceUtil.ACTION_STATUS);
 		intentSend.putExtra(PushServiceUtil.PUSH_STATUS, inf);

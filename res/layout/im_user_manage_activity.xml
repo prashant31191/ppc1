@@ -3,18 +3,64 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res/com.smit.EasyLauncher"
   android:layout_width="match_parent"
-  android:layout_height="match_parent" android:orientation="vertical">
+  android:layout_height="match_parent" android:orientation="vertical"
+  android:weightSum="1"
+  android:background="@drawable/im_seting_bg">
    
-    <TextView android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/user_manage"></TextView>
-    <LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/linearLayout1">
-        <Button android:text="@string/add_user" android:layout_width="wrap_content" android:layout_gravity="center" android:layout_height="wrap_content" android:id="@+id/add_user"></Button>
-        <Button android:text="@string/add_group" android:id="@+id/add_group" android:layout_width="wrap_content" android:layout_gravity="center" android:layout_height="wrap_content"></Button>
-    </LinearLayout>
+    
+   <TextView android:id="@+id/textView1" 
+   		android:layout_width="match_parent" 
+   		android:layout_height="wrap_content" 
+   		android:text="@string/user_manage"
+   		android:textSize="20sp"
+   		android:textColor="@color/black"
+   		android:gravity="center_vertical"
+   		android:paddingLeft="13dip"
+   		android:background="@drawable/im_title_bg">
+   	</TextView>
+   
+   <LinearLayout android:layout_width="match_parent" 
+   		android:id="@+id/linearLayout1"
+   		android:background="@drawable/im_group_manage_bg" 
+   		android:orientation="vertical" 
+   		android:layout_height="wrap_content"
+   		android:layout_marginTop="5dp"
+   		>
+   
+	    <LinearLayout android:layout_width="match_parent" 
+	    	android:id="@+id/linearLayout1" 
+	    	android:layout_height="50dp">
+	        <View android:layout_weight="1" android:id="@+id/view3" android:layout_width="0dp" android:layout_height="1dp"></View>
+	        <Button android:text="@string/add_user" 
+	            android:textSize="15sp"
+	        	android:layout_width="wrap_content" 
+	        	android:layout_gravity="center" 
+	        	android:layout_height="wrap_content" 
+	        	android:id="@+id/add_user"
+	        	android:drawableLeft="@drawable/im_add_user"
+	        	android:background="@null">
+	        </Button>
+	        <View android:layout_weight="1" android:id="@+id/view1" android:layout_width="0dp" android:layout_height="1dp"></View>
+	        <Button android:text="@string/add_group" 
+	        	android:id="@+id/add_group" 
+	        	android:textSize="15sp"
+	        	android:layout_width="wrap_content" 
+	        	android:layout_gravity="center" 
+	        	android:layout_height="wrap_content"
+	        	android:drawableLeft="@drawable/im_add_group"
+	        	android:background="@null">
+	        </Button>
+	        <View android:layout_weight="1" android:layout_height="1dp" android:id="@+id/view2" android:layout_width="0dp"></View>
+	    </LinearLayout>
   
-  <fragment class="com.openims.view.chat.widget.FriendListFragment"	  	
-		android:id="@+id/user_manage_fragment" 
-		android:layout_width="match_parent"
-		android:layout_height="10px"
-		android:layout_weight="10" 
-		app:editable="true"/>
+	  <fragment class="com.openims.view.chat.widget.FriendListFragment"	  	
+			android:id="@+id/user_manage_fragment" 
+			android:layout_width="match_parent"
+			android:layout_height="0px"
+			android:layout_weight="10" 
+			app:editable="true">
+	  </fragment>
+	
+	</LinearLayout>
+	
 </LinearLayout>

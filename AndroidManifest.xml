@@ -114,6 +114,10 @@
 				<action android:name="com.openims.service.IMService.LOGIN" />
 			</intent-filter>
 			<intent-filter>
+				<action android:name="com.openims.service.IMService.REGUSER" />
+			</intent-filter>
+			
+			<intent-filter>
 				<action android:name="com.openims.service.IMService.CONNECT" />
 			</intent-filter>
 			<intent-filter>

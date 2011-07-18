@@ -5,7 +5,7 @@
   	
 	<RelativeLayout
 	  android:layout_width="wrap_content"
-	  android:layout_height="match_parent"
+	  android:layout_height="50dip"
 	  android:layout_weight="10">
 	    <ImageView android:src="@drawable/icon" 
 	    	android:id="@+id/imageView" 
@@ -14,28 +14,24 @@
 	    	android:layout_marginLeft="10dip"
 	    	android:layout_marginRight="10dip"
 	    	android:layout_marginTop="5dip"
-	    	android:layout_marginBottom="5dip">
-	    </ImageView>
-	    <TextView android:text="TextView" 
-	    	android:id="@+id/username" 
-	    	android:layout_width="wrap_content" 
-	    	android:layout_height="wrap_content"
-	    	android:textSize="14sp" 
-			android:textStyle="bold" 
-			android:textColor="@color/main_blue"
-			android:layout_marginTop="0dip"
-			android:layout_toRightOf="@+id/imageView">
-	    </TextView> 
+	    	android:layout_marginBottom="5dip"
+	    	android:layout_centerVertical="true">
+	    </ImageView> 
 	    <TextView android:text="让心飞翔..." 
 	    	android:id="@+id/sign" 
 	    	android:layout_width="wrap_content" 
 	    	android:layout_height="wrap_content"
 	    	android:textSize="14sp" 
-			android:textStyle="bold" 
-			android:textColor="@color/white"
+			android:textColor="@color/black"
 			android:layout_toRightOf="@+id/imageView"
 			android:layout_below="@+id/username">
-	    </TextView> 	     
+	    </TextView>
+	    <TextView android:id="@+id/username" 
+	    	android:layout_height="wrap_content" 
+	    	android:layout_width="wrap_content" 
+	    	android:textColor="@color/black" 
+	    	android:text="name" android:textSize="14sp" 
+	    	android:layout_alignTop="@+id/imageView" android:layout_alignLeft="@+id/sign"></TextView> 	     
 	   
 	</RelativeLayout>
 	<ImageView android:src="@drawable/im_user_move" 
@@ -44,15 +40,17 @@
     	android:layout_width="wrap_content"
     	android:layout_gravity="center"
     	android:adjustViewBounds="true"
-    	android:layout_marginRight="10dip">
+    	android:paddingLeft="10dp"
+    	android:paddingRight="10dp">
     </ImageView>
 	 <ImageView android:src="@drawable/im_user_edit" 
     	android:id="@+id/im_entry_edit" 
     	android:layout_height="wrap_content" 
     	android:layout_width="wrap_content"
     	android:layout_gravity="center"
-    	android:adjustViewBounds="true"
-    	android:layout_marginRight="10dip">
+    	android:adjustViewBounds="true"    	
+    	android:paddingLeft="10dp"
+    	android:paddingRight="10dp">
     </ImageView>
     <ImageView android:src="@drawable/im_user_delete" 
     	android:id="@+id/im_entry_delete" 
@@ -60,7 +58,8 @@
     	android:layout_width="wrap_content"
     	android:layout_gravity="center"
     	android:adjustViewBounds="true"
-    	android:layout_marginRight="10dip">
+    	android:paddingLeft="10dp"
+    	android:paddingRight="10dp">
     </ImageView>
     
 </LinearLayout>

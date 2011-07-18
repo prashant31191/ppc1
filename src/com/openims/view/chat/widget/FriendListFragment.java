@@ -125,7 +125,6 @@ public class FriendListFragment extends Fragment
 		mFriendListView = (FriendGroupListView)v.findViewById(R.id.listview_friend);
 		mFriendListView.setEditable(mEditable);
 		indicatorGroup = (LinearLayout)v.findViewById(R.id.indicatorGroup);
-		//indicatorGroup.setBackgroundColor(0x55ff0000);
 		if(mEditable){
 			indicatorGroup.setVisibility(View.INVISIBLE);
 		}
@@ -788,7 +787,9 @@ public class FriendListFragment extends Fragment
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
-		
+		if(mEditable){			
+			return;
+		}
 		ExpandableListView listView = (ExpandableListView)view;
 		int npos = view.pointToPosition(1,1);
 		if(npos != AdapterView.INVALID_POSITION){

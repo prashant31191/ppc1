@@ -50,7 +50,11 @@ public class Setting extends Activity {
         unregisterReceiver(receiver);  
     };
     private void sendStateReq(){
-    	startService(new Intent(PushServiceUtil.ACTION_SERVICE_LOGIN));
+    	Intent intent = new Intent();
+		intent.putExtra(PushServiceUtil.XMPP_USERNAME, "test2");	
+		intent.putExtra(PushServiceUtil.XMPP_PASSWORD, "123456");	
+		intent.setAction(PushServiceUtil.ACTION_SERVICE_LOGIN);
+    	startService(intent);		
     }
     private void getUserInf(){
     	String userId = null;

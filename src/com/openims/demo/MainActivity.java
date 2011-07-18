@@ -82,7 +82,8 @@ public class MainActivity extends Activity {
         endService.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {				
-				stopService(new Intent(PushServiceUtil.ACTION_SERVICE_CONNECT));
+				startService(new Intent(PushServiceUtil.ACTION_SERVICE_REGISTER_USER));
+				//stopService(new Intent(PushServiceUtil.ACTION_SERVICE_REGISTER_USER));
 			}
 		});
         // register push
@@ -117,8 +118,8 @@ public class MainActivity extends Activity {
         btnTopic.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this,PushActivity.class);				
-		        startActivity(intent);		    	
+				//Intent intent = new Intent(MainActivity.this,PushActivity.class);				
+		        //startActivity(intent);		    	
 			}
 		});
     }

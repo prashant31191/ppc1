@@ -20,6 +20,10 @@ public class PushServiceUtil{
      */
     public static final String ACTION_SERVICE_LOGIN = "com.openims.service.IMService.LOGIN";
     
+    /**
+     * register user account
+     */
+    public static final String ACTION_SERVICE_REGISTER_USER = "com.openims.service.IMService.REGUSER";
     // the action for broadcast
     public static final String ACTION_REGISTRATION = "com.openims.pushService.REGISTRATION";
     public static final String ACTION_RECEIVE = "com.openims.pushService.RECEIVE";

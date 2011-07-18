@@ -99,7 +99,7 @@ public class LoginActivity extends Activity {
         context = this;
         
 		m_MyDataBaseAdapter = new LoginDataBaseAdapter(this);		
-		m_MyDataBaseAdapter.open();		
+//		m_MyDataBaseAdapter.open();		
 	
         mBotton1.setOnClickListener(new OnClickListener() {
     		public void onClick(View v) {
@@ -234,7 +234,7 @@ public class LoginActivity extends Activity {
 	     int x = (int) event.getX();
 	        int y = (int) event.getY();
 			if(!IsOnclickRecy(x,y)){
-				m_MyDataBaseAdapter.close();
+//				m_MyDataBaseAdapter.close();
 				LoginActivity.this.finish();
 			}
 		return super.onTouchEvent(event);
@@ -298,7 +298,7 @@ public class LoginActivity extends Activity {
 		if (keyCode == KeyEvent.KEYCODE_BACK)
 		{
 			/* 退出时，不要忘记关闭 */
-			m_MyDataBaseAdapter.close();
+//			m_MyDataBaseAdapter.close();
 			LoginActivity.this.finish();
 			return true;
 		}
@@ -392,13 +392,15 @@ public class LoginActivity extends Activity {
         super.onResume();  
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
-        registerReceiver(receiver, intentFilter);       
+        registerReceiver(receiver, intentFilter);  
+        m_MyDataBaseAdapter.open();
     }  
       
     @Override  
     protected void onPause() {  
         super.onPause();  
-        unregisterReceiver(receiver);  
+        unregisterReceiver(receiver);
+        m_MyDataBaseAdapter.close();
     }
     
     public class InnerReceiver extends BroadcastReceiver{
@@ -419,7 +421,7 @@ public class LoginActivity extends Activity {
 	
 	    		}
 	    		m_Dialog.dismiss();
-	    		m_MyDataBaseAdapter.close();
+//	    		m_MyDataBaseAdapter.close();
 	    		LoginActivity.this.finish();
     		}
     	}

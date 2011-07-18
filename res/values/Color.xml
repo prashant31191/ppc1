@@ -5,4 +5,5 @@
     <color name="main_blue">#FF41B2FB</color>    
     <color name="widget_bg">#ff1c1c32</color>
     <color name="transparent">#00000000</color>
+    <color name="white_transparent">#55000000</color>
 </resources>
