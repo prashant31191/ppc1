@@ -107,7 +107,10 @@ public class IMService extends Service  {
 
         	login();
         }else if(PushServiceUtil.ACTION_SERVICE_REGISTER_USER.equals(action)){
-        	xmppManager.registerAccount("chenyz", "123456");
+    		String username = intent.getStringExtra(PushServiceUtil.XMPP_USERNAME);
+    		String password = intent.getStringExtra(PushServiceUtil.XMPP_PASSWORD);
+  
+        	xmppManager.registerAccount(username, password);
         }else if(PushServiceUtil.ACTION_SERVICE_LOGOUT.equals(action)){
         	logout();
         }

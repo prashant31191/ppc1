@@ -38,6 +38,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -57,35 +58,71 @@ public class Register extends Activity {
 	private EasyLauncher mLauncher;
 	private Animation myAnimation_Rotate;  //Ðý×ª
 	private LoginDataBaseAdapter m_MyDataBaseAdapter;
-	private TextView mTextView1;
-	private TextView mTextView2;
+	private EditText mEditText1;
+	private EditText mEditText2;
+	private EditText mEditText3;
 	private Button mBotton1;
 	private Button mBotton2;
 	private CheckBox  checkBox1;
 	private CheckBox  checkBox2;
 	private ImageButton mImageBotton;
 	private ListView m_ListView	= null;
-	private Context context;
+	private Context mContext;
 	private PopupWindow mPopupWindow = null;
-	private BroadcastReceiver receiver;
+	private BroadcastReceiver receiver = new RegisterReceiver();
 	private ProgressDialog m_Dialog;
 	
 	private String username;
 	private String password;
-	private String savepwd;
+	private String confirm_pwd;
 	private boolean bAutoLogin;
-
 	
-	public void setLauncher(EasyLauncher launcher)
-	{
-		mLauncher=launcher;
-	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setTheme(R.style.Transparent);
 		setContentView(R.layout.registerpage);
+		mContext = this;
+		mEditText1 = (EditText)findViewById(R.id.reg_edit_account);
+		mEditText2 = (EditText)findViewById(R.id.reg_edit_pwd);
+		mEditText3 = (EditText)findViewById(R.id.reg_confirm_pwd);
+		mBotton1 = (Button)findViewById(R.id.reg_btn_ok);
+        mBotton2 = (Button)findViewById(R.id.reg_btn_cancel);
+   
+        mBotton1.setOnClickListener(new OnClickListener() {
+    		public void onClick(View v) {
+    			    			
+	    		username = mEditText1.getText().toString();
+	    		password = mEditText2.getText().toString();
+	    		confirm_pwd = mEditText3.getText().toString();
+	    		
+	    		if(password.equals(confirm_pwd)&&!username.isEmpty()&&!password.isEmpty()){
+				Intent intent = new Intent();
+				intent.putExtra(PushServiceUtil.XMPP_USERNAME, username);	
+				intent.putExtra(PushServiceUtil.XMPP_PASSWORD, password);	
+				intent.setAction(PushServiceUtil.ACTION_SERVICE_REGISTER_USER);
+		    	startService(intent);
+		    	
+			    	m_Dialog = ProgressDialog.show
+	                (
+	                  mContext,
+	                  "ÇëµÈ´ý...",
+	                  "ÕýÔÚ×¢²á...", 
+	                  true
+	                );
+		    	
+	    		}else{
+					Toast.makeText(mContext, "ÊäÈëÓÐÎó", Toast.LENGTH_SHORT).show();		
+	    		}
+    		}
+    	});
+        
+        mBotton2.setOnClickListener(new OnClickListener() {
+    		public void onClick(View v) {
+    			 Register.this.finish();
+    		}
+    	});
         
         if(!EasyLauncher.isFirstInit())
         {
@@ -164,4 +201,40 @@ public class Register extends Activity {
 		return ret;
 	}
 
+    @Override  
+    protected void onResume() {  
+        super.onResume();  
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
+        registerReceiver(receiver, intentFilter);  
+    }  
+      
+    @Override  
+    protected void onPause() {  
+        super.onPause();  
+        unregisterReceiver(receiver);
+    }
+    
+    public class RegisterReceiver extends BroadcastReceiver{
+        
+    	@Override
+    	public void onReceive(Context context,Intent intent){
+    		Log.d("login ----","intent : "+intent);
+    		if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
+	    		String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
+	    		Log.d("login ----","STATUSE:"+status);
+	    		if(status.equals(PushServiceUtil.PUSH_STATUS_REGISTER_SUC)){
+	     			     				     	
+					Toast.makeText(context, "×¢  ²á  ³É  ¹¦", Toast.LENGTH_SHORT).show();	
+		    		m_Dialog.dismiss();
+		    		Register.this.finish();
+	                
+	    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_REGISTER_FAIL)){
+					Toast.makeText(context, "×¢  ²á  Ê§  °Ü", Toast.LENGTH_SHORT).show();
+		    		m_Dialog.dismiss();
+		    		Register.this.finish();
+	    		}
+    		}
+    	}
+    }
 }

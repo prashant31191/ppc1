@@ -364,6 +364,7 @@ public class LoginActivity extends Activity {
 	    				checkBox2.setChecked(true);
 	    			}else{
 	    				checkBox2.setChecked(false);
+	    				mTextView2.setText("");
 	    			}
 	    			mPopupWindow.dismiss();	
 	    		}
@@ -414,14 +415,15 @@ public class LoginActivity extends Activity {
 	    		if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_SUC)){
 	     			
 	    			AddData();	     				     	
-					Toast.makeText(context, "µÇÂ½³É¹¦", Toast.LENGTH_SHORT).show();		
-	                
-	    		}else{
+					Toast.makeText(context, "µÇÂ½³É¹¦", Toast.LENGTH_SHORT).show();
+		    		m_Dialog.dismiss();
+		    		LoginActivity.this.finish();
+					
+	    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL)){
 					Toast.makeText(context, "µÇÂ½Ê§°Ü", Toast.LENGTH_SHORT).show();		
-	
+		    		m_Dialog.dismiss();
+		    		LoginActivity.this.finish();
 	    		}
-	    		m_Dialog.dismiss();
-	    		LoginActivity.this.finish();
     		}
     	}
     }
