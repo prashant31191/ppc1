@@ -43,7 +43,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -60,6 +62,7 @@ public class NewsListFragment extends ListFragment {
 	public NewsMoveParse mMovieParse = null;
 	private AlertDialog.Builder mBuilderpass;
 	private AlertDialog mAlertpass;
+	WebView mWebView;
 	
 	private static String VIDEO_ITEM_FILE_DIR = "data/data/com.smit.EasyLauncher/files";// 视屏文件
 	private static String VIDEO_ITEM_FILE = "data/data/com.smit.EasyLauncher/files/news.xml";// 视屏文件
@@ -71,6 +74,40 @@ public class NewsListFragment extends ListFragment {
 		
 		setRetainInstance(true);
 	}
+	
+	  private void setWebViewClient()
+	    {
+		  
+	    	WebViewClient wvc = new WebViewClient() {
+	            @Override
+	            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+	                mWebView.loadUrl(url);
+	                // 记得消耗掉这个事件。给不知道的朋友再解释一下，Android中返回True的意思就是到此为止吧,事件就会不会冒泡传递了，我们称之为消耗掉
+	                return true;
+	            }
+
+	            @Override
+	            public void onPageStarted(WebView view, String url, Bitmap favicon){
+	                //Toast.makeText(getApplicationContext(), "WebViewClient.onPageStarted", Toast.LENGTH_SHORT).show();
+	                super.onPageStarted(view, url, favicon);
+	            }
+
+	            @Override
+	            public void onPageFinished(WebView view, String url) {
+	                //Toast.makeText(getApplicationContext(), "WebViewClient.onPageFinished", Toast.LENGTH_SHORT).show();
+	                super.onPageFinished(view, url);
+	            }
+
+	            @Override
+	            public void onLoadResource(WebView view, String url) {
+	                //Toast.makeText(getApplicationContext(), "WebViewClient.onLoadResource", Toast.LENGTH_SHORT).show();
+	                super.onLoadResource(view, url);
+	            }
+	        };
+	       
+	        mWebView.setWebViewClient(wvc);
+	    }
+
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -103,16 +140,20 @@ public class NewsListFragment extends ListFragment {
 				if (curItem!=null && curItem.getNewsLink()!=null
 						&&curItem.getNewsLink().length()>0) {
 					
-					WebView mWebView=new WebView(getActivity());
-					mWebView.loadUrl(curItem.getNewsLink());
+			/*		mWebView=new WebView(getActivity());
+					LayoutParams myParams=new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT);
+					mWebView.setLayoutParams(myParams); 
+					setWebViewClient();
+					mWebView.loadUrl(curItem.getNewsLink());*/
 					
-					/*Intent intent = new Intent();
+					
+					Intent intent = new Intent();
 					intent.setClass(getActivity(), FlashPlayerActivity.class);
 					Bundle myBund = new Bundle();// 创建Bundle，用于保存要传送的数据
 					String mystr = curItem.getNewsLink();
 					myBund.putString("media", mystr);// KEY-VALUE保存起来
 					intent.putExtras(myBund);// 设置Intent要传送的包
-					getActivity().startActivity(intent);*/
+					getActivity().startActivity(intent);
 					
 				}
 				
