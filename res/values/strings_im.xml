@@ -103,5 +103,6 @@
     <string name="add_user">点击搜索添加联系人</string>
     <string name="pc_title">PC推送助手</string>
     <string name="im_new_message">有新的消息啦</string>
+    <string name="im_no_more_group">没有更多分组</string>
     
 </resources>

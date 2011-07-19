@@ -224,7 +224,11 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
             }
 
             bindView(position, v);
-
+            if(position%2 == 0){
+            	v.setBackgroundColor(0xFFDDDEDF);
+            }else{
+            	v.setBackgroundColor(0xFFB9BECA);
+            }
             return v;
         }
         
