@@ -65,7 +65,7 @@ public class LoginActivity extends Activity {
 	private CheckBox  checkBox2;
 	private ImageButton mImageBotton;
 	private ListView m_ListView	= null;
-	private Context context;
+	private Context mContext;
 	private ListViewAdapter adapter;
 	private PopupWindow mPopupWindow = null;
 	private BroadcastReceiver receiver;
@@ -96,14 +96,16 @@ public class LoginActivity extends Activity {
 		checkBox2 = (CheckBox) findViewById(R.id.login_cb_savepwd);
         m_ListView = new ListView(this);		
 		receiver = new InnerReceiver();
-        context = this;
+		mContext = this;
         
 		m_MyDataBaseAdapter = new LoginDataBaseAdapter(this);		
 //		m_MyDataBaseAdapter.open();		
 	
         mBotton1.setOnClickListener(new OnClickListener() {
     		public void onClick(View v) {
-
+				Intent intent = new Intent();
+				intent.setClass(mContext, Register.class);
+				startActivity(intent);	
     		}
     	});
         
@@ -138,7 +140,7 @@ public class LoginActivity extends Activity {
 		    	
 		    	m_Dialog = ProgressDialog.show
                 (
-        		   context,
+                  mContext,
                   "请等待...",
                   "正在为你登录...", 
                   true
@@ -173,7 +175,7 @@ public class LoginActivity extends Activity {
     				mPopupWindow = new PopupWindow(m_ListView,260,LinearLayout.LayoutParams.WRAP_CONTENT);  
     			}
     			if(!mPopupWindow.isShowing()){
-    			adapter = new ListViewAdapter(context);
+    			adapter = new ListViewAdapter(mContext);
     			m_ListView.setAdapter(adapter);
     			m_ListView.invalidate();   
     			mPopupWindow.showAsDropDown(findViewById(R.id.login_edit_account));
@@ -234,7 +236,6 @@ public class LoginActivity extends Activity {
 	     int x = (int) event.getX();
 	        int y = (int) event.getY();
 			if(!IsOnclickRecy(x,y)){
-//				m_MyDataBaseAdapter.close();
 				LoginActivity.this.finish();
 			}
 		return super.onTouchEvent(event);
@@ -287,7 +288,7 @@ public class LoginActivity extends Activity {
 	public void DeleteData(String num)
 	{
 		m_MyDataBaseAdapter.deleteData(num);
-		adapter = new ListViewAdapter(context);
+		adapter = new ListViewAdapter(mContext);
 		m_ListView.setAdapter(adapter);
 		m_ListView.invalidate();   
 	}
@@ -298,7 +299,6 @@ public class LoginActivity extends Activity {
 		if (keyCode == KeyEvent.KEYCODE_BACK)
 		{
 			/* 退出时，不要忘记关闭 */
-//			m_MyDataBaseAdapter.close();
 			LoginActivity.this.finish();
 			return true;
 		}
@@ -421,7 +421,6 @@ public class LoginActivity extends Activity {
 	
 	    		}
 	    		m_Dialog.dismiss();
-//	    		m_MyDataBaseAdapter.close();
 	    		LoginActivity.this.finish();
     		}
     	}

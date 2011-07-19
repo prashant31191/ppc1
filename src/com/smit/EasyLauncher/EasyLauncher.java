@@ -9,6 +9,7 @@ import java.util.LinkedList;
 
 
 
+import com.openims.utility.PushServiceUtil;
 import com.smit.DeskView.vodvideo.VODVideoFragment;
 import com.smit.DeskView.vodvideo.VODVideoListFragment;
 import com.smit.MyView.MyViewctrl;
@@ -17,6 +18,7 @@ import com.smit.MyView.MyViewctrl;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.app.StatusBarManager;
 import android.app.WallpaperManager;
@@ -31,6 +33,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Intent.ShortcutIconResource;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -202,6 +205,8 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private boolean mWaitingForResult;
     private boolean mOnResumeNeedsLoad;
     private boolean mLocaleChanged = false;
+    private static boolean isLogin = false;
+    private ProgressDialog m_Dialog;
 
     private Bundle mSavedInstanceState;
 
@@ -223,6 +228,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private ArrayList<ItemInfo> mDesktopItems = new ArrayList<ItemInfo>();
     
     //private final BroadcastReceiver mCloseSystemDialogsReceiver= new CloseSystemDialogsIntentReceiver();
+    private BroadcastReceiver receiver = new LoginStatusReceiver();
     private final ContentObserver mWidgetObserver = new AppWidgetResetObserver();
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -725,6 +731,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 		@Override
 		public void onClick(View arg0) {
 			// TODO Auto-generated method stub
+			if(!isLogin){
 					Intent intent = new Intent();
 					//Bundle extras = new Bundle();
 					
@@ -733,10 +740,20 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 					intent.setClass(mContext, LoginActivity.class);
 					//LoginActivity
 					startActivity(intent);	
-//			final LoginView mQuickAction 	= new LoginView(arg0);
-//			//mQuickAction.window.getContentView().setf
-//			mQuickAction.show();
-			
+		//			final LoginView mQuickAction 	= new LoginView(arg0);
+		//			//mQuickAction.window.getContentView().setf
+		//			mQuickAction.show();
+			}else{
+		    	m_Dialog = ProgressDialog.show
+                (
+                  mContext,
+                  "请等待...",
+                  "正在退出...", 
+                  true
+                );
+		    		
+		    	startService(new Intent(PushServiceUtil.ACTION_SERVICE_LOGOUT));	
+			}
 
 		}
 		
@@ -1206,13 +1223,46 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         // Do not call super here
         mSavedInstanceState = savedInstanceState;
     }
-@Override
-protected void onStop() {
-	// TODO Auto-generated method stub
-	//mWindowManager.removeView(mControlView);
-	//mWindowManager.
-	super.onStop();
-}
+    
+	@Override
+	protected void onStart() {
+
+		super.onStart();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
+        registerReceiver(receiver, intentFilter); 
+	}
+    
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		//mWindowManager.removeView(mControlView);
+		//mWindowManager.
+		super.onStop();
+        unregisterReceiver(receiver); 
+	}
+	
+    public class LoginStatusReceiver extends BroadcastReceiver{        
+    	@Override
+    	public void onReceive(Context context,Intent intent){
+    		Log.d("login ----111  ","intent : "+intent);
+    		if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
+	    		String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
+	    		Log.d("login ----111  ","STATUSE:"+status);
+	    		if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_SUC)){
+	    			
+	    			mLoginButton.setImageResource(R.drawable.quitface_selector);	
+	    			isLogin = true;
+	    		}else{
+	    			m_Dialog.dismiss();
+	    			mLoginButton.setImageResource(R.drawable.unloginface_selector);	
+	    			isLogin = false;	
+					Toast.makeText(context, "未登陆", Toast.LENGTH_SHORT).show();		
+	    		}
+    		}
+    	}
+    }	
+	
     @Override
     protected void onSaveInstanceState(Bundle outState) {
     	int page=mWorkspace.getCurrentScreen();

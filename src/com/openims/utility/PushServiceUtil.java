@@ -19,7 +19,7 @@ public class PushServiceUtil{
      * login/logout server
      */
     public static final String ACTION_SERVICE_LOGIN = "com.openims.service.IMService.LOGIN";
-    
+    public static final String ACTION_SERVICE_LOGOUT = "com.openims.service.IMService.LOGOUT";
     /**
      * register user account
      */

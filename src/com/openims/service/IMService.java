@@ -105,14 +105,13 @@ public class IMService extends Service  {
     		String password = intent.getStringExtra(PushServiceUtil.XMPP_PASSWORD);
     		boolean auto_login = intent.getBooleanExtra(PushServiceUtil.XMPP_AUTO_LOGIN,false);
             
-    		Log.d("username=",   username);
-            Log.d("password=",   password);
             setLogin(username,password,auto_login);
-//    		xmppManager.setUsername(username);
-//    		xmppManager.setPassword(password);
+
         	login();
         }else if(PushServiceUtil.ACTION_SERVICE_REGISTER_USER.equals(action)){
         	xmppManager.registerAccount("chenyz", "123456");
+        }else if(PushServiceUtil.ACTION_SERVICE_LOGOUT.equals(action)){
+        	logout();
         }
     }
     
