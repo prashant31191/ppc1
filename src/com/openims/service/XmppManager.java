@@ -265,9 +265,9 @@ public class XmppManager{
                 reconnection.start();
             }
         }*/    	
-    	reconnection = new ReconnectionThread(this);
-    	reconnection.start();
-    	increaseReconnectTime();
+    	//reconnection = new ReconnectionThread(this);
+    	//reconnection.start();
+    	//increaseReconnectTime();
     }
     private void stopReconnectionThread(){
     	if(reconnection==null)
@@ -285,7 +285,11 @@ public class XmppManager{
     private void resetReconnectTime(){
     	reconnectTime = 0;
     }
-    
+    private void clearTask(){
+    	taskList.clear();
+    	taskTracker.count = 0; 
+    	running = false;
+    }
     private void runTask() {
         Log.d(LOGTAG, "runTask()...");
         synchronized (taskList) {
@@ -424,14 +428,14 @@ public class XmppManager{
                 connConfig.setReconnectionAllowed(true);
 
                 XMPPConnection connection = new XMPPConnection(connConfig);
-                xmppManager.setConnection(connection);
-               
+                xmppManager.setConnection(connection);                
+                
 
                 try {
                     // Connect to the server
                 	Log.i(LOGTAG, "Start to connect...");
                     connection.connect();
-                    Log.i(LOGTAG, "XMPP connected successfully");
+                    Log.i(LOGTAG, "XMPP connected successfully");   
                     
                     // Set the status to available
                     Log.i(LOGTAG, TAG+"set presence");
@@ -579,7 +583,8 @@ public class XmppManager{
                     String errorMessage = e.getMessage();
                     if (errorMessage != null
                         && errorMessage.contains(INVALID_CREDENTIALS_ERROR_CODE)) {
-                        //xmppManager.reregisterAccount();
+                    	broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_UNREG);
+                    	xmppManager.clearTask();
                         return;
                     }                    
 
@@ -605,6 +610,8 @@ public class XmppManager{
          removeAccount();
          submitRegisterTask();
          runTask();
+         
+         //Collection<String> a =  connection.getAccountManager().getAccountAttributes();
     	
     }
     public void broadcastStatus(String inf){

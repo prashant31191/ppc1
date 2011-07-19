@@ -56,6 +56,7 @@ public class PushServiceUtil{
     public static final String PUSH_STATUS_LOGIN_SUC = "LOGIN_SUC";
     public static final String PUSH_STATUS_REGISTER_SUC = "REGISTER_SUC";
     public static final String PUSH_STATUS_LOGOUT = "logout_suc";
+    public static final String PUSH_STATUS_LOGIN_UNREG = "account_unregister";
     
     // connection status
     public static final String PUSH_STATUS_NONETWORK = "NO_NETWORK";

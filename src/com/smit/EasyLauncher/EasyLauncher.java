@@ -1254,7 +1254,11 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 	    			mLoginButton.setImageResource(R.drawable.quitface_selector);	
 	    			isLogin = true;
 	    		}else{
-	    			m_Dialog.dismiss();
+	    			//TODO 有个异常在这里,我修改了 chenyz  2011-7-19 13:29:31
+	    			// 你不在onDialogCreate里面去做创建吗，这样旋屏时可能有问题
+	    			if(m_Dialog != null){
+	    				m_Dialog.dismiss();
+	    			}	    			
 	    			mLoginButton.setImageResource(R.drawable.unloginface_selector);	
 	    			isLogin = false;	
 					Toast.makeText(context, "未登陆", Toast.LENGTH_SHORT).show();		

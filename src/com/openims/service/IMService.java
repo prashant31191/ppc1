@@ -95,9 +95,7 @@ public class IMService extends Service  {
         }else if(PushServiceUtil.ACTION_SERVICE_PUBSUB.equals(action)){
         	sendTopic(intent);
         }else if(PushServiceUtil.ACTION_SERVICE_CONNECT.equals(action)){
-        	if(isAutoLogin()){
-        		login();
-        	}
+        	autoLogin();
         }else if(PushServiceUtil.ACTION_SERVICE_LOGIN.equals(action)){
         	//TODO get login information and write to preference
         	
@@ -114,7 +112,11 @@ public class IMService extends Service  {
         	logout();
         }
     }
-    
+    public void autoLogin(){
+    	if(isAutoLogin()){
+    		login();
+    	}
+    }
     @Override
     public void onDestroy() {
         Log.d(TAG, PRE + "onDestroy()...");
@@ -138,16 +140,6 @@ public class IMService extends Service  {
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, PRE + "onUnbind()...");
         return true;
-    }
-    
-    
-    public void connect() {
-        Log.d(TAG, PRE + "connect()...");
-        taskSubmitter.submit(new Runnable() {
-            public void run() {
-                IMService.this.getXmppManager().startReconnectionThread();
-            }
-        });
     }
 
     public void disconnect() {
@@ -320,7 +312,12 @@ public class IMService extends Service  {
         filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
         filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(connectivityReceiver, filter);        
-        connect();
+        
+        taskSubmitter.submit(new Runnable() {
+            public void run() {
+                IMService.this.getXmppManager().connect();
+            }
+        });
     }
 
     private void logout() {            
