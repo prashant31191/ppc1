@@ -125,9 +125,7 @@ public class FriendListFragment extends Fragment
 		mFriendListView = (FriendGroupListView)v.findViewById(R.id.listview_friend);
 		mFriendListView.setEditable(mEditable);
 		indicatorGroup = (LinearLayout)v.findViewById(R.id.indicatorGroup);
-		if(mEditable){
-			indicatorGroup.setVisibility(View.INVISIBLE);
-		}
+		indicatorGroup.setVisibility(View.INVISIBLE);
 		
         mAdapter = new RosterExpandableListAdapter(mActivity); 
         inflater.inflate(mEditable?R.layout.im_friend_item_group_edit:
@@ -168,13 +166,17 @@ public class FriendListFragment extends Fragment
         mFriendListView.setOnScrollListener(this);
         roster.close();
 		return v;
-	}
-	
+	}	
 	public void reRoadData(){
 		
+		// initial data
 		MyApplication app = (MyApplication)mActivity.getApplication();
 		mAdminJid = app.getAdminJid();
 		xmppConnection = app.getConnection();
+		indicatorGroupId = -1;
+		if(mAdapter != null){
+			mAdapter.hideGroup(-1);
+		}
 		   
 		RosterDataBase roster = new RosterDataBase(mActivity,mAdminJid);
         try {
@@ -200,7 +202,8 @@ public class FriendListFragment extends Fragment
 				cursor.moveToNext();
 			}
 			
-			mAdapter.notifyDataSetChanged();
+			//mAdapter.notifyDataSetChanged();
+			mAdapter.notifyDataSetInvalidated();
 		} catch (Exception e) {			
 			Log.e(TAG, PRE + "—œ÷ÿ¥ÌŒÛ");
 			e.printStackTrace();
@@ -791,7 +794,7 @@ public class FriendListFragment extends Fragment
 			return;
 		}
 		ExpandableListView listView = (ExpandableListView)view;
-		int npos = view.pointToPosition(1,1);
+		int npos = view.pointToPosition(1,0);
 		if(npos != AdapterView.INVALID_POSITION){
 			long pos = listView.getExpandableListPosition(npos);
 			int childPos = ExpandableListView.getPackedPositionChild(pos);
@@ -803,15 +806,13 @@ public class FriendListFragment extends Fragment
 					return;
 				}
 			}
-			if(groupPos != indicatorGroupId){
-				
+			if(groupPos != indicatorGroupId){				
 				mAdapter.getGroupView(groupPos, 
 						listView.isGroupExpanded(groupPos), indicatorGroup.getChildAt(0), null);				
 				indicatorGroupId = groupPos;				
 				mAdapter.hideGroup(groupPos);				
 				mAdapter.notifyDataSetChanged();
-				Log.e(TAG,PRE + "START JIE TU height:" + indicatorGroupHeight 
-						+ " groupPos:" + groupPos);
+				Log.e(TAG,PRE + "move to new group" + groupPos);
 			}
 		}
 		int imageHeight = indicatorGroupHeight;
@@ -826,6 +827,7 @@ public class FriendListFragment extends Fragment
 				Log.e(TAG,PRE + "START UP MOVE:" + imageHeight);
 			}
 		}
+		// show group
 		MarginLayoutParams layoutParams = (MarginLayoutParams)indicatorGroup.getLayoutParams();
 		
 		layoutParams.topMargin = imageHeight-indicatorGroupHeight;
@@ -837,8 +839,10 @@ public class FriendListFragment extends Fragment
 			if(firstGroup == indicatorGroupId &&
 					listView.isGroupExpanded(indicatorGroupId) == false){
 				indicatorGroup.setVisibility(View.INVISIBLE);
+				Log.e(TAG,PRE + "indicator group hide");
 			}else{
 				indicatorGroup.setVisibility(View.VISIBLE);
+				Log.e(TAG,PRE + "indicator group show");
 			}
 		}
 				
@@ -919,7 +923,11 @@ public class FriendListFragment extends Fragment
 		fragment.show(getFragmentManager(), "dialog_friend");
 	}
 	private void showMoveEntryGroup(MyRosterEntry userEntry,String[] groups){
-		
+		if(groups == null || groups.length == 0){
+			Utility.showToast(mActivity, R.string.im_no_more_group,
+					Toast.LENGTH_SHORT);
+			return;
+		}
 		clearDialogBackStack();
 		EditDialogFragment fragment = EditDialogFragment.newInstance(this,
 				EditDialogFragment.REQCODE_MOVE_USER,null,userEntry);
