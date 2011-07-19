@@ -100,7 +100,7 @@ public class VODVideoListFragment extends ListFragment {
 				if (curItem!=null && curItem.getSrcUrl(0)!=null
 						&&curItem.getSrcUrl(0).length()>0) {
 					
-					WebView mWebView=new WebView(getActivity());
+				/*	WebView mWebView=new WebView(getActivity());
 					WebSettings mWebSetting = null;
 					if (mWebSetting == null) {
 						mWebSetting = mWebView.getSettings();
@@ -109,18 +109,17 @@ public class VODVideoListFragment extends ListFragment {
 						mWebSetting.setJavaScriptEnabled(true);
 						mWebSetting.setSupportZoom(true);
 						mWebSetting.setJavaScriptCanOpenWindowsAutomatically(true);
-						// mWebSetting.setAllowFileAccess(true);
 						mWebSetting.setPluginsEnabled(true);
-						mWebView.loadUrl(curItem.getSrcUrl(0));
+						mWebView.loadUrl(curItem.getSrcUrl(0));*/
 					
 						
-					/*Intent intent = new Intent();
+					Intent intent = new Intent();
 					intent.setClass(getActivity(), FlashPlayerActivity.class);
 					Bundle myBund = new Bundle();// 创建Bundle，用于保存要传送的数据
 					String mystr = curItem.getSrcUrl(0);
 					myBund.putString("media", mystr);// KEY-VALUE保存起来
 					intent.putExtras(myBund);// 设置Intent要传送的包
-					getActivity().startActivity(intent);*/
+					getActivity().startActivity(intent);
 					
 				}
 				

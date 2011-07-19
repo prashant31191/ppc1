@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -34,25 +35,13 @@ public class FlashPlayerActivity extends Activity {
 		setContentView(R.layout.flash_player);
 
 		initVariables();
-
-		/*
-		 * String urlToLoad =
-		 * "file:///data/data/com.smit.EasyLauncher/temp/fflvplayer.html";
-		 * loadWidgetShellIndexHtml(urlToLoad);
-		 */
+		
+		setWebViewClient();
+		
 		String string=getIntent().getExtras().getString("media");
 		mWebView.loadUrl(getIntent().getExtras().getString("media"));
 		
-		//mWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-		// mWebView.set
 	}
-
-	/*
-	 * public boolean onKeyDown(int keyCode, KeyEvent event) { if(keyCode ==
-	 * KeyEvent.KEYCODE_BACK) { if(mWebView != null) {
-	 * 
-	 * mWebView.loadUrl("about:blank"); finish(); } } return false; }
-	 */
 
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
@@ -77,16 +66,17 @@ public class FlashPlayerActivity extends Activity {
 		setBrowserAttribute();
 	}
 
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		mWebView.loadUrl("about:blank");
+	}
+	
 	private void setBrowserAttribute() {
 		if (mWebSetting == null) {
 			mWebSetting = mWebView.getSettings();
 		}
-
-		/*
-		 * mWebView.setWebViewClient(new WebViewClient(){ public boolean
-		 * shouldOverrideUrlLoading(WebView view, String url) {
-		 * view.loadUrl(url); return true; } });
-		 */
 
 		mWebSetting.setJavaScriptEnabled(true);
 		mWebSetting.setSupportZoom(true);
@@ -94,18 +84,45 @@ public class FlashPlayerActivity extends Activity {
 		// mWebSetting.setAllowFileAccess(true);
 		mWebSetting.setPluginsEnabled(true);
 	}
+	
+	 private void setWebViewClient()
+	    {
+		  
+	    	WebViewClient wvc = new WebViewClient() {
+	            @Override
+	            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+	                mWebView.loadUrl(url);
+	                // 记得消耗掉这个事件。给不知道的朋友再解释一下，Android中返回True的意思就是到此为止吧,事件就会不会冒泡传递了，我们称之为消耗掉
+	                return true;
+	            }
 
-	/*public boolean shouldOverrideUrlLoading(WebView view, String url) {
-		view.loadUrl(url);
-		return true;
-	}*/
+	            @Override
+	            public void onPageStarted(WebView view, String url, Bitmap favicon){
+	                //Toast.makeText(getApplicationContext(), "WebViewClient.onPageStarted", Toast.LENGTH_SHORT).show();
+	                super.onPageStarted(view, url, favicon);
+	            }
+
+	            @Override
+	            public void onPageFinished(WebView view, String url) {
+	                //Toast.makeText(getApplicationContext(), "WebViewClient.onPageFinished", Toast.LENGTH_SHORT).show();
+	                super.onPageFinished(view, url);
+	            }
+
+	            @Override
+	            public void onLoadResource(WebView view, String url) {
+	                //Toast.makeText(getApplicationContext(), "WebViewClient.onLoadResource", Toast.LENGTH_SHORT).show();
+	                super.onLoadResource(view, url);
+	            }
+	        };
+	       
+	        mWebView.setWebViewClient(wvc);
+	    }
 
 	public void loadWidgetShellIndexHtml(String indexHTMLFile) {
 
 		Log.i("LoadUrl", indexHTMLFile);
 		if (mWebView != null) {
 			mWebView.loadUrl(indexHTMLFile);
-			// mWebView.loadUrl("http://www.g.cn");
 		}
 	}
 
