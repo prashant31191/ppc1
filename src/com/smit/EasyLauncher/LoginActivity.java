@@ -131,6 +131,8 @@ public class LoginActivity extends Activity {
     		public void onClick(View v) {
 
     			if(mPopupWindow == null){
+        			adapter = new ListViewAdapter(mContext);
+        			m_ListView.setAdapter(adapter);
     				mPopupWindow = new PopupWindow(m_ListView,260,LinearLayout.LayoutParams.WRAP_CONTENT);  
     			}
     			if(!mPopupWindow.isShowing()){
