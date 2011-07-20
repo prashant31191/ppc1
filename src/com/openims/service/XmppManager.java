@@ -110,6 +110,7 @@ import com.openims.service.notificationPacket.UserQueryIQ;
 import com.openims.service.pubsub.SubListener;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
+import com.smit.EasyLauncher.R;
 /**
  * This class deal with login logout send message and broadcast
  * it is smack center
@@ -211,6 +212,9 @@ public class XmppManager{
      */
     public void disconnect() {
         Log.d(LOGTAG, "disconnect()...");
+        RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,mAdminJid);
+    	rosterDataBase.removeAll();  // delete all
+    	rosterDataBase.close();
         if (getConnection() != null && 
             	getConnection().isConnected()) 
         {
@@ -1009,6 +1013,10 @@ public class XmppManager{
     			rosterDataBase.insert(entry.getUser(), entry.getName(), rg.getName(),presenceInf);
     			
     		}
+    	}
+    	String defaultGroupName = getContext().getResources().getString(R.string.im_default_group_name);
+    	if(rosterDataBase.isGroupNameExist(defaultGroupName) == false){
+    		rosterDataBase.insert(mAdminJid, mAdminJid, defaultGroupName, null);
     	}
     	
     	rosterDataBase.close();
