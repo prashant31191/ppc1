@@ -47,6 +47,7 @@
 				android:maxLength="16" android:layout_below="@+id/reg_edit_account"
 				android:layout_alignLeft="@+id/reg_edit_account"
 				android:layout_alignRight="@+id/reg_edit_account"
+				android:hint="@string/strInputAccHint"
 				android:digits="@string/register_name_digits"/>
 			<TextView android:textSize="16.0dip" android:textColor="#ff3f3f3f"
 				android:gravity="center_vertical" android:id="@+id/TextView02"
@@ -63,6 +64,7 @@
 				android:maxLength="16" android:layout_below="@+id/reg_edit_pwd"
 				android:layout_alignLeft="@+id/reg_edit_pwd"
 				android:layout_alignRight="@+id/reg_edit_pwd"
+				android:hint="@string/strInputAccHint"
 				android:digits="@string/register_name_digits" />
 			<TextView android:textSize="16.0dip" android:textColor="#ff3f3f3f"
 				android:gravity="center_vertical" android:id="@+id/TextView03"

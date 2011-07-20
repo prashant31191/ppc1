@@ -1,28 +1,14 @@
 package com.smit.EasyLauncher;
 
 
-import java.util.ArrayList;
-
-import com.openims.demo.MainActivity;
 import com.openims.utility.PushServiceUtil;
-import com.openims.view.chat.MultiChatActivity;
-import com.openims.view.chat.widget.IMActivity;
-import com.openims.view.setting.Setting.InnerReceiver;
-import com.smit.MyView.MyViewctrl;
-
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,21 +20,16 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class LoginActivity extends Activity {
 	
@@ -98,8 +79,7 @@ public class LoginActivity extends Activity {
 		receiver = new InnerReceiver();
 		mContext = this;
         
-		m_MyDataBaseAdapter = new LoginDataBaseAdapter(this);		
-//		m_MyDataBaseAdapter.open();		
+		m_MyDataBaseAdapter = new LoginDataBaseAdapter(this);			
 	
         mBotton1.setOnClickListener(new OnClickListener() {
     		public void onClick(View v) {
@@ -134,38 +114,17 @@ public class LoginActivity extends Activity {
 				intent.putExtra(PushServiceUtil.XMPP_USERNAME, username);	
 				intent.putExtra(PushServiceUtil.XMPP_PASSWORD, password);	
 				intent.putExtra(PushServiceUtil.XMPP_AUTO_LOGIN, bAutoLogin);	
-//				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				intent.setAction(PushServiceUtil.ACTION_SERVICE_LOGIN);
 		    	startService(intent);		    	
 		    	
 		    	m_Dialog = ProgressDialog.show
                 (
                   mContext,
-                  "请等待...",
-                  "正在为你登录...", 
+                  getString(R.string.login_wait),
+                  getString(R.string.login_logining), 
                   true
                 );
-
-/*		    	 new Thread()
-                 { 
-                   public void run()
-                   { 
-                     try
-                     { 
-                       sleep(3000);
-                     }
-                     catch (Exception e)
-                     {
-                       e.printStackTrace();
-                     }
-                     finally
-                     {
-                     	//登录结束，取消m_Dialog对话框
-                     	m_Dialog.dismiss();
-                     }
-                   }
-                 }.start();
-*/    		}
+    		}
     	});
         
         mImageBotton.setOnClickListener(new OnClickListener() {
@@ -262,29 +221,21 @@ public class LoginActivity extends Activity {
 		return ret;
 	}
 
-	/* 更新一条数据 */
-	public void UpData()
-	{	
-	//	m_MyDataBaseAdapter.updateData(miCount, "修改的数据" + miCount);
-	}
-
-	/* 向表中添加一条数据 */
+	/* 向表中更新数据 */
 	public void AddData()
 	{				
 		if(m_MyDataBaseAdapter.fetchData(username).getCount() == 0)
 		{
-		System.out.println("---insertData0   : " + username);
 		m_MyDataBaseAdapter.insertData(username, password, savepwd);
 		}
 		
 		if(m_MyDataBaseAdapter.fetchData(username).getCount() == 1)
 		{
-		System.out.println("---updateData0   : " + username);
 		m_MyDataBaseAdapter.updateData(username, password, savepwd);
 		}
 	}
 
-	/* 从表中删除指定的一条数据 */
+	/* 向表中删除数据 */
 	public void DeleteData(String num)
 	{
 		m_MyDataBaseAdapter.deleteData(num);
@@ -293,12 +244,10 @@ public class LoginActivity extends Activity {
 		m_ListView.invalidate();   
 	}
 	
-	/* 按键事件处理 */
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
 		if (keyCode == KeyEvent.KEYCODE_BACK)
 		{
-			/* 退出时，不要忘记关闭 */
 			LoginActivity.this.finish();
 			return true;
 		}
@@ -315,7 +264,6 @@ public class LoginActivity extends Activity {
     		mContext = context;
     	}
 
-
     	public Object getItem(int position) {
     		return position;
     	}
@@ -329,7 +277,6 @@ public class LoginActivity extends Activity {
     		Button delete;
     	}
 
-    	// Make a view to hold each row.
     	@Override
     	public View getView(int position, View convertView, ViewGroup parent) {
     		
@@ -357,7 +304,6 @@ public class LoginActivity extends Activity {
             m_ViewItem.username.setText(String.valueOf(name));   
             m_ViewItem.username.setOnClickListener(new OnClickListener() {
 	    		public void onClick(View v) {
-	    			System.out.println("---chick  text---");
 	      			mTextView1.setText(String.valueOf(name));
 	    			mTextView2.setText(psw);
 	    			if(rem.equals("1")){
@@ -408,21 +354,20 @@ public class LoginActivity extends Activity {
         
     	@Override
     	public void onReceive(Context context,Intent intent){
-    		Log.d("login ----","intent : "+intent);
+
     		if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
 	    		String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
-	    		Log.d("login ----","STATUSE:"+status);
+
 	    		if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_SUC)){
 	     			
 	    			AddData();	     				     	
-					Toast.makeText(context, "登陆成功", Toast.LENGTH_SHORT).show();
+					Toast.makeText(context, R.string.login_login_suc, Toast.LENGTH_SHORT).show();
 		    		m_Dialog.dismiss();
 		    		LoginActivity.this.finish();
 					
 	    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL)){
-					Toast.makeText(context, "登陆失败", Toast.LENGTH_SHORT).show();		
+					Toast.makeText(context, R.string.login_login_fail, Toast.LENGTH_SHORT).show();		
 		    		m_Dialog.dismiss();
-		    		LoginActivity.this.finish();
 	    		}
     		}
     	}

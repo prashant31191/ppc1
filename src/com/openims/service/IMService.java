@@ -112,12 +112,15 @@ public class IMService extends Service  {
   
         	xmppManager.registerAccount(username, password);
         }else if(PushServiceUtil.ACTION_SERVICE_LOGOUT.equals(action)){
-        	logout();
+        	if(xmppManager.isAuthenticated())
+        		logout();
         }
     }
     public void autoLogin(){
     	if(isAutoLogin()){
-    		login();
+    		//加了if,不加自动登录会报错
+    		if(!xmppManager.isAuthenticated())
+    			login();
     	}
     }
     @Override
