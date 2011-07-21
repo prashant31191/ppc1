@@ -95,9 +95,7 @@ public class IMService extends Service  {
         }else if(PushServiceUtil.ACTION_SERVICE_PUBSUB.equals(action)){
         	sendTopic(intent);
         }else if(PushServiceUtil.ACTION_SERVICE_CONNECT.equals(action)){
-        	if(isAutoLogin()){
-        		login();
-        	}
+        	autoLogin();
         }else if(PushServiceUtil.ACTION_SERVICE_LOGIN.equals(action)){
         	//TODO get login information and write to preference
         	
@@ -105,17 +103,26 @@ public class IMService extends Service  {
     		String password = intent.getStringExtra(PushServiceUtil.XMPP_PASSWORD);
     		boolean auto_login = intent.getBooleanExtra(PushServiceUtil.XMPP_AUTO_LOGIN,false);
             
-    		Log.d("username=",   username);
-            Log.d("password=",   password);
             setLogin(username,password,auto_login);
-//    		xmppManager.setUsername(username);
-//    		xmppManager.setPassword(password);
+
         	login();
         }else if(PushServiceUtil.ACTION_SERVICE_REGISTER_USER.equals(action)){
-        	xmppManager.registerAccount("chenyz", "123456");
+    		String username = intent.getStringExtra(PushServiceUtil.XMPP_USERNAME);
+    		String password = intent.getStringExtra(PushServiceUtil.XMPP_PASSWORD);
+  
+        	xmppManager.registerAccount(username, password);
+        }else if(PushServiceUtil.ACTION_SERVICE_LOGOUT.equals(action)){
+        	if(xmppManager.isAuthenticated())
+        		logout();
         }
     }
-    
+    public void autoLogin(){
+    	if(isAutoLogin()){
+    		//加了if,不加自动登录会报错
+    		if(!xmppManager.isAuthenticated())
+    			login();
+    	}
+    }
     @Override
     public void onDestroy() {
         Log.d(TAG, PRE + "onDestroy()...");
@@ -139,16 +146,6 @@ public class IMService extends Service  {
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, PRE + "onUnbind()...");
         return true;
-    }
-    
-    
-    public void connect() {
-        Log.d(TAG, PRE + "connect()...");
-        taskSubmitter.submit(new Runnable() {
-            public void run() {
-                IMService.this.getXmppManager().startReconnectionThread();
-            }
-        });
     }
 
     public void disconnect() {
@@ -321,7 +318,12 @@ public class IMService extends Service  {
         filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
         filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(connectivityReceiver, filter);        
-        connect();
+        
+        taskSubmitter.submit(new Runnable() {
+            public void run() {
+                IMService.this.getXmppManager().connect();
+            }
+        });
     }
 
     private void logout() {            

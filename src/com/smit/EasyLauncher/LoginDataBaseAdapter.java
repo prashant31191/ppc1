@@ -9,40 +9,22 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public  class LoginDataBaseAdapter
 {
-	// 用于打印log
+
 	private static final String	TAG			= "LoginDataBaseAdapter";												
-
-	// 表中一条数据的内容
 	public static final String	KEY_NUM		= "num";												
-
-	// 表中一条数据的id
 	public static final String	KEY_PASSWORD		= "password";
-
-	// 表中一条数据的名称
 	public static final String	KEY_REMEMBER	= "remember";
-	
-	// 数据库名称为data
 	private static final String	DB_NAME			= "Login.db";
-	
-	// 数据库表名
 	private static final String	DB_TABLE		= "table1";
-	
-	// 数据库版本
 	private static final int	DB_VERSION		= 1;
-
-	// 本地Context对象
 	private Context				mContext		= null;
 	
 	//创建一个表
 	private static final String	DB_CREATE		= "CREATE TABLE " + DB_TABLE + " (" + KEY_NUM + " TEXT,"+ KEY_PASSWORD +" TEXT,"+ KEY_REMEMBER + " TEXT)";
 
-	// 执行open（）打开数据库时，保存返回的数据库对象
 	private SQLiteDatabase		mSQLiteDatabase	= null;
-
-	// 由SQLiteOpenHelper继承过来
 	private DatabaseHelper		mDatabaseHelper	= null;
-	
-	
+		
 	private static class DatabaseHelper extends SQLiteOpenHelper
 	{
 		/* 构造函数-创建一个数据库 */

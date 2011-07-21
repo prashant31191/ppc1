@@ -75,6 +75,9 @@
 	 <activity android:name="com.smit.EasyLauncher.LoginActivity" android:theme="@style/Transparent"
 	  android:label="@string/app_name">
      </activity>	
+     <activity android:name="com.smit.EasyLauncher.Register" android:theme="@style/Transparent"
+	  android:label="@string/app_name">
+     </activity>	
 	<provider android:name="com.smit.DeskView.commonclass.HistoryCityContentProvider" android:authorities="com.smit.DeskView.commonclass.HistoryCityContentProvider"/>
 
 	<activity android:name="com.smit.DeskView.commonclass.FlashPlayerActivity"
@@ -110,6 +113,9 @@
         <service android:enabled="true"
 			android:name="com.openims.service.IMService"
 			android:label="IMService">
+			<intent-filter>
+				<action android:name="com.openims.service.IMService.LOGOUT" />
+			</intent-filter>
 			<intent-filter>
 				<action android:name="com.openims.service.IMService.LOGIN" />
 			</intent-filter>

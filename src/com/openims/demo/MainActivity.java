@@ -82,8 +82,8 @@ public class MainActivity extends Activity {
         endService.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {				
-				startService(new Intent(PushServiceUtil.ACTION_SERVICE_REGISTER_USER));
-				//stopService(new Intent(PushServiceUtil.ACTION_SERVICE_REGISTER_USER));
+				//startService(new Intent(PushServiceUtil.ACTION_SERVICE_REGISTER_USER));
+				stopService(new Intent(PushServiceUtil.ACTION_SERVICE_REGISTER_USER));
 			}
 		});
         // register push

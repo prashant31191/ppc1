@@ -5,22 +5,21 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent" 
   android:orientation="vertical"
-  android:background="@drawable/widget_frame_001"
-  >
-  <TextView android:id="@+id/textView1" 
-    	android:text="@string/im_name" 
-    	android:textColor="@color/white"
-    	android:textSize="20sp"
-    	android:layout_width="wrap_content" 
-    	android:layout_height="wrap_content"
-    	android:layout_margin="5dp"
-    	android:layout_marginTop="0dp"
-    	>
-    </TextView>
+  android:background="@drawable/news_background"
+  >  
+    <LinearLayout android:layout_width="fill_parent"
+		android:layout_height="40dp" android:orientation="horizontal">
+		<TextView android:text="@string/im_name" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:textSize="20sp" 			
+			android:textColor="@color/write"
+			android:layout_marginLeft="5dp" />
+	</LinearLayout>
+   
     <LinearLayout android:id="@+id/linearLayout1" 
     	android:layout_width="match_parent" 
-    	android:layout_height="wrap_content"
-    	android:background="#ff1c1c32"
+    	android:layout_height="wrap_content"    	
     	android:visibility="gone">
     	<TextView android:id="@+id/view1" 
         	android:layout_width="wrap_content" 
@@ -90,15 +89,12 @@
    			android:layout_below="@+id/im_btn_login" 
    			android:layout_centerHorizontal="true"></TextView>
    	</RelativeLayout>
-   	<TextView android:id="@+id/line" 
-   	     	android:layout_width="match_parent" 
-   	     	android:layout_height="1dip" 
-   	     	android:background="@drawable/s0_bar_cut_off_land">
-   	</TextView>
-   	
+   	<ImageView android:id="@+id/vodvideo_line"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:background="@drawable/s0_bar_cut_off_land" />
    	<LinearLayout android:id="@+id/linearLayout2" 
     	android:layout_width="match_parent" 
-    	android:layout_height="40dip"     	
+    	android:layout_height="40dp"     	
     	>
     	<Button 
    	     	android:id="@+id/btn_im_setting" 

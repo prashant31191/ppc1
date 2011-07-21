@@ -224,7 +224,11 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
             }
 
             bindView(position, v);
-
+            if(position%2 == 0){
+            	v.setBackgroundColor(0xFFDDDEDF);
+            }else{
+            	v.setBackgroundColor(0xFFB9BECA);
+            }
             return v;
         }
         
@@ -344,6 +348,9 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 		@Override
 		protected void onPostExecute(Exception result) {			
 			super.onPostExecute(result);
+			
+			mProgress.setVisibility(View.GONE);
+			
 			if(result != null){
 				Utility.showToast(mActivity, R.string.search_fail,
 						Toast.LENGTH_LONG);
@@ -384,7 +391,7 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 					R.layout.im_user_search_list_item,UserSearchFragment.this);
 
 			listView.setAdapter(mSchedule);	
-			mProgress.setVisibility(View.GONE);
+			
 			// TODO can't hide input method
 			InputMethodManager inputMgr = (InputMethodManager)mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
 			inputMgr.hideSoftInputFromInputMethod(mEditInput.getWindowToken(),
@@ -520,7 +527,12 @@ public class UserSearchFragment extends Fragment implements OnClickListener{
 							Toast.LENGTH_LONG);
 					return;
 				}				
-				
+				if(xmppConnection == null ||
+						xmppConnection.isAuthenticated() == false){
+					Utility.showToast(mActivity, R.string.im_connect_fail,
+							Toast.LENGTH_SHORT);
+					return;
+				}
 				UserSearchTask userSearch = new UserSearchTask(checkBoxNickName.isChecked(),
 						checkBoxUsername.isChecked(),checkBoxEmail.isChecked(),input);
 				userSearch.execute();

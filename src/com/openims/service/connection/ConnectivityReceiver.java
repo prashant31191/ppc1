@@ -26,7 +26,7 @@ import android.net.NetworkInfo;
 import android.util.Log;
 
 /** 
- * A broadcast receiver to handle the changes in network connectiion states.
+ * A broadcast receiver to handle the changes in network connection states.
  *
  * @author Sehwan Noh (devnoh@gmail.com)
  */
@@ -57,7 +57,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
             Log.d(LOGTAG, "Network State = " + networkInfo.getState());
             if (networkInfo.isConnected()) {
                 Log.i(LOGTAG, "Network connected");
-                imService.connect();
+//                imService.autoLogin();
             }
         } else {
             Log.e(LOGTAG, "Network unavailable");
