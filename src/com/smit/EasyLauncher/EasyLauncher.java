@@ -855,7 +855,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         // add the search widget
-        ArrayList<AppWidgetProviderInfo> customInfo =
+/*        ArrayList<AppWidgetProviderInfo> customInfo =
                 new ArrayList<AppWidgetProviderInfo>();
         AppWidgetProviderInfo info = new AppWidgetProviderInfo();
         info.provider = new ComponentName(getPackageName(), "XXX.YYY");
@@ -870,6 +870,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         customExtras.add(b);
         pickIntent.putParcelableArrayListExtra(
                 AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras);
+*/
         // start the pick activity
         startActivityForResult(pickIntent, REQUEST_PICK_APPWIDGET);
     }  
