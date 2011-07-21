@@ -337,8 +337,8 @@ public class NewsFragment extends Fragment {
 			int length = (int) TestItemFile.length() + 10;
 			data = new byte[length];
 			is = new BufferedInputStream(new FileInputStream(TestItemFile));
-			while (is.read(data) != -1)
-				is.close();
+			while (is.read(data) != -1);
+			is.close();
 
 		} catch (Exception e) {
 			// TODO: handle exception

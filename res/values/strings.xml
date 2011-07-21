@@ -46,6 +46,7 @@
 	<string name="vodvideo_widget_try_again">"可以再试试"</string>
 
 	<string name="tvlive_widget_name">电视直播</string>
+	<string name="tvlive_widget_isplaying">正在播放:</string>
 	
 	    <string name="strInputAccHint">输入帐号</string>
     <string name="strAccInputLabel">帐号</string>
