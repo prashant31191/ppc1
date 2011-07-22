@@ -205,7 +205,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private boolean mWaitingForResult;
     private boolean mOnResumeNeedsLoad;
     private boolean mLocaleChanged = false;
-    private static boolean isLogin = false;
+    private boolean isLogin = false;
     private ProgressDialog m_Dialog;
 
     private Bundle mSavedInstanceState;
@@ -280,6 +280,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         destopv.startAnimation(myAnimation_Rotate);
         //isFirstInit=false;
         
+		startService(new Intent(PushServiceUtil.ACTION_SERVICE_CONNECT));
     }
     public static boolean isFirstInit()
     {
@@ -747,8 +748,8 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 		    	m_Dialog = ProgressDialog.show
                 (
                   mContext,
-                  "请等待...",
-                  "正在退出...", 
+                  getString(R.string.login_wait),
+                  getString(R.string.login_quiting), 
                   true
                 );
 		    		
@@ -854,7 +855,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         // add the search widget
-        ArrayList<AppWidgetProviderInfo> customInfo =
+/*        ArrayList<AppWidgetProviderInfo> customInfo =
                 new ArrayList<AppWidgetProviderInfo>();
         AppWidgetProviderInfo info = new AppWidgetProviderInfo();
         info.provider = new ComponentName(getPackageName(), "XXX.YYY");
@@ -869,6 +870,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         customExtras.add(b);
         pickIntent.putParcelableArrayListExtra(
                 AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras);
+*/
         // start the pick activity
         startActivityForResult(pickIntent, REQUEST_PICK_APPWIDGET);
     }  
@@ -1245,10 +1247,10 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     public class LoginStatusReceiver extends BroadcastReceiver{        
     	@Override
     	public void onReceive(Context context,Intent intent){
-    		Log.d("login ----111  ","intent : "+intent);
+
     		if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
 	    		String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
-	    		Log.d("login ----111  ","STATUSE:"+status);
+
 	    		if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_SUC)){
 	    			if(!isLogin){
 	    			mLoginButton.setImageResource(R.drawable.quitface_selector);	
@@ -1261,7 +1263,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 		    			}	    
 	    			mLoginButton.setImageResource(R.drawable.unloginface_selector);	
 	    			isLogin = false;	
-					Toast.makeText(context, "安全退出", Toast.LENGTH_SHORT).show();		
+					Toast.makeText(context, R.string.login_quit_safely, Toast.LENGTH_SHORT).show();		
 	    			}
     			}
     		}
@@ -1318,6 +1320,8 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     @Override
     public void onDestroy() {
         super.onDestroy();
+       
+    	startService(new Intent(PushServiceUtil.ACTION_SERVICE_LOGOUT));	
 
         try {
             mAppWidgetHost.stopListening();

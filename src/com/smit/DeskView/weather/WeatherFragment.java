@@ -239,6 +239,7 @@ public class WeatherFragment extends Fragment {
 			mPopupWindow.dismiss();
 			mPopupWindow=null;
 		}
+		
 	}
 
 	@Override
@@ -253,6 +254,10 @@ public class WeatherFragment extends Fragment {
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		
+		if(mTimer!=null){
+			mTimer.cancel();
+			mTimer.purge();
+		}
 		if (wpWeatherdata!=null) {
 			wpWeatherdata.stopGetData();
 			wpWeatherdata=null;

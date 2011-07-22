@@ -29,18 +29,13 @@
 				android:layout_width="0dp" 
 				android:layout_height="wrap_content"
 				android:layout_weight="3" android:text="@string/vodvideo_widget_defvideo" />
-			<TextView android:id="@+id/tvlive_time"
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"
-				android:text="@string/vodvideo_widget_deftime" />
 		</LinearLayout>
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="0dp"
 			android:layout_weight="3">
-			<TextView android:id="@+id/tvlive_descrpition"
+			<TextView android:id="@+id/tvlive_isplay"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:gravity="top"
-				android:text="@string/vodvideo_widget_decript">
+				android:gravity="top">
 			</TextView>
 		</LinearLayout>
 	</LinearLayout>

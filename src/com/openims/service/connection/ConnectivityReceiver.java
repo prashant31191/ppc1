@@ -57,7 +57,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
             Log.d(LOGTAG, "Network State = " + networkInfo.getState());
             if (networkInfo.isConnected()) {
                 Log.i(LOGTAG, "Network connected");
-                imService.autoLogin();
+//                imService.autoLogin();
             }
         } else {
             Log.e(LOGTAG, "Network unavailable");

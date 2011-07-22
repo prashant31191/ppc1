@@ -46,6 +46,7 @@
 	<string name="vodvideo_widget_try_again">"可以再试试"</string>
 
 	<string name="tvlive_widget_name">电视直播</string>
+	<string name="tvlive_widget_isplaying">正在播放:</string>
 	
 	<string name="strInputAccHint">只能是数字和字母</string>
     <string name="strAccInputLabel">帐号</string>
@@ -61,7 +62,20 @@
     <string name="opt_register">注册</string>
     <string name="opt_acceptGroupMsg">接收群消息</string>
     <string name="register_name_digits">0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLIMNOPQRSTUVWXYZ</string> 
- 
+ 	<string name="login_wait">请等待...</string>
+ 	<string name="login_register">正在为您注册...</string>
+ 	<string name="login_logining">正在为您登录...</string>
+ 	<string name="login_quiting">正在为您退出...</string>
+ 	<string name="login_reg_suc">注册成功</string>
+ 	<string name="login_reg_fail">注册失败</string>
+ 	<string name="login_have_reg">已被注册</string>
+ 	<string name="login_login_suc">登录成功</string>
+ 	<string name="login_login_fail">登录失败</string>
+ 	<string name="login_quit_safely">安全退出</string>
+ 	<string name="login_input_error">输入有误</string>
+ 	
+ 	
+ 	
 	<string name="news_widget_name">新闻资讯</string>
 	
 	<string name="weather_widget_city">北京</string>

@@ -13,6 +13,7 @@ import java.security.PublicKey;
 import com.smit.DeskView.commonclass.CommonDataFun;
 import com.smit.DeskView.commonclass.RequestXml;
 import com.smit.DeskView.commonclass.VodVideoMoveParse;
+import com.smit.DeskView.commonclass.TvLiveChannelParse;
 import com.smit.DeskView.vodvideo.VODVideoListFragment.VodVideoAdapter;
 import com.smit.EasyLauncher.R;
 
@@ -41,7 +42,7 @@ public class TVLiveFragment extends Fragment {
 	private LayoutInflater mInflater = null;
 	private final static int GET_VOD_VIDEO_XML = 0x800;
 	private final static String Tag = "VODVideoFragment";
-	public VodVideoMoveParse mMovieParse = null;
+	public TvLiveChannelParse mtvParse = null;
 	private static String TVLIVE_ITEM_FILE_DIR = "data/data/com.smit.EasyLauncher/files";// 视屏文件
 	private static String TVLIVE_ITEM_FILE = "data/data/com.smit.EasyLauncher/files/tvlive.xml";// 视屏文件
 
@@ -83,10 +84,10 @@ public class TVLiveFragment extends Fragment {
 			} else {
 				String str = ReadVodVideoItemXML();
 				if (str != null) {
-					mMovieParse = new VodVideoMoveParse(str);
-					mMovieParse.parseDataStr();
+					mtvParse = new TvLiveChannelParse(str);
+					mtvParse.parseDataStr();
 				}
-				if (IsExistvodMove(mMovieParse)) {
+				if (IsExistvodMove(mtvParse)) {
 					SetCurShow(SHOW_LIST);
 					// showVodVideoList();
 				} else {
@@ -171,10 +172,10 @@ public class TVLiveFragment extends Fragment {
 				} else {
 					String str = ReadVodVideoItemXML();
 					if (str != null) {
-						mMovieParse = new VodVideoMoveParse(str);
-						mMovieParse.parseDataStr();
+						mtvParse = new TvLiveChannelParse(str);
+						mtvParse.parseDataStr();
 					}
-					if (IsExistvodMove(mMovieParse)) {
+					if (IsExistvodMove(mtvParse)) {
 						SetCurShow(SHOW_LIST);
 						// showVodVideoList();
 					} else {
@@ -281,12 +282,11 @@ public class TVLiveFragment extends Fragment {
 				}
 				String str = (String) msg.obj;
 				if (str != null && str.length() > 0) {
-					mMovieParse = new VodVideoMoveParse(str);
-					mMovieParse.parseDataStr();
-					if (mMovieParse != null && mMovieParse.getItemCount() > 0) {
+					mtvParse = new TvLiveChannelParse(str);
+					mtvParse.parseDataStr();
+					if (mtvParse != null && mtvParse.getItemCount() > 0) {
 						WriteVodVideoItemXML(str);
 						SetCurShow(SHOW_LIST);
-						// showVodVideoList();
 					} else {
 						SetCurShow(SHOW_FLASH);
 					}
@@ -303,7 +303,7 @@ public class TVLiveFragment extends Fragment {
 	};
 
 	public void requestXml() {
-		String Url = CommonDataFun.myServerAddr + "video.do?columnKey=102";
+		String Url = CommonDataFun.myServerAddr + "channel.do";
 		try {
 			URL url = new URL(Url);
 			if (mThread != null) {
@@ -331,8 +331,8 @@ public class TVLiveFragment extends Fragment {
 			int length = (int) TestItemFile.length() + 10;
 			data = new byte[length];
 			is = new BufferedInputStream(new FileInputStream(TestItemFile));
-			while (is.read(data) != -1)
-				is.close();
+			while (is.read(data) != -1);
+			is.close();
 
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -392,7 +392,7 @@ public class TVLiveFragment extends Fragment {
 		}
 	}
 
-	public boolean IsExistvodMove(VodVideoMoveParse mMovieParse) {
+	public boolean IsExistvodMove(TvLiveChannelParse mMovieParse) {
 		String str = ReadVodVideoItemXML();
 		if (str == null || mMovieParse.getItemCount() <= 0) {
 			return false;

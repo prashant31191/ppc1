@@ -1,81 +1,44 @@
 package com.smit.EasyLauncher;
 
 
-import java.util.ArrayList;
 
-import com.openims.demo.MainActivity;
 import com.openims.utility.PushServiceUtil;
-import com.openims.view.chat.MultiChatActivity;
-import com.openims.view.chat.widget.IMActivity;
-import com.openims.view.setting.Setting.InnerReceiver;
-import com.smit.MyView.MyViewctrl;
-
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class Register extends Activity {
 	
 	private Rect logrect;
 	private FrameLayout loginLayout;
-	private EasyLauncher mLauncher;
 	private Animation myAnimation_Rotate;  //Ðý×ª
-	private LoginDataBaseAdapter m_MyDataBaseAdapter;
 	private EditText mEditText1;
 	private EditText mEditText2;
 	private EditText mEditText3;
 	private Button mBotton1;
 	private Button mBotton2;
-	private CheckBox  checkBox1;
-	private CheckBox  checkBox2;
-	private ImageButton mImageBotton;
-	private ListView m_ListView	= null;
 	private Context mContext;
-	private PopupWindow mPopupWindow = null;
 	private BroadcastReceiver receiver = new RegisterReceiver();
 	private ProgressDialog m_Dialog;
 	
 	private String username;
 	private String password;
 	private String confirm_pwd;
-	private boolean bAutoLogin;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -107,13 +70,13 @@ public class Register extends Activity {
 			    	m_Dialog = ProgressDialog.show
 	                (
 	                  mContext,
-	                  "ÇëµÈ´ý...",
-	                  "ÕýÔÚ×¢²á...", 
+	                  getString(R.string.login_wait),
+	                  getString(R.string.login_register), 
 	                  true
 	                );
 		    	
 	    		}else{
-					Toast.makeText(mContext, "ÊäÈëÓÐÎó", Toast.LENGTH_SHORT).show();		
+					Toast.makeText(mContext, R.string.login_input_error, Toast.LENGTH_SHORT).show();		
 	    		}
     		}
     	});
@@ -219,20 +182,23 @@ public class Register extends Activity {
         
     	@Override
     	public void onReceive(Context context,Intent intent){
-    		Log.d("login ----","intent : "+intent);
+
     		if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
 	    		String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
-	    		Log.d("login ----","STATUSE:"+status);
+
 	    		if(status.equals(PushServiceUtil.PUSH_STATUS_REGISTER_SUC)){
 	     			     				     	
-					Toast.makeText(context, "×¢  ²á  ³É  ¹¦", Toast.LENGTH_SHORT).show();	
+					Toast.makeText(context, R.string.login_reg_suc, Toast.LENGTH_SHORT).show();	
 		    		m_Dialog.dismiss();
 		    		Register.this.finish();
 	                
 	    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_REGISTER_FAIL)){
-					Toast.makeText(context, "×¢  ²á  Ê§  °Ü", Toast.LENGTH_SHORT).show();
+					Toast.makeText(context, R.string.login_reg_fail, Toast.LENGTH_SHORT).show();
 		    		m_Dialog.dismiss();
-		    		Register.this.finish();
+
+	    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_HAVEREGISTER)){
+					Toast.makeText(context, R.string.login_have_reg, Toast.LENGTH_SHORT).show();
+		    		m_Dialog.dismiss();
 	    		}
     		}
     	}
