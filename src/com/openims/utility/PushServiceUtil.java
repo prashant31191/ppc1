@@ -130,7 +130,9 @@ public class PushServiceUtil{
     
     public static final int MSG_ROSTER_DELETE = 6;
     
-    public static final int MSG_REQUEST_VCARD = 7; 
+    public static final int MSG_REQUEST_VCARD = 7;
+    
+    public static final int MSG_DOWNLOAD = 8; 
     
     
     public static ColorFilter GREY_COLOR_FILTER = new ColorMatrixColorFilter( new ColorMatrix(new float[]{0.5f,0.5f,0.5f,0,0, 
@@ -139,4 +141,9 @@ public class PushServiceUtil{
             0,0,0,1,0,0, 
             0,0,0,0,1,0 
             })); 
+    
+    public static final int DOWNLOAD_FAIL = 0;
+    public static final int DOWNLOAD_SUCCESS = 1;
+    public static final int DOWNLOAD_NONETWORK = 2;
+    public static final int DOWNLOAD_ONGOING = 3;
 }

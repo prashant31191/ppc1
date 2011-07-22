@@ -27,7 +27,6 @@ import com.openims.model.MyApplication;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.chat.MultiChatActivity;
 import com.openims.view.chat.widget.IMActivity;
-import com.openims.view.pushContent.PushActivity;
 import com.openims.view.setting.Setting;
 import com.smit.EasyLauncher.R;
 

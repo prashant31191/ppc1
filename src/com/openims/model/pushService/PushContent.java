@@ -2,6 +2,7 @@ package com.openims.model.pushService;
 
 public class PushContent {
 	private String index;
+	private String title;
 	private String size;
 	private String content;
 	private String localPath;
@@ -74,11 +75,20 @@ public class PushContent {
 		this.status = status;
 	}
 
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 	@Override
 	public String toString() {
 		return "PushContent [content=" + content + ", status=" + status + ", flag=" + flag
 				+ ", index=" + index + ", localPath=" + localPath + ", size="
-				+ size + ", time=" + time + ", type=" + type + "]";
+				+ size + ", time=" + time + ", type=" + type +
+				", title=" + title + "]";
 	}
 
 }

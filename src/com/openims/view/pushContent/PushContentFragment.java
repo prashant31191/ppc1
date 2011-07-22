@@ -8,13 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.openims.utility.LogUtil;
-import com.openims.view.chat.widget.IMWidgetFragment;
 import com.smit.EasyLauncher.R;
 
 public class PushContentFragment extends Fragment {
 	
-	private static final String TAG = LogUtil
-		.makeLogTag(PushContentFragment.class);
+	private static final String TAG = LogUtil.makeLogTag(PushContentFragment.class);
 	private static final String PRE = "PushContentFragment--";
 
 	private PushContentListFragment pushContentListFragment;
@@ -76,6 +74,5 @@ public class PushContentFragment extends Fragment {
 	public void onDetach() {
 		super.onDetach();
 		Log.d(TAG, PRE + "onDetach");
-	}
-
+	}	
 }

@@ -25,11 +25,10 @@
     	android:layout_height="match_parent"
     	android:layout_weight="5">
     </TextView>
-     <FrameLayout android:id="@+id/widget_container_im"
-    	android:layout_width="300dip" 
-    	android:layout_height="400dip"  
-    	android:layout_marginTop="20dip" 
-    	 	
-    	>
-    </FrameLayout>
-</LinearLayout>
+    <!--<fragment class="com.openims.view.chat.widget.IMWidgetFragment"	  	
+			android:id="@+id/im_widget_fragment" 
+			android:layout_width="300dip" 
+    		android:layout_height="400dip"  
+    		android:layout_marginTop="20dip" 		 
+			/>
+--></LinearLayout>

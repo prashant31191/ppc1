@@ -39,7 +39,6 @@ import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.XmppManager;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
-import com.openims.view.pushContent.PushActivity;
 
 /**
  * 用于接收PUSH过来的消息
@@ -187,7 +186,7 @@ public class NotificationPacketListener implements PacketListener {
     	push.setStatus(read);
     	push.setType(type);
     	push.setContent(message);
-    	push.setFlag(title);
+    	push.setTitle(title);
     	push.setTime(time);
     	push.setSize("10K");
     	PushContentDB pushDB = new PushContentDB(serviceContext);
@@ -217,14 +216,14 @@ public class NotificationPacketListener implements PacketListener {
     	CharSequence contentTitle = "有新的信息推送过来啦";  
     	CharSequence contentText = titile;  
     	
-    	
-    	Intent intent = new Intent(serviceContext,PushActivity.class);
+    	// TODO
+    	/*Intent intent = new Intent(serviceContext,PushActivity.class);
     	PendingIntent contentIntent = 
     		PendingIntent.getActivity(serviceContext, 
     		0, intent, 0);  
     	notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);  
     	notification.defaults |= Notification.DEFAULT_VIBRATE;
-    	mNotificationManager.notify(1, notification);
+    	mNotificationManager.notify(1, notification);*/
     	
     }
     private void openUrl(String ntUri){    	

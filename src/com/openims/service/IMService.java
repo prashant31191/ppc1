@@ -1,6 +1,15 @@
 package com.openims.service;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +24,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -31,6 +41,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 
+import com.openims.downloader.DownloadInf;
 import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.connection.ConnectivityReceiver;
 import com.openims.service.notificationPacket.RegPushIQ;
@@ -55,7 +66,8 @@ public class IMService extends Service  {
    
 
     /** Keeps track of all current registered clients. */
-    private ArrayList<Messenger> mClients = new ArrayList<Messenger>();
+    private List<Messenger> mClients = Collections.synchronizedList(
+    		new ArrayList<Messenger>());
     final Messenger mMessenger = new Messenger(new IncomingHandler());
     
     private View mPopupView;
@@ -147,9 +159,12 @@ public class IMService extends Service  {
 
     public void disconnect() {
         Log.d(TAG, PRE + "disconnect()...");
+        if(getXmppManager().getConnection() == null){
+        	return;
+        }
         taskSubmitter.submit(new Runnable() {
             public void run() {
-                IMService.this.getXmppManager().disconnect();
+                getXmppManager().disconnect();
             }
         });
     }
@@ -479,10 +494,15 @@ public class IMService extends Service  {
                     break;              
                 case PushServiceUtil.MSG_REQUEST_VCARD:
                 	loadVCard((String)msg.obj);
-                	break;                
+                	break; 
+                case PushServiceUtil.MSG_DOWNLOAD:
+                	DownloadAsyncTask task = new DownloadAsyncTask();
+                	task.execute((DownloadInf)msg.obj);
+                	break;
                 default:
                     super.handleMessage(msg);
             }
+            Log.e(TAG, PRE+"Messager client num:"+ mClients.size());
         }
     }
     private void sendMessageChat(Intent intent){
@@ -638,6 +658,104 @@ public class IMService extends Service  {
 
     	  mCurrentY = mWmlp.y;
 
+    }
+    
+    public class DownloadAsyncTask extends AsyncTask<DownloadInf,DownloadInf,DownloadInf>{
+
+		@Override
+		protected DownloadInf doInBackground(DownloadInf... params) {
+
+			DownloadInf dInf = params[0];
+			dInf.status = PushServiceUtil.DOWNLOAD_ONGOING;				
+			
+			FileOutputStream fos = null;
+			try {				
+				URL url = new URL(dInf.url);
+			    File file = new File(dInf.desPath);
+			    fos = new FileOutputStream(file);
+			    
+			    long startTime = System.currentTimeMillis();
+			    URLConnection ucon = url.openConnection();
+			    InputStream is = ucon.getInputStream();
+			    BufferedInputStream bis = new BufferedInputStream(is);
+			    
+			    byte[] data = new byte[10240]; 
+			    int nFinishSize = 0;
+			    int nread = 0;
+			    while( (nread = bis.read(data, 0, 10240)) != -1){
+			    	fos.write(data, 0, nread);                	
+			    	nFinishSize += 50240;
+			    	Thread.sleep( 500 ); // this make cancel method work
+			    	dInf.nFinishSize = nFinishSize;
+			    	Log.e(TAG, PRE+"down loading");
+			    	this.publishProgress(dInf);
+			    	
+			    }              
+				data = null;    
+				Log.d(TAG, PRE+"download ready in"
+				  + ((System.currentTimeMillis() - startTime) / 1000)
+				  + " sec");
+				dInf.status = PushServiceUtil.DOWNLOAD_SUCCESS;	
+			        
+			} catch (IOException e) {
+			        Log.d(TAG, PRE + "Error: " + e);
+			        dInf.status = PushServiceUtil.DOWNLOAD_FAIL;
+			} catch (Exception e){
+					 e.printStackTrace(); 
+					 dInf.status = PushServiceUtil.DOWNLOAD_FAIL;
+			} finally{
+				try {
+					if(fos != null)
+						fos.close();
+				} catch (IOException e) {
+					Log.d(TAG, PRE + "Error: " + e);
+					e.printStackTrace();
+				}
+			}			
+			return dInf;
+		}
+
+		@Override
+		protected void onCancelled() {
+			// TODO Auto-generated method stub
+			super.onCancelled();
+		}
+
+		@Override
+		protected void onPostExecute(DownloadInf result) {
+			for (int j=mClients.size()-1; j>=0; j--) {
+	            try {
+	                mClients.get(j).send(Message.obtain(null,
+	                		PushServiceUtil.MSG_DOWNLOAD, 
+	                		0, 0, result));
+	            } catch (RemoteException e) {               
+	                mClients.remove(j);
+	            }
+			} 
+			super.onPostExecute(result);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onProgressUpdate(DownloadInf... values) {
+			Log.e(TAG, PRE+"onProgressUpdate Messager client num:"+ mClients.size());
+			for (int j=mClients.size()-1; j>=0; j--) {
+	            try {
+	                mClients.get(j).send(Message.obtain(null,
+	                		PushServiceUtil.MSG_DOWNLOAD, 
+	                		0, 0, values[0]));
+	            } catch (RemoteException e) {               
+	                mClients.remove(j);
+	            }
+			} 
+			super.onProgressUpdate(values);
+		}
+    	
     }
     
     

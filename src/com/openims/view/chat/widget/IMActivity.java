@@ -15,8 +15,8 @@ public class IMActivity extends FragmentActivity {
 	private static final String TAG = LogUtil.makeLogTag(IMActivity.class);
 	private static final String PRE = "Class IMActivity--";
 	
-	private IMWidgetFragment mIMWidgetFragment;
-	private final static String TAG_IM_MAIN = "TAG_IM_MAIN";
+/*	private IMWidgetFragment mIMWidgetFragment;
+	private final static String TAG_IM_MAIN = "TAG_IM_MAIN";*/
 	
 	@Override
 	protected void onCreate(Bundle bundle) {		
@@ -26,7 +26,7 @@ public class IMActivity extends FragmentActivity {
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);		
 		setContentView(R.layout.im_widget);
 		
-		if(bundle == null){
+		/*if(bundle == null){
 			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 			mIMWidgetFragment = new IMWidgetFragment();			
 	        ft.add(R.id.widget_container_im, mIMWidgetFragment,TAG_IM_MAIN).commit();
@@ -34,7 +34,7 @@ public class IMActivity extends FragmentActivity {
 		}else{			
 			mIMWidgetFragment = (IMWidgetFragment)getSupportFragmentManager()
 					.findFragmentByTag(TAG_IM_MAIN);
-		}
+		}*/
 		
 		
 	}

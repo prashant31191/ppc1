@@ -30,6 +30,7 @@ public class PushContentDB {
 	
 	public static final String INDEX = "_id";
 	public static final String SIZE = "size";
+	public static final String TITLE = "title";
 	public static final String CONTENT = "content";
 	public static final String LOCAL_PATH = "localPath";
 	public static final String TIME = "time";
@@ -40,6 +41,7 @@ public class PushContentDB {
 	
 	private static final String CREATE_TABLE = "CREATE TABLE "+TABLE_NAME+"("+
 	INDEX+" INTEGER PRIMARY KEY," +
+	TITLE+" text," +
 	SIZE+" text," + 
 	CONTENT+" text,"+
 	LOCAL_PATH+" text,"+
@@ -96,13 +98,17 @@ public class PushContentDB {
 		
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
 		String sql = "insert into " + TABLE_NAME + " ("+
-		INDEX +","+SIZE +","+CONTENT +","+LOCAL_PATH+","+TIME+
+		INDEX +","+SIZE +
+		","+TITLE +
+		","+CONTENT +
+		","+LOCAL_PATH+","+TIME+
 		","+TYPE +
 		","+STATUS +
 		","+FLAG+
 		") values(" +
 		null+",'"+ 
-		pushContent.getSize()+"','"+ 
+		pushContent.getSize()+"','"+
+		pushContent.getTitle()+"','"+ 
 		pushContent.getContent()+ "','"+		
 		pushContent.getLocalPath()+ "','"+
 		pushContent.getTime()+ "','"+
@@ -210,5 +216,11 @@ public class PushContentDB {
 		values.put(LOCAL_PATH, path);
 		db.update(TABLE_NAME, values, INDEX+"="+id, null);
 		return true;
+	}
+	public void updateItem(long id, String columnName, String value){
+		SQLiteDatabase db = databaseHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(columnName, value);
+		db.update(TABLE_NAME, values, INDEX+"="+id, null);
 	}
 }
