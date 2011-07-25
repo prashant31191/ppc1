@@ -1,7 +1,8 @@
 package com.openims.utility;
 
 import java.io.File;
-
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import android.util.Log;
 
@@ -15,6 +16,12 @@ public class FileOperation {
 		String name;
 		int n = filePathWithName.lastIndexOf("/");
 		name = filePathWithName.substring(n+1);
+		try {
+			name = URLDecoder.decode(name, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return name;
 	}
 	

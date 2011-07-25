@@ -1,5 +1,6 @@
 package com.openims.view;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -26,23 +27,49 @@ public abstract class BaseServiceFragment extends ListFragment{
 	/** Messenger for communicating with service. */
 	Messenger mService = null;
 	/** Flag indicating whether we have called bind on the service. */
-    boolean mIsBound;
+    boolean mIsBound = false;
     /**
      * Target we publish for clients to send messages to IncomingHandler.
      */
     final Messenger mMessenger = new Messenger(new IncomingHandler());  
+	boolean mIsShow = false;
 	
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {		
-		super.onActivityCreated(savedInstanceState);		
-		doBindService();		
-	}	
+	public void onActivityCreated(Bundle savedInstanceState) {
+		
+		super.onActivityCreated(savedInstanceState);
+		Log.d(TAG, PRE + "doBindService");
+		doBindService();	
+	}
+
+	@Override
+	public void onStart() {
+		
+		super.onStart();
+		mIsShow = true;
+	}
+
+	@Override
+	public void onStop() {
+		mIsShow = false;
+		super.onStop();
+	}
+
+	
+	@Override
+	public void onAttach(Activity activity) {
+		// TODO Auto-generated method stub
+		
+		super.onAttach(activity);
+	}
+
 	@Override
 	public void onDestroy() {
-		super.onDestroy();
-		Log.d(TAG, PRE + "onDestroy");
+		Log.d(TAG, PRE + "onDestroy");	
+		Log.d(TAG, PRE + "doUnbindService");
 		doUnbindService();
 		mConnection = null;
+		super.onDestroy();		
 	}
 	/**
      * Handler of incoming messages from service.
@@ -50,7 +77,9 @@ public abstract class BaseServiceFragment extends ListFragment{
     class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-        	BaseServiceFragment.this.handleMessage(msg);
+        	if(mIsShow){
+        		BaseServiceFragment.this.handleMessage(msg);        	
+        	}
         }
     }
     
@@ -80,15 +109,19 @@ public abstract class BaseServiceFragment extends ListFragment{
     };   
     
    private void doBindService() {
-    	BaseServiceFragment.this.getActivity().bindService(
-    			new Intent(BaseServiceFragment.this.getActivity(), 
-                IMService.class), mConnection, Context.BIND_AUTO_CREATE);
-        mIsBound = true;
-        Log.i(TAG,PRE + "Binding.");
+       if(mIsBound == false){
+    	   mIsBound = true;
+		   BaseServiceFragment.this.getActivity().bindService(
+	    			new Intent(BaseServiceFragment.this.getActivity(), 
+	                IMService.class), mConnection, Context.BIND_AUTO_CREATE);
+	        
+	        Log.e(TAG,PRE + "Binding.");
+       }
     }
     
    private void doUnbindService() {
-        if (mIsBound) {                       
+        if (mIsBound == true) { 
+        	mIsBound = false;
         	if (mService != null) {
                 try {
                     Message msg = Message.obtain(null,
@@ -100,8 +133,8 @@ public abstract class BaseServiceFragment extends ListFragment{
             }            
             // Detach our existing connection.
         	BaseServiceFragment.this.getActivity().unbindService(mConnection);
-            mIsBound = false;
-            Log.d(TAG, PRE + "Unbinding.");
+            
+            Log.e(TAG, PRE + "Unbinding.");
         }
     }	
    

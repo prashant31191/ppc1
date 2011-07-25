@@ -197,7 +197,7 @@ public class PushContentDB {
 
 		SQLiteDatabase db = databaseHelper.getReadableDatabase();
 		Cursor cursor = db.query(TABLE_NAME, null, null,
-				null, null, null, null,null);
+				null, null, null, INDEX+" DESC",null);
 		return cursor;
 	}
 	

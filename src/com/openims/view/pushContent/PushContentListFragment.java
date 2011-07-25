@@ -25,14 +25,17 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.PopupWindow.OnDismissListener;
 
 import com.openims.downloader.DownloadInf;
 import com.openims.model.pushService.PushContentDB;
+import com.openims.utility.FileOperation;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
+import com.openims.utility.Utility;
 import com.openims.view.BaseServiceFragment;
 import com.openims.widgets.ActionItem;
 import com.openims.widgets.BigToast;
@@ -48,7 +51,10 @@ public class PushContentListFragment extends BaseServiceFragment{
 	// the status of action button
 	public static final int STATUS_VIEW = 1;
 	public static final int STATUS_DOWNLOAD = 2;
-	public static final int STATUS_DOWNLOAD_CANCEL = 3;
+	public static final int STATUS_DOWNLOAD_ING = 3;
+	public static final int STATUS_DOWNLOAD_CANCEL = 4;
+	public static final int STATUS_DOWNLOAD_FINISH = 5;
+	public static final int STATUS_DOWNLOAD_FAIL = 6;
 	
 	private String uread = null;
 	private String read = null;
@@ -73,9 +79,9 @@ public class PushContentListFragment extends BaseServiceFragment{
 	private PushContentDB pushContentDB = null;
 
 	
-	private String picPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/picture/";
-	private String videoPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/video/";
-	private String audioPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/audio/";
+	private String picPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/pictures/";
+	private String videoPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/videos/";
+	private String audioPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/audios/";
 	private String MEDIA_PIC = "image";
 	private String MEDIA_AUDIO = "audio";
 	private String MEDIA_VIDEO = "video";
@@ -91,7 +97,7 @@ public class PushContentListFragment extends BaseServiceFragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);		
-	
+	    //setRetainInstance(true);
 		initData();		
 	}
 	
@@ -207,7 +213,6 @@ public class PushContentListFragment extends BaseServiceFragment{
 	
 	@Override
 	public void onListItemClick(ListView l, final View view, int position, final long id) {	
-		Log.i(TAG,PRE + "onListItemClick ID : " + id);
 		
 		// set unread to read 
 		final PushData pd = pushAdapter.getData(position);
@@ -219,16 +224,14 @@ public class PushContentListFragment extends BaseServiceFragment{
 			pushContentDB.updateStatus(pd.id, read);
 			pd.status = read;
 			TextView st = (TextView)view.findViewById(R.id.tv_pushcontent_status);
-			st.setText(read);
+			st.setText(read); 
 			
 			showToast(R.string.pushcontent_read,Toast.LENGTH_SHORT);	
 			return;
 		}
 		
 		// Pop up menu
-		final QuickAction mQuickAction 	= new QuickAction(view);
-		final Button actionBtn = (Button)view.findViewById(R.id.btn_pushcontent_action);
-		
+		final QuickAction mQuickAction 	= new QuickAction(view);	
 		
 		getDeleteAction().setOnClickListener(new OnClickListener() {
 			@Override
@@ -244,42 +247,47 @@ public class PushContentListFragment extends BaseServiceFragment{
 		mQuickAction.addActionItem(getDeleteAction());
 		
 		// add difference action in difference situation
-		if(pd.flag == STATUS_DOWNLOAD){			
+		if(pd.flag == STATUS_VIEW || pd.flag == STATUS_DOWNLOAD_FINISH) {			
+			getViewAction().setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mQuickAction.dismiss();
+					btnView(pd,view);					
+				}
+			});
+			mQuickAction.addActionItem(getViewAction());
+			
+		} else if(pd.flag == STATUS_DOWNLOAD || 
+				pd.flag == STATUS_DOWNLOAD_FAIL || 
+				pd.flag == STATUS_DOWNLOAD_CANCEL){			
 			getDownloadAction().setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mQuickAction.dismiss();
+					
+					// start down load
+					showToast(R.string.pushcontent_beginDownload,Toast.LENGTH_SHORT);
+					if(startDownload(pd)){
+						pd.flag = STATUS_DOWNLOAD_ING;
+						pushContentDB.updateItem(pd.id, PushContentDB.FLAG, 
+								String.valueOf(STATUS_DOWNLOAD_ING));						
+					}
+					pushAdapter.notifyDataSetChanged();
+				}
+			});
+			mQuickAction.addActionItem(getDownloadAction());
+			
+		} else if(pd.flag == STATUS_DOWNLOAD_ING){
+			getStopDownloadAction().setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					mQuickAction.dismiss();
 					pd.flag = STATUS_DOWNLOAD_CANCEL;
 					pushContentDB.updateItem(pd.id, PushContentDB.FLAG, 
 							String.valueOf(STATUS_DOWNLOAD_CANCEL));
-					// start down load
-					showToast(R.string.pushcontent_beginDownload,Toast.LENGTH_SHORT);
-					startDownload(pd);
-				}
-			});
-			mQuickAction.addActionItem(getDownloadAction());
-			
-		} else if(pd.flag == STATUS_VIEW) {
-			getViewAction().setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					mQuickAction.dismiss();
-					btnView(pd,view);
-					
-				}
-			});
-			mQuickAction.addActionItem(getViewAction());
-		} else if(pd.flag == STATUS_DOWNLOAD_CANCEL){
-			getStopDownloadAction().setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					mQuickAction.dismiss();
-					pd.flag = STATUS_DOWNLOAD;
-					pushContentDB.updateItem(pd.id, PushContentDB.FLAG, 
-							String.valueOf(STATUS_DOWNLOAD));
 					showToast(R.string.stopDownload,Toast.LENGTH_SHORT);
-					//int id = (Integer)actionBtn.getTag(R.string.position);
-					//btnStopDownload(id);					
+					btnStopDownload(pd);	
+					pushAdapter.notifyDataSetChanged();
 				}
 			});
 			mQuickAction.addActionItem(getStopDownloadAction());
@@ -293,7 +301,6 @@ public class PushContentListFragment extends BaseServiceFragment{
 			}
 		});		
 		mQuickAction.addActionItem(getCancelAction());
-		
 		
 		
 		mQuickAction.setOnDismissListener(new OnDismissListener() {
@@ -318,16 +325,51 @@ public class PushContentListFragment extends BaseServiceFragment{
 		t.setMargin(PushServiceUtil.HORIZONTAL_MARGIN, PushServiceUtil.VERTICAL_MARGIN);
 		t.show();
 	}
-	private void startDownload(PushData pd){
+	private boolean startDownload(PushData pd){
+
+		String basePath = picPath;
+		
+		if(PushServiceUtil.DEFAULTID_PICTURE.endsWith(pd.type) ){
+			basePath = picPath;
+		}else if(PushServiceUtil.DEFAULTID_AUDIO.endsWith(pd.type)){
+			basePath = audioPath;
+		}else if(PushServiceUtil.DEFAULTID_VIDEO.endsWith(pd.type)){
+			basePath = videoPath;
+		}
+		if(FileOperation.makedir(basePath) == false){
+			//showToast(R.string.create_file_fail, Toast.LENGTH_SHORT);
+			//return false;
+		}
+		
+		String fileName = pd.title;
+		if(fileName.isEmpty()){
+			fileName = FileOperation.getFileName(pd.content);
+		}
+		
 		try {
 			DownloadInf dl = new DownloadInf();
-			dl.desPath = videoPath + "aa.apk";
+			dl.desPath = basePath + fileName;
+			pd.path = dl.desPath;
 			dl.id = pd.id;
-			dl.url = "http://cloud.github.com/downloads/buddycloud/android-client/buddycloud-debug.apk";
+			dl.nTotalSize = 2662720;
+			dl.url = pd.content; 
+			//"http://cloud.github.com/downloads/buddycloud/android-client/buddycloud-debug.apk";
 			sendMsgService(PushServiceUtil.MSG_DOWNLOAD,1, 2, (Object)dl);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			showToast(R.string.pc_start_download_fail, Toast.LENGTH_SHORT);
+			return false;
+		}
+		return true;
+	}
+	private void btnStopDownload(PushData pd){
+		try {
+			DownloadInf dl = new DownloadInf();
+			dl.id = pd.id;
+			sendMsgService(PushServiceUtil.MSG_DOWNLOAD_STOP,1, 2, (Object)dl);
+		} catch (RemoteException e) {			
+			e.printStackTrace();
+			showToast(R.string.pc_start_download_fail, Toast.LENGTH_SHORT);
 		}
 	}
 	/**
@@ -378,8 +420,7 @@ public class PushContentListFragment extends BaseServiceFragment{
     	intent.setDataAndType(uri, "text/plain"); 
     	startActivity(intent);
     }
-	public void btnStopDownload(int id){		
-	}
+	
 	private void btnDownload(int position, final Button v){
 			
 	}
@@ -487,7 +528,7 @@ public class PushContentListFragment extends BaseServiceFragment{
         	}
         	return position;
         }
-
+        
         public View getView(int position, View convertView, ViewGroup parent) {
         	return createViewFromResource(position, convertView, parent, mResource);
         }
@@ -506,8 +547,7 @@ public class PushContentListFragment extends BaseServiceFragment{
                 holder[3] = v.findViewById(R.id.tv_pushcontent_size);
                 holder[4] = v.findViewById(R.id.tv_pushcontent_time);
                 holder[5] = v.findViewById(R.id.tv_pushcontent_status);
-                holder[6] = v.findViewById(R.id.btn_pushcontent_action);
-                holder[6].setVisibility(View.GONE);
+                holder[6] = v.findViewById(R.id.progressBar);                
                 mHolders.put(v, holder);
             } else {
                 v = convertView;
@@ -561,16 +601,37 @@ public class PushContentListFragment extends BaseServiceFragment{
             TextView timeView = (TextView)holder[4];
             timeView.setText(dataSet.time);
             TextView statusView = (TextView)holder[5];
-            statusView.setText(dataSet.status);   		
+            statusView.setText(dataSet.status);   
+            if(dataSet.flag == STATUS_DOWNLOAD_ING){
+            	holder[6].setVisibility(View.VISIBLE);
+            	statusView.setText(R.string.pushcontent_Downloading);
+            }else if(dataSet.flag == STATUS_DOWNLOAD_CANCEL){
+            	holder[6].setVisibility(View.GONE);
+            	statusView.setText(R.string.stopDownload);
+            }else if(dataSet.flag == STATUS_DOWNLOAD_FINISH){
+            	holder[6].setVisibility(View.GONE);
+            	statusView.setText(R.string.pushcontent_finishDownload);
+            }else if(dataSet.flag == STATUS_DOWNLOAD_FAIL){
+            	holder[6].setVisibility(View.GONE);
+            	statusView.setText(R.string.pushcontent_downloadFail);
+            }else{
+            	holder[6].setVisibility(View.GONE);
+            }
            
         }// the end of bind view function
-        public void updateView(View view, int nfinish, int nTotal, int status){
+        public void updateView(View view, int position, int nfinish, int nTotal, int status){
         	final View[] holder = mHolders.get(view);           
             if(holder == null){
             	return;
             }
-            TextView timeView = (TextView)holder[4];
-            timeView.setText("nfinish="+nfinish+" status="+status);
+            PushData pd = getData(position);
+            if(pd != null && pd.flag != STATUS_DOWNLOAD_CANCEL){
+            	ProgressBar bar = (ProgressBar)holder[6];
+                bar.setVisibility(View.VISIBLE);
+                bar.setMax(nTotal);
+                bar.setProgress(nfinish);
+            }
+            
         }
         public void addItem(PushData pd){
         	mData.add(pd);
@@ -584,27 +645,80 @@ public class PushContentListFragment extends BaseServiceFragment{
         	}
         	return null;
         }
+        public PushData getDataById(int id){
+        	Iterator<PushData> it = mData.iterator();
+        	while(it.hasNext()){
+        		PushData pd = it.next();
+        		if(pd.id == id){
+        			return pd;
+        		}
+        	}
+        	return null;
+        }
+        public void setDownloadStatus(int id,int flag){
+        	Iterator<PushData> it = mData.iterator();
+        	while(it.hasNext()){
+        		PushData pd = it.next();
+        		if(pd.id == id){
+        			pd.flag = flag;
+        		}
+        	}
+        }
     }
 	@Override
 	public void handleMessage(Message msg) {
         switch (msg.what) {                          
         case PushServiceUtil.MSG_DOWNLOAD:
-        	DownloadInf downloadInf = (DownloadInf)msg.obj;
-        	Log.e(TAG,PRE+ "have finish:" +downloadInf.nFinishSize);
+        case PushServiceUtil.MSG_DOWNLOAD_STOP:
+        	handleNotify(msg);        	
+        	break;
+        case PushServiceUtil.MSG_NEW_PUSH_CONTENT:
+        	initAdapter();
+        	break;
+        }				
+	}
+	private void handleNotify(Message msg){
+		
+		DownloadInf downloadInf = (DownloadInf)msg.obj;    	
+		
+		if(downloadInf.status == PushServiceUtil.DOWNLOAD_ONGOING){
+    		Log.e(TAG,PRE+ "have finish:" +downloadInf.nFinishSize);
         	int position = pushAdapter.idToPosition(downloadInf.id);    		
     		int childPos = position - getListView().getFirstVisiblePosition();
-    		
     		View itemView = getListView().getChildAt(childPos);;
     		if(itemView == null){
     			return;
     		}  
-    		pushAdapter.updateView(itemView,downloadInf.nFinishSize,
+    		pushAdapter.updateView(itemView,position,downloadInf.nFinishSize,
     				downloadInf.nTotalSize,downloadInf.status);
-        	if(downloadInf.status == PushServiceUtil.DOWNLOAD_SUCCESS){
-        		showToast(R.string.pushcontent_finishDownload,Toast.LENGTH_LONG);
-        	}
-        	break;
-        }				
+    		return;
+    	}
+		
+		int flag = 0;
+		
+		if(PushServiceUtil.MSG_DOWNLOAD == msg.what){
+			if(downloadInf.status == PushServiceUtil.DOWNLOAD_SUCCESS){ 
+	    		
+				pushContentDB.updateItem(downloadInf.id, PushContentDB.LOCAL_PATH, 
+						downloadInf.desPath);
+	    		flag = STATUS_DOWNLOAD_FINISH;
+	    		showToast(R.string.pushcontent_finishDownload,Toast.LENGTH_SHORT);    		
+	    		
+	    	}else if(downloadInf.status == PushServiceUtil.DOWNLOAD_FAIL ||
+	    			downloadInf.status == PushServiceUtil.DOWNLOAD_NONETWORK){
+	    		
+	    		flag = STATUS_DOWNLOAD_FAIL;
+	    		showToast(R.string.pushcontent_downloadFail,Toast.LENGTH_SHORT);	    		
+	    	}
+		}else if(PushServiceUtil.MSG_DOWNLOAD_STOP == msg.what){
+			flag = STATUS_DOWNLOAD_CANCEL;
+    		//showToast(R.string.stopDownload,Toast.LENGTH_SHORT);
+		}
+    	
+    	pushAdapter.setDownloadStatus(downloadInf.id, flag);
+		pushContentDB.updateItem(downloadInf.id, PushContentDB.FLAG, 
+				String.valueOf(flag));
+    	pushAdapter.notifyDataSetChanged();
 	}
 	
 }
