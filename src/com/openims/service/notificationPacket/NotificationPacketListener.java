@@ -199,7 +199,7 @@ public class NotificationPacketListener implements PacketListener {
     	push.setContent(message);
     	push.setTitle(title);
     	push.setTime(time);
-    	push.setSize("10K");
+    	push.setSize("");
     	PushContentDB pushDB = new PushContentDB(serviceContext);
     	pushDB.insertItem(push);
     	pushDB.close();
