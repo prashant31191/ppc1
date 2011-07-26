@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_gravity="center"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:orientation="vertical"><!--
+
+		<LinearLayout android:layout_width="fill_parent"
+					  android:layout_height="wrap_content"
+					  android:orientation="horizontal"
+					  android:gravity="right"
+					  >
+		<Button android:id="@+id/tv_list_paly" 
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" 
+				android:textSize="16sp"
+				android:text="@string/tvlive_play"
+				android:background="@drawable/tvlive_play_drawable"
+				android:textColor="@color/write" />	"
+		</LinearLayout>
+		--><LinearLayout android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:orientation="horizontal"
+			android:background="@drawable/tvlive_background_top">"
+
+			<Button android:id="@+id/monday" android:layout_width="0dp"
+				android:layout_height="fill_parent" android:layout_weight="1"
+				android:textSize="16sp" android:text="@string/monday"
+				android:background="@drawable/tvlive_ctl_cur_tab"
+				android:focusable="true"
+				android:textColor="@color/write" />
+			<Button android:id="@+id/tuesday" android:layout_width="0dp"
+				android:layout_height="fill_parent" android:layout_weight="1"
+				android:textSize="16sp" android:text="@string/tuesday"
+				android:background="@drawable/tvlive_ctl_cur_tab"
+				android:focusable="true"
+				android:textColor="@color/write" />
+			<Button android:id="@+id/wednesday" android:layout_width="0dp"
+				android:layout_height="fill_parent" android:layout_weight="1"
+				android:textSize="16sp" android:text="@string/wednesday"
+				android:background="@drawable/tvlive_ctl_cur_tab"
+				android:focusable="true"
+				android:textColor="@color/write" />
+			<Button android:id="@+id/thursday" android:layout_width="0dp"
+				android:layout_height="fill_parent" android:layout_weight="1"
+				android:textSize="16sp" android:text="@string/thursday"
+				android:background="@drawable/tvlive_ctl_cur_tab"
+				android:focusable="true"
+				android:textColor="@color/write" />
+			<Button android:id="@+id/friday" android:layout_width="0dp"
+				android:layout_height="fill_parent" android:layout_weight="1"
+				android:textSize="16sp" android:text="@string/friday"
+				android:background="@drawable/tvlive_ctl_cur_tab"
+				android:focusable="true"
+				android:textColor="@color/write" />
+			<Button android:id="@+id/saturday" android:layout_width="0dp"
+				android:layout_height="fill_parent" android:layout_weight="1"
+				android:textSize="16sp" android:text="@string/saturday"
+				android:background="@drawable/tvlive_ctl_cur_tab"
+				android:focusable="true"
+				android:textColor="@color/write" />
+			<Button android:id="@+id/sunday" android:layout_width="0dp"
+				android:layout_height="fill_parent" android:layout_weight="1"
+				android:textSize="16sp" android:text="@string/sunday"
+				android:background="@drawable/tvlive_ctl_cur_tab"
+				android:focusable="true"
+				android:textColor="@color/write" />
+		</LinearLayout>
+		<FrameLayout android:layout_width="fill_parent"
+					 android:layout_height="fill_parent">
+		<LinearLayout android:layout_width="fill_parent"
+					  android:layout_height="fill_parent">
+		<ListView android:layout_width="fill_parent"
+				  android:layout_height="fill_parent"
+				  android:id="@+id/programlist">"
+		</ListView>
+		</LinearLayout>
+		<LinearLayout android:layout_width="fill_parent"
+				  android:layout_height="fill_parent"
+				  android:gravity="center">"
+		<TextView android:layout_width="wrap_content"
+				  android:layout_height="wrap_content"
+				  android:textSize="25sp"
+				  android:id="@+id/noprogramlist"/>
+		</LinearLayout>
+		</FrameLayout>
+	</LinearLayout>
+</LinearLayout>

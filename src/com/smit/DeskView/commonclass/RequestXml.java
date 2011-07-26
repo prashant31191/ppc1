@@ -20,7 +20,7 @@ public  class RequestXml extends Thread {
 	public 		String 	        getString =null;
 	private     Timer 			mTimer;
 	private     String          postString=null;
-	private     final int       TimeOut=20*1000;
+	private     final int       TimeOut=60*1000;
 	private     String          Tag="RequestXml";
 
 
@@ -99,6 +99,8 @@ public  class RequestXml extends Thread {
 				}
 			};
 		mTimer.schedule(timeTask,TimeOut);//通知主线程数据已取完 		
+		
+		setPriority(getPriority()+2);
 	
 	}
 	

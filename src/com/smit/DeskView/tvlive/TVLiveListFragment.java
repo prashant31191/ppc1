@@ -22,7 +22,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.smit.DeskView.commonclass.*;
-import com.smit.DeskView.commonclass.TvLiveChannelParse.ItemVideoInfo;
+import com.smit.DeskView.commonclass.TvLiveChannelParse.ItemTvInfo;
 import com.smit.DeskView.tvlive.TVLiveFragment.GobalFunVar;
 import com.smit.DeskView.vodvideo.VODVideoListFragment.VodVideoAdapter;
 import com.smit.EasyLauncher.R;
@@ -66,6 +66,7 @@ public class TVLiveListFragment extends ListFragment {
 	private AlertDialog.Builder mBuilderpass;
 	private AlertDialog mAlertpass;
 	private VodVideoAdapter listAdapter; 
+	private boolean downProgramList=false;
 
 	private static String TVLIVE_ITEM_FILE_DIR = "data/data/com.smit.EasyLauncher/files";// 视屏文件
 	private static String TVLIVE_ITEM_FILE = "data/data/com.smit.EasyLauncher/files/tvlive.xml";// 视屏文件
@@ -74,7 +75,7 @@ public class TVLiveListFragment extends ListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		mHandler.postDelayed(mRunnable, 3000);
+		mHandler.postDelayed(mRunnable, 5000);
 		setRetainInstance(true);
 	}
 
@@ -82,10 +83,7 @@ public class TVLiveListFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		/*
-		 * if(checkWifiIscon()){ setListAdapter(new VodVideoAdapter());
-		 * requestXml(); }else
-		 */{
+		/*{
 
 			String str = ReadVodVideoItemXML();
 			if (str != null) {
@@ -102,29 +100,28 @@ public class TVLiveListFragment extends ListFragment {
 
 			}
 
-		}
+		}*/
 
 		getListView().setCacheColorHint(0);
 		getListView().setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(android.widget.AdapterView<?> arg0,
 					View arg1, int arg2, long arg3) {
-				ItemVideoInfo curItem = null;
+				ItemTvInfo curItem = null;
 				if (mtvParse != null) {
 					curItem = mtvParse.getCurInfo(arg2);
 				}
-				/*
-				 * if (curItem!=null && curItem.getSrcUrl(0)!=null
-				 * &&curItem.getSrcUrl(0).length()>0) { Intent intent = new
-				 * Intent();
-				 * intent.setClass(getActivity(),MediaPlayer_Video.class);
-				 * 
-				 * Bundle myBund = new Bundle();// 创建Bundle，用于保存要传送的数据 String
-				 * mystr = curItem.getSrcUrl(0); myBund.putString("media",
-				 * mystr);// KEY-VALUE保存起来 intent.putExtras(myBund);//
-				 * 设置Intent要传送的包
-				 * 
-				 * startActivity(intent); }
-				 */
+				
+				 if (curItem!=null) 
+				 { 
+					 Intent intent = new Intent();
+					 intent.setClass(getActivity(),TvProgramListActivity.class);
+					 Bundle myBund = new Bundle();// 创建Bundle，用于保存要传送的数据 String 
+					 myBund.putString("tvname",curItem.tv_name);// KEY-VALUE保存起来 intent.putExtras(myBund);//
+					 myBund.putString("tvprogramfilepath", curItem.channelPath);
+					 intent.putExtras(myBund);
+					 startActivity(intent); 
+				}
+				 
 
 			};
 		});
@@ -183,8 +180,12 @@ public class TVLiveListFragment extends ListFragment {
 			if (mtvParse != null) {
 				mtvParse.parseDataStr();
 				mtvParse.downloadMoviePic();
-				mtvParse.downloadChannelProgramList();
-				setListAdapter(new VodVideoAdapter());
+				if (!downProgramList) {
+					mtvParse.downloadChannelProgramList();
+					downProgramList=true;
+				}	
+				listAdapter=new VodVideoAdapter();
+				setListAdapter(listAdapter);
 			} else {
 				return false;
 			}
@@ -318,10 +319,12 @@ public class TVLiveListFragment extends ListFragment {
 	
 	private Runnable mRunnable = new Runnable() {
 		public void run() {
-			listAdapter.notifyDataSetChanged();
-			mHandler.postDelayed(mRunnable, 3000);
+			if(listAdapter!=null&&!listAdapter.isEmpty())
+			{
+				listAdapter.notifyDataSetChanged();		
+			}
+			mHandler.postDelayed(mRunnable, 5000);
 		}
-		
 
 	};
 
@@ -348,13 +351,14 @@ public class TVLiveListFragment extends ListFragment {
 		}
 
 		// 得到当前播放节目
-		public String getCurPlayProgram(ItemVideoInfo curItem) {
+		public String getCurPlayProgram(ItemTvInfo curItem) {
 			String strCurProgram = null;
 			do {
 				try {
 					if (curItem == null) {
 						break;
 					}
+					
 					
 					InputStream is = null;
 					byte[] data = null;
@@ -502,7 +506,7 @@ public class TVLiveListFragment extends ListFragment {
 						null);
 			}
 
-			ItemVideoInfo curItem = null;
+			ItemTvInfo curItem = null;
 			if (mtvParse != null) {
 				curItem = mtvParse.getCurInfo(position);
 			}
@@ -536,25 +540,9 @@ public class TVLiveListFragment extends ListFragment {
 					.findViewById(R.id.tvlive_isplay);
 			if (isplayingString!=null) {
 				tvlive_isplay.setText(getResources().getString(R.string.tvlive_widget_isplaying)+isplayingString);
+			}else {
+				tvlive_isplay.setText("");
 			}
-
-			
-
-			/*
-			 * vodvideo_time = (TextView)
-			 * convertView.findViewById(R.id.tvlive_time); if (curItem!=null &&
-			 * curItem.getVideoTime()!=null &&
-			 * curItem.getVideoTime().length()>0) {
-			 * vodvideo_time.setText(curItem.movie_time); }else {
-			 * vodvideo_time.setText(R.string.vodvideo_widget_deftime); }
-			 * 
-			 * vodvideo_descrpition = (TextView)
-			 * convertView.findViewById(R.id.tvlive_descrpition); if
-			 * (curItem!=null &&
-			 * curItem.getVideoDes()!=null&&curItem.getVideoDes().length()>0) {
-			 * vodvideo_descrpition.setText(curItem.getVideoDes()); }else {
-			 * vodvideo_descrpition.setText(R.string.vodvideo_widget_decript); }
-			 */
 
 			return convertView;
 

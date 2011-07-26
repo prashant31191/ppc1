@@ -73,10 +73,7 @@ public class VODVideoListFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		/*if(checkWifiIscon()){
-			setListAdapter(new VodVideoAdapter());
-			requestXml();
-		}else*/ {
+		/*{
 			String str=ReadVodVideoItemXML();
 			if (str!=null) {
 				mMovieParse = new VodVideoMoveParse(str);
@@ -88,7 +85,7 @@ public class VODVideoListFragment extends ListFragment {
 			}
 		
 			 
-		}		
+		}		*/
 			
 		getListView().setCacheColorHint(0);		
 		getListView().setOnItemClickListener(new OnItemClickListener() {
