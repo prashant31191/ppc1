@@ -216,16 +216,18 @@ public class NotificationPacketListener implements PacketListener {
     	NotificationManager mNotificationManager = 
     		(NotificationManager) serviceContext.
     		getSystemService(Context.NOTIFICATION_SERVICE);
+    	Context context = serviceContext.getApplicationContext(); 
     	
     	int icon = R.drawable.icon;
-    	CharSequence tickerText = "有更新啦！";
+    	CharSequence tickerText = serviceContext.getResources().
+					getString(R.string.pc_new_message);
     	long when = System.currentTimeMillis();
 
     	Notification notification = new Notification(icon, tickerText, when);
-    	notification.flags = Notification.FLAG_AUTO_CANCEL;
-    	
-    	Context context = serviceContext.getApplicationContext();  
-    	CharSequence contentTitle = "有新的信息推送过来啦";  
+    	notification.flags = Notification.FLAG_AUTO_CANCEL;    	
+    	 
+    	CharSequence contentTitle = serviceContext.getResources().
+    					getString(R.string.pc_new_message);  
     	CharSequence contentText = titile;  
     	
     	

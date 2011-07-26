@@ -309,7 +309,7 @@ public class IMService extends Service  {
     }
     private void initDeviceId(){
     	
-    	 String deviceId = DeviceFun.getDeviceID();
+    	String deviceId = DeviceFun.getDeviceID();
     	Editor editor = sharedPrefs.edit();
         editor.putString(PushServiceUtil.DEVICE_ID, deviceId);
         editor.commit();
@@ -328,7 +328,7 @@ public class IMService extends Service  {
                 editor.commit();
             }
         }
-        Log.d(TAG, PRE + "deviceId=" + deviceId);
+        Log.e(TAG, PRE + "deviceId=" + deviceId);
     }
     
     private void login() {

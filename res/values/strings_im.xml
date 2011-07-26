@@ -107,5 +107,6 @@
     <string name="im_no_more_group">没有更多分组</string>
     <string name="pc_start_download_fail">启动下载服务失败</string>
     <string name="create_file_fail">创建文件失败</string>
+    <string name="pc_new_message">有新的信息推送过来啦</string>
     
 </resources>

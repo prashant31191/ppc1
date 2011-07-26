@@ -105,6 +105,7 @@ import com.openims.service.notificationPacket.RegPushPacketListener;
 import com.openims.service.notificationPacket.RegPushProvider;
 import com.openims.service.notificationPacket.UserQueryIQ;
 import com.openims.service.pubsub.SubListener;
+import com.openims.utility.DeviceFun;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
 import com.smit.EasyLauncher.R;
@@ -221,6 +222,8 @@ public class XmppManager{
         if (getConnection() != null && 
             	getConnection().isConnected()) 
         {
+        	Presence presence = new Presence(Presence.Type.unavailable);
+            connection.sendPacket(presence);
             getConnection().disconnect();
         }
         stopReconnectionThread();
@@ -953,21 +956,24 @@ public class XmppManager{
     		Log.e(LOGTAG,"get file manager listener error");
     		e.printStackTrace();    		
     	}    	
-    	
+    	String deviceName = android.os.Build.PRODUCT;
+    	if(deviceName.isEmpty()){
+    		deviceName = android.os.Build.DEVICE;
+    	}
     	// send device information to server
     	UserQueryIQ iq = new UserQueryIQ();
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
     	iq.setUserAccount(mAdminJid);
     	iq.setResource(getResource());
-    	iq.setDeviceName("SMIT1800");
+    	iq.setDeviceName(deviceName);
     	iq.setOpCodeSave();
-    	this.sendPacket(iq);
-        
+    	this.sendPacket(iq);    	
+    	
     	UserQueryIQ iqQuery = new UserQueryIQ();
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
     	iq.setUserAccount(mAdminJid);
     	iq.setResource(getResource());
-    	iq.setDeviceName("SMIT1800");
+    	iq.setDeviceName(deviceName);
     	iqQuery.setOpCodeQueryOfflinePush();
     	this.sendPacket(iqQuery);
     	

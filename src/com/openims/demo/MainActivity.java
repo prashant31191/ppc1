@@ -24,6 +24,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 import com.openims.model.MyApplication;
+import com.openims.utility.DeviceFun;
 import com.openims.utility.PushServiceUtil;
 import com.openims.view.chat.MultiChatActivity;
 import com.openims.view.chat.widget.IMActivity;
@@ -45,7 +46,7 @@ public class MainActivity extends Activity {
         		WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, 
         		WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.main);
-        
+        DeviceFun.printDeviceInf("OpenIMS");
        /* Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(MainActivity.this,
         		R.anim.my_rotate_action);
         View v = this.findViewById(R.id.main);
