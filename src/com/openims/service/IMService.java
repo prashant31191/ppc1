@@ -61,7 +61,7 @@ public class IMService extends Service  {
     private static final String PRE = LogUtil.makeTag(IMService.class);
     public static final String SERVICE_NAME = "com.openims.service.IMService";
     
-    private BroadcastReceiver connectivityReceiver;
+    
     
     private ExecutorService executorService;
     private TaskSubmitter taskSubmitter;
@@ -332,13 +332,7 @@ public class IMService extends Service  {
     }
     
     private void login() {
-        Log.d(TAG, PRE + "start()...");        
-        
-        connectivityReceiver = new ConnectivityReceiver(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(connectivityReceiver, filter);        
+        Log.d(TAG, PRE + "start()...");                
         
         taskSubmitter.submit(new Runnable() {
             public void run() {
@@ -347,11 +341,8 @@ public class IMService extends Service  {
         });
     }
 
-    private void logout() {            
+    private void logout() {
         
-        if(connectivityReceiver != null){
-        	unregisterReceiver(connectivityReceiver);
-        }
         disconnect();
         try {
 			executorService.awaitTermination(1000, TimeUnit.MILLISECONDS);
