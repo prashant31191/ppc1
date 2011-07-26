@@ -1,5 +1,8 @@
 package com.openims.utility;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -75,4 +78,36 @@ public class Utility {
 	 
 	    return output;
 	  }
+	
+	public static String encodeUrl(String url){
+		String newUrl = url;
+		boolean bs = true;
+		newUrl = newUrl.toLowerCase();
+		int n = newUrl.indexOf("https://");
+		if(n == -1){
+			bs = false;
+			n = newUrl.indexOf("http://");
+			if(n != -1){
+				newUrl = newUrl.substring(n+7);
+			}
+		}else{
+			bs = true;
+			newUrl = newUrl.substring(n+8);
+		}
+		
+		try {
+			newUrl = URLEncoder.encode(newUrl,"utf-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		if(bs){
+			newUrl = "https://" + newUrl;
+		}else{
+			newUrl = "http://" + newUrl;
+		}
+		
+		return newUrl;
+	}
 }

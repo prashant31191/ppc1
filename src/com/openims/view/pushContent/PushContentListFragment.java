@@ -1,23 +1,19 @@
 package com.openims.view.pushContent;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.WeakHashMap;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.support.v4.app.ListFragment;
+import android.os.Message;
+import android.os.RemoteException;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.Gravity;
@@ -25,47 +21,67 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.PopupWindow.OnDismissListener;
 
-import com.smit.EasyLauncher.R;
-import com.openims.downloader.DownloadTask;
-import com.openims.downloader.DownloadTaskListener;
-import com.openims.downloader.DownloadThread;
-import com.openims.downloader.DownloadThreadFactory;
+import com.openims.downloader.DownloadInf;
 import com.openims.model.pushService.PushContentDB;
 import com.openims.utility.FileOperation;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
+import com.openims.utility.Utility;
+import com.openims.view.BaseServiceFragment;
 import com.openims.widgets.ActionItem;
 import com.openims.widgets.BigToast;
 import com.openims.widgets.QuickAction;
+import com.smit.EasyLauncher.R;
 
-/**
- * 这是用来显示推送过来的所有的用户内容，用list来显示
- * @author ANDREW CHAN
- * 
- */
-public class PushContentListFragment extends ListFragment implements OnClickListener  {
 
-	private static final String TAG = LogUtil
-			.makeLogTag(PushContentListFragment.class);
+public class PushContentListFragment extends BaseServiceFragment{
+
+	private static final String TAG = LogUtil.makeLogTag(PushContentListFragment.class);
 	private static final String PRE = "PushContentListFragment:";
+	
+	// the status of action button
+	public static final int STATUS_VIEW = 1;
+	public static final int STATUS_DOWNLOAD = 2;
+	public static final int STATUS_DOWNLOAD_ING = 3;
+	public static final int STATUS_DOWNLOAD_CANCEL = 4;
+	public static final int STATUS_DOWNLOAD_FINISH = 5;
+	public static final int STATUS_DOWNLOAD_FAIL = 6;
+	
+	private String uread = null;
+	private String read = null;
+	private String downloadFail = null;
+	private String downloadFinish = null;
+	private String downloadStop = null;
+	private String download = null;
+	private String checkout = null;	
+	
+	private int nColIndex = -1;
+	private int nColTitle = -1;
+	private int nColContent = -1;
+	private int nColTime = -1;
+	private int nColType = -1;
+	private int nColSize = -1;
+	private int nColStatus = -1;
+	private int nColPath = -1;
+	private int nColFlag = -1;
 
 
-	private PushCursorAdapter pushAdapter = null;
+	private PushAdapter pushAdapter = null;
 	private PushContentDB pushContentDB = null;
+
 	
-	private DownloadThreadFactory downloadFactory = null;
-	private DownloadThread thread = null;
-	private Handler mainHandler = null;
-	
-	private String picPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/picture/";
-	private String videoPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/video/";
-	private String audioPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/audio/";
+	private String picPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/pictures/";
+	private String videoPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/videos/";
+	private String audioPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/pushFile/audios/";
 	private String MEDIA_PIC = "image";
 	private String MEDIA_AUDIO = "audio";
 	private String MEDIA_VIDEO = "video";
@@ -76,110 +92,202 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	private ActionItem cancelAction = null;	
 	private ActionItem downloadAction = null;
 	private ActionItem stopDownloadAction = null;
+		
 	
-	private boolean close = true;
-	
-	@Override
-	public void onAttach(Activity activity) {
-		Log.e(TAG, PRE + "onAttach");
-		super.onAttach(activity);
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		if(downloadFactory == null){
-			downloadFactory = new DownloadThreadFactory();
-			thread = downloadFactory.getThread(null);
-			thread.start();
-		}
-		if(mainHandler == null){
-			mainHandler = new Handler();
-		}
-		if(pushContentDB == null)
-			pushContentDB = new PushContentDB(this.getActivity());	
-		if(pushAdapter == null)
-		pushAdapter = new PushCursorAdapter(this.getActivity(),
-				pushContentDB.queryItems(),true,this);
-		
-		this.setListAdapter(pushAdapter);	
-		
-		
+		super.onCreate(savedInstanceState);		
+	    //setRetainInstance(true);
+		initData();		
 	}
 	
-	private String getResString(int id){
-		try{
-			return this.getActivity().getResources().getString(id);
-		}catch(NotFoundException e){
-			e.printStackTrace();
-		}
-		return "null";
-		
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {		
+		View v = inflater.inflate(R.layout.pc_custom_list_empty, container);
+		return v;
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View view, int position, final long id) {	
-		Log.i(TAG,PRE + "onListItemClick ID : " + id);
+	public void onActivityCreated(Bundle savedInstanceState) {		
+		super.onActivityCreated(savedInstanceState);
+		getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);		
+	}	
+
+	@Override
+	public void onDestroy() {
+		Log.e(TAG, PRE + "onDestroy");		
+		if(pushContentDB != null){
+			pushContentDB.close();
+		}	
+		super.onDestroy();
+	}
+	
+	private void initData(){
+		if(pushContentDB == null){
+			pushContentDB = new PushContentDB(this.getActivity());
+		}
+				
+		if(pushAdapter == null){
+			pushAdapter = new PushAdapter(this.getActivity(),R.layout.pc_list_item);
+		}
+		
+		setListAdapter(pushAdapter);
+		
+		uread = getResources().getString(R.string.pushcontent_uread);
+		read = getResources().getString(R.string.pushcontent_read);	
+		downloadFail = getResources().getString(R.string.pushcontent_downloadFail);	
+		downloadFinish = getResources().getString(R.string.pushcontent_finishDownload);	
+		
+		download = getResources().getString(R.string.download);	
+		downloadStop = getResources().getString(R.string.stopDownload);	
+		checkout = getResources().getString(R.string.view);	
+		
+		initAdapter();
+		
+	}
+	private void initAdapter(){
+
+		Cursor cursor = pushContentDB.queryItems();
+		
+		if(nColTitle == -1){
+			nColIndex = cursor.getColumnIndex(PushContentDB.INDEX);
+			nColTitle = cursor.getColumnIndex(PushContentDB.TITLE);
+			nColStatus = cursor.getColumnIndex(PushContentDB.STATUS);
+			nColPath = cursor.getColumnIndex(PushContentDB.LOCAL_PATH);
+			nColType = cursor.getColumnIndex(PushContentDB.TYPE);
+			nColTime = cursor.getColumnIndex(PushContentDB.TIME);
+			nColSize = cursor.getColumnIndex(PushContentDB.SIZE);
+			nColContent = cursor.getColumnIndex(PushContentDB.CONTENT);
+			nColFlag = cursor.getColumnIndex(PushContentDB.FLAG);
+		}
+		pushAdapter.initData();
+		if(cursor.moveToFirst() == false){
+			return;
+		}
+		while(cursor.isAfterLast() == false){
+			PushData pd = new PushData();
+			pd.id = cursor.getInt(nColIndex);
+			pd.type = cursor.getString(nColType);
+			boolean bDownload = false;
+			if(PushServiceUtil.DEFAULTID_TEXT.equalsIgnoreCase(pd.type)){
+    			pd.typeDrawable = R.drawable.text;
+    		}else if(PushServiceUtil.DEFAULTID_URL.equalsIgnoreCase(pd.type)){
+    			pd.typeDrawable = R.drawable.www;
+    		}else if(PushServiceUtil.DEFAULTID_PICTURE.equalsIgnoreCase(pd.type)){
+    			pd.typeDrawable = R.drawable.picture;
+    			bDownload = true;
+    		}else if(PushServiceUtil.DEFAULTID_VIDEO.equalsIgnoreCase(pd.type)){
+    			pd.typeDrawable = R.drawable.picture;
+    			bDownload = true;
+    		}else if(PushServiceUtil.DEFAULTID_AUDIO.equalsIgnoreCase(pd.type)){
+    			pd.typeDrawable = R.drawable.music;
+    			bDownload = true;
+    		}else if(PushServiceUtil.DEFAULTID_STORY.equalsIgnoreCase(pd.type)){
+    			pd.typeDrawable = R.drawable.story;
+    		}else{
+    			pd.typeDrawable = R.drawable.icon;
+    		}
+			
+			pd.title = cursor.getString(nColTitle);
+			pd.content = cursor.getString(nColContent);
+			pd.size = cursor.getString(nColSize);
+			pd.status = cursor.getString(nColStatus);
+			pd.time = cursor.getString(nColTime);
+			pd.path = cursor.getString(nColPath);
+			pd.flag = cursor.getInt(nColFlag);
+			if(pd.flag == 0){
+				if(bDownload){
+					pd.flag = STATUS_DOWNLOAD;
+				}else{
+					pd.flag = STATUS_VIEW;
+				}
+			}
+			cursor.moveToNext();
+			pushAdapter.addItem(pd);
+		}
+		cursor.close();
+		pushAdapter.notifyDataSetChanged();
+		
+	}
+	
+	@Override
+	public void onListItemClick(ListView l, final View view, int position, final long id) {	
 		
 		// set unread to read 
-		TextView tv = (TextView)view.findViewById(R.id.tv_pushcontent_status);
-		if(pushAdapter.getUread().endsWith(tv.getText().toString())){
-			pushContentDB.updateStatus(id, pushAdapter.getRead());			
-			pushAdapter.getCursor().requery(); // TODO can be better
+		final PushData pd = pushAdapter.getData(position);
+		if(pd == null){
+			return;			
+		}
+		
+		if(uread.endsWith(pd.status)){
+			pushContentDB.updateStatus(pd.id, read);
+			pd.status = read;
+			TextView st = (TextView)view.findViewById(R.id.tv_pushcontent_status);
+			st.setText(read); 
+			
 			showToast(R.string.pushcontent_read,Toast.LENGTH_SHORT);	
 			return;
 		}
 		
 		// Pop up menu
-		final QuickAction mQuickAction 	= new QuickAction(view);
-		final Button actionBtn = (Button)view.findViewById(R.id.btn_pushcontent_action);
-		String text = actionBtn.getText().toString();
+		final QuickAction mQuickAction 	= new QuickAction(view);	
 		
 		getDeleteAction().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				mQuickAction.dismiss();
-				pushContentDB.deleteItem(String.valueOf(id));
+				pushContentDB.deleteItem(String.valueOf(pd.id));
+				// TODO can optimize 
+				initAdapter();
 				showToast(R.string.delsuccess,Toast.LENGTH_LONG);				
-				pushAdapter.getCursor().requery();
+				
 			}
 		});
 		mQuickAction.addActionItem(getDeleteAction());
 		
 		// add difference action in difference situation
-		int type = (Integer)actionBtn.getTag(R.string.btn_type);
-		
-		if(type == PushCursorAdapter.STATUS_DOWNLOAD){
-			
-			getDownloadAction().setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					mQuickAction.dismiss();
-					Integer cursorPosition = (Integer)actionBtn.getTag();
-					actionBtn.setTag(R.string.btn_type,PushCursorAdapter.STATUS_DOWNLOAD_CANCEL);
-					btnDownload(cursorPosition, actionBtn);
-					
-				}
-			});
-			mQuickAction.addActionItem(getDownloadAction());
-			
-		} else if(type == PushCursorAdapter.STATUS_VIEW) {
+		if(pd.flag == STATUS_VIEW || pd.flag == STATUS_DOWNLOAD_FINISH) {			
 			getViewAction().setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					mQuickAction.dismiss();
-					Integer cursorPosition = (Integer)actionBtn.getTag();
-					btnView(cursorPosition);
-					
+					btnView(pd,view);					
 				}
 			});
 			mQuickAction.addActionItem(getViewAction());
-		} else if(type == PushCursorAdapter.STATUS_DOWNLOAD_CANCEL){
+			
+		} else if(pd.flag == STATUS_DOWNLOAD || 
+				pd.flag == STATUS_DOWNLOAD_FAIL || 
+				pd.flag == STATUS_DOWNLOAD_CANCEL){			
+			getDownloadAction().setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mQuickAction.dismiss();
+					
+					// start down load
+					showToast(R.string.pushcontent_beginDownload,Toast.LENGTH_SHORT);
+					if(startDownload(pd)){
+						pd.flag = STATUS_DOWNLOAD_ING;
+						pushContentDB.updateItem(pd.id, PushContentDB.FLAG, 
+								String.valueOf(STATUS_DOWNLOAD_ING));						
+					}
+					pushAdapter.notifyDataSetChanged();
+				}
+			});
+			mQuickAction.addActionItem(getDownloadAction());
+			
+		} else if(pd.flag == STATUS_DOWNLOAD_ING){
 			getStopDownloadAction().setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					int id = (Integer)actionBtn.getTag(R.string.position);
-					btnStopDownload(id);					
+					mQuickAction.dismiss();
+					pd.flag = STATUS_DOWNLOAD_CANCEL;
+					pushContentDB.updateItem(pd.id, PushContentDB.FLAG, 
+							String.valueOf(STATUS_DOWNLOAD_CANCEL));
+					showToast(R.string.stopDownload,Toast.LENGTH_SHORT);
+					btnStopDownload(pd);	
+					pushAdapter.notifyDataSetChanged();
 				}
 			});
 			mQuickAction.addActionItem(getStopDownloadAction());
@@ -189,11 +297,10 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 			@Override
 			public void onClick(View v) {
 				mQuickAction.dismiss();
-				showToast(R.string.cancel,Toast.LENGTH_LONG);
+				showToast(R.string.cancel,Toast.LENGTH_SHORT);
 			}
 		});		
 		mQuickAction.addActionItem(getCancelAction());
-		
 		
 		
 		mQuickAction.setOnDismissListener(new OnDismissListener() {
@@ -211,25 +318,70 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 	 * show notify
 	 */
 	private void showToast(int text,int duration){
-		Toast t = BigToast.makeText(getActivity(),getResString(text), 
+		Toast t = BigToast.makeText(getActivity(),
+				getActivity().getResources().getString(text), 
 				duration);						
 		t.setGravity(Gravity.RIGHT|Gravity.BOTTOM, 0, 0);
 		t.setMargin(PushServiceUtil.HORIZONTAL_MARGIN, PushServiceUtil.VERTICAL_MARGIN);
 		t.show();
 	}
+	private boolean startDownload(PushData pd){
+
+		String basePath = picPath;
+		
+		if(PushServiceUtil.DEFAULTID_PICTURE.endsWith(pd.type) ){
+			basePath = picPath;
+		}else if(PushServiceUtil.DEFAULTID_AUDIO.endsWith(pd.type)){
+			basePath = audioPath;
+		}else if(PushServiceUtil.DEFAULTID_VIDEO.endsWith(pd.type)){
+			basePath = videoPath;
+		}
+		if(FileOperation.makedir(basePath) == false){
+			//showToast(R.string.create_file_fail, Toast.LENGTH_SHORT);
+			//return false;
+		}
+		
+		String fileName = pd.title;
+		if(fileName.isEmpty()){
+			fileName = FileOperation.getFileName(pd.content);
+		}
+		
+		try {
+			DownloadInf dl = new DownloadInf();
+			dl.desPath = basePath + fileName;
+			pd.path = dl.desPath;
+			dl.id = pd.id;
+			dl.nTotalSize = 2662720;
+			dl.url = pd.content; 
+			//"http://cloud.github.com/downloads/buddycloud/android-client/buddycloud-debug.apk";
+			sendMsgService(PushServiceUtil.MSG_DOWNLOAD,1, 2, (Object)dl);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			showToast(R.string.pc_start_download_fail, Toast.LENGTH_SHORT);
+			return false;
+		}
+		return true;
+	}
+	private void btnStopDownload(PushData pd){
+		try {
+			DownloadInf dl = new DownloadInf();
+			dl.id = pd.id;
+			sendMsgService(PushServiceUtil.MSG_DOWNLOAD_STOP,1, 2, (Object)dl);
+		} catch (RemoteException e) {			
+			e.printStackTrace();
+			showToast(R.string.pc_start_download_fail, Toast.LENGTH_SHORT);
+		}
+	}
 	/**
 	 * show the detail information in this position
 	 * @param position
 	 */
-	private void btnView(int position){
+	private void btnView(PushData pd,View view){		
 		
-		Cursor cursor = pushAdapter.getCursor();
-		cursor.moveToPosition(position);
+		String url = pd.content;
+		String type = pd.type;		
+		String localPath = pd.path;
 		
-		String url = cursor.getString(pushAdapter.getnColContent());
-		String type = cursor.getString(pushAdapter.getnColType());
-		
-		String localPath = cursor.getString(pushAdapter.getnColPath());
 		if(PushServiceUtil.DEFAULTID_PICTURE.endsWith(type) ){
 			viewMedia(localPath, MEDIA_PIC);
 		} else if(PushServiceUtil.DEFAULTID_VIDEO.endsWith(type) ){				
@@ -240,9 +392,7 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 			Uri uri = Uri.parse(url);
 	    	Intent intent = new Intent(Intent.ACTION_VIEW,uri);
 	    	getActivity().startActivity(intent);
-		} else if(PushServiceUtil.DEFAULTID_TEXT.equalsIgnoreCase(type)){
-			View view = getListView().getChildAt(
-					position - getListView().getFirstVisiblePosition());
+		} else if(PushServiceUtil.DEFAULTID_TEXT.equalsIgnoreCase(type)){			
 			if(view != null){
 				TextView c = (TextView)view.findViewById(R.id.tv_pushcontent_content);				
 				if(c.getEllipsize() != null){						
@@ -252,8 +402,8 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 					c.setSingleLine(true);
 					c.setEllipsize(TruncateAt.MIDDLE);
 				}
-				
 			}
+			
 		}
 	}
 	
@@ -264,380 +414,311 @@ public class PushContentListFragment extends ListFragment implements OnClickList
 		intent.setDataAndType(Uri.fromFile(file), type + "/*"); 	
 		startActivity(intent); 
 	}
-
-	public void updateList(){
-		pushAdapter.getCursor().requery();
-	}
+    public void viewText(String path){
+    	Intent intent = new Intent(Intent.ACTION_EDIT); 
+    	Uri uri = Uri.parse(path); 
+    	intent.setDataAndType(uri, "text/plain"); 
+    	startActivity(intent);
+    }
 	
-	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		Log.e(TAG, PRE + "onCreateView");
-		View v = inflater.inflate(R.layout.pc_custom_list_empty, container);
-		return v;
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		Log.e(TAG, PRE + "onActivityCreated");
-		close = false;
-		super.onActivityCreated(savedInstanceState);
-		getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
-		
-	}
-
-	@Override
-	public void onStart() {
-		Log.e(TAG, PRE + "onStart");
-		super.onStart();
-	}
-
-	@Override
-	public void onResume() {
-		Log.e(TAG, PRE + "onResume");
-		super.onResume();
-	}
-
-	@Override
-	public void onPause() {
-		Log.e(TAG, PRE + "onPause");
-		super.onPause();
-	}
-
-	@Override
-	public void onStop() {
-		Log.e(TAG, PRE + "onStop");		
-		super.onStop();
-	}
-
-	@Override
-	public void onDestroyView() {
-		Log.e(TAG, PRE + "onDestroyView");
-		close = true;
-		pushContentDB.close();
-		super.onDestroyView();
-	}
-
-	@Override
-	public void onDestroy() {
-		Log.e(TAG, PRE + "onDestroy");
-		close = true;
-		if(pushAdapter != null){
-			pushAdapter.cleanUp();
-		}
-		cleanUp();
-		super.onDestroy();
-	}
-
-	@Override
-	public void onDetach() {
-		Log.e(TAG, PRE + "onDetach");
-		super.onDetach();
-	}
-	
-	// 清理一些垃圾
-	public void cleanUp(){
-		Log.i(TAG,TAG + "cleanUp");
-		if(thread != null){
-			thread.requestStop();
-			thread = null;
-		}
-	}
-	@Override
-	public void onClick(final View v) {		
-		
-		Integer cursorPosition = (Integer)v.getTag();	
-		int type = (Integer)v.getTag(R.string.btn_type);
-		
-		if(type == PushCursorAdapter.STATUS_DOWNLOAD){
-			// down load file
-			v.setTag(R.string.btn_type,PushCursorAdapter.STATUS_DOWNLOAD_CANCEL);
-			btnDownload(cursorPosition, (Button)v);
-			
-		} else if(type == PushCursorAdapter.STATUS_VIEW) {
-			// view information
-			btnView(cursorPosition);
-		} else if(type == PushCursorAdapter.STATUS_DOWNLOAD_CANCEL){
-			int id = (Integer)v.getTag(R.string.position);
-			btnStopDownload(id);
-		}
-	}
-
-	public void btnStopDownload(int id){
-		DownloadAsyncTask task = (DownloadAsyncTask)pushAdapter.getTaskMap().get(id);
-		if(task != null){
-			if(task.cancel(true)){
-				showToast(R.string.stopDownload,Toast.LENGTH_LONG);
-			}else{
-				showToast(R.string.pushcontent_stopFail,Toast.LENGTH_LONG);
-			}
-		}
-	}
 	private void btnDownload(int position, final Button v){
-		Cursor cursor = pushAdapter.getCursor();
-		cursor.moveToPosition(position);
-		String url = cursor.getString(pushAdapter.getnColContent());
-		String type = cursor.getString(pushAdapter.getnColType());
-		String basePath = picPath;
-		
-		if(PushServiceUtil.DEFAULTID_PICTURE.endsWith(type) ){
-			basePath = picPath;
-		}else if(PushServiceUtil.DEFAULTID_AUDIO.endsWith(type)){
-			basePath = audioPath;
-		}else if(PushServiceUtil.DEFAULTID_VIDEO.endsWith(type)){
-			basePath = videoPath;
-		}
-		boolean b = FileOperation.makedir(basePath);
-		
-		String fileName = FileOperation.getFileName(url);
-		
-		Integer id = (Integer)v.getTag(R.string.position);
-		DownloadAsyncTask task = new DownloadAsyncTask();
-		pushAdapter.getTaskMap().put(id, task);
-		task.setId(id);
-		task.setPosition(position);
-		task.execute(url,basePath + fileName);			
-	}
-	public class DownloadAsyncTask extends AsyncTask<String,Integer,Integer>{
-		private static final String PRE = "DownloadAsyncTask:";
-		private static final int FAIL = 0;
-		private static final int SUCCESS = 1;
-		private static final int NONETWORK = 2;
-		private int id = 0; 	// database key column
-		private int position = 0;
-		private int finishSize = 0;
-		private int totalSize = 0; // TODO 要求服务器把大小发过来
-		private String downloadPath;	
-		private boolean finish = false;
-		
-		/**
-		 * params[0] down load URL
-		 * params[1] local path to save file
-		 */
-		@Override
-		protected Integer doInBackground(String... params) {
 			
-			Log.d(TAG, PRE + "url:" + params[0]);
-            Log.d(TAG, PRE + "file name:" + params[1]);
-            downloadPath = params[1];
-            
-            int returnCode = SUCCESS;
-			FileOutputStream fos = null;
-	        try {
-	        	URL url = new URL(params[0]);
-	            File file = new File(params[1]);
-	            fos = new FileOutputStream(file);
-	            
-	            long startTime = System.currentTimeMillis();
-                URLConnection ucon = url.openConnection();
-                InputStream is = ucon.getInputStream();
-                BufferedInputStream bis = new BufferedInputStream(is);
-                
-                byte[] data = new byte[10240]; 
-                int nFinishSize = 0;
-                int nread = 0;
-                while( (nread = bis.read(data, 0, 10240)) != -1){
-                	fos.write(data, 0, nread);                	
-                	nFinishSize += 10240;
-                	Thread.sleep( 1 ); // this make cancel method work
-                	this.publishProgress(nFinishSize);
-                }              
-                data = null;    
-	            Log.d(TAG, "download ready in"
-	                  + ((System.currentTimeMillis() - startTime) / 1000)
-	                  + " sec");
-	                
-	        } catch (IOException e) {
-	                Log.d(TAG, PRE + "Error: " + e);
-	                returnCode = FAIL;
-	        } catch (Exception e){
-	        		 e.printStackTrace();       	
-	        } finally{
-				try {
-					if(fos != null)
-						fos.close();
-				} catch (IOException e) {
-					Log.d(TAG, PRE + "Error: " + e);
-					e.printStackTrace();
-				}
-	        }
-           
-			return returnCode;
-		}
-
-		@Override
-		protected void onCancelled() {
-			/*View view = getListView().getChildAt(
-					position - getListView().getFirstVisiblePosition());
-			if(view != null){
-				Button btn = (Button)view.findViewById(R.id.btn_pushcontent_action);
-				btn.setText(R.string.stopDownload);
-				btn.setTag(R.string.btn_type,PushCursorAdapter.STATUS_DOWNLOAD);
-			}*/
-			pushContentDB.updateStatus(id, pushAdapter.getDownloadStop());
-			pushAdapter.deleteTaskMap(id);
-			pushAdapter.getCursor().requery();
-			super.onCancelled();
-		}
-
-		@Override
-		protected void onPostExecute(Integer result) {
-			finish = true;
-			if(close){
-				return;
-			}
-			View view = getListView().getChildAt(
-					position - getListView().getFirstVisiblePosition());
-			if(view != null){
-				//Button btn = (Button)view.findViewById(R.id.btn_pushcontent_action);
-				//TextView v = (TextView)view.findViewById(R.id.tv_pushcontent_status);
-				switch(result){
-				case FAIL:
-					pushContentDB.updateStatus(id, pushAdapter.getDownloadFail());
-					pushAdapter.deleteTaskMap(id);
-					//v.setText(pushAdapter.getDownloadFail());
-					//btn.setText(R.string.download);
-					//btn.setTag(R.string.btn_type,PushCursorAdapter.STATUS_DOWNLOAD);
-					pushAdapter.getCursor().requery();
-					showToast(R.string.pushcontent_downloadFail, Toast.LENGTH_SHORT);
-					
-					break;
-				case SUCCESS:
-					pushContentDB.updatePath(id, downloadPath);
-					pushContentDB.updateStatus(id, pushAdapter.getDownloadFinish());
-					
-					//btn.setText(R.string.view);
-					//btn.setTag(R.string.btn_type,PushCursorAdapter.STATUS_VIEW);					
-					//v.setText(R.string.pushcontent_finishDownload);
-					pushAdapter.getCursor().requery();
-					showToast(R.string.pushcontent_finishDownload, Toast.LENGTH_SHORT);
-					break;
-				}
-			}
-			super.onPostExecute(result);
-		}
-
-		@Override
-		protected void onPreExecute() {
-			View view = getListView().getChildAt(
-					position - getListView().getFirstVisiblePosition());
-			if(view != null){
-				Log.i(TAG, PRE + "onPreExecute");
-				TextView v = (TextView)view.findViewById(R.id.tv_pushcontent_status);
-				v.setText(R.string.pushcontent_beginDownload);
-				Button btn = (Button)view.findViewById(R.id.btn_pushcontent_action);
-				btn.setText(R.string.stopDownload);
-				btn.setTag(R.string.btn_type, PushCursorAdapter.STATUS_DOWNLOAD_CANCEL);
-			}
-			super.onPreExecute();
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			finishSize = values[0];
-			try{
-				if(close == false){
-					View view = getListView().getChildAt(
-							position - getListView().getFirstVisiblePosition());
-					if(view != null){
-						TextView tvSize = (TextView)view.findViewById(R.id.tv_pushcontent_size);
-						tvSize.setText("总大小: " + totalSize +
-								" 已经下载: " + finishSize);
-					}		
-				}
-								
-			}catch(IllegalStateException e){
-				e.printStackTrace();
-				Log.e(TAG,PRE + "view had destory");
-			}
-			
-			super.onProgressUpdate(values);
-		}
-
-		public int getId() {
-			return id;
-		}
-
-		public int getPosition() {
-			return position;
-		}
-
-		public boolean isFinish() {
-			return finish;
-		}
-
-		public void setId(int id) {
-			this.id = id;
-		}
-
-		public void setPosition(int position) {
-			this.position = position;
-		}		
-
-		public void setFinish(boolean finish) {
-			this.finish = finish;
-		}
-
-		public int getFinishSize() {
-			return finishSize;
-		}
-
-		public int getTotalSize() {
-			return totalSize;
-		}
-
-		public void setFinishSize(int finishSize) {
-			this.finishSize = finishSize;
-		}
-
-		public void setTotalSize(int totalSize) {
-			this.totalSize = totalSize;
-		}
 	}
+	
 	//============== below is getter and setter =============================
-	public ActionItem getDeleteAction() {
+	private ActionItem getDeleteAction() {
 		if(deleteAction == null){
 			deleteAction = new ActionItem();
 			deleteAction.setTitle(getActivity().getResources().getString(R.string.delete));
-			deleteAction.setIcon(getResources().getDrawable(R.drawable.ic_add));			
+			deleteAction.setIcon(getResources().getDrawable(R.drawable.pc_delete));			
 		}
 		return deleteAction;
 	}
-	public ActionItem getViewAction() {
+	private ActionItem getViewAction() {
 		if(viewAction == null){
 			viewAction = new ActionItem();
 			viewAction.setTitle(getActivity().getResources().getString(R.string.view));
-			viewAction.setIcon(getResources().getDrawable(R.drawable.ic_accept));			
+			viewAction.setIcon(getResources().getDrawable(R.drawable.pc_view));			
 		}
 		return viewAction;
 	}
-	public ActionItem getCancelAction() {
+	private ActionItem getCancelAction() {
 		if(cancelAction == null){
 			cancelAction = new ActionItem();
 			cancelAction.setTitle(getActivity().getResources()
 					.getString(R.string.cancel));
-			cancelAction.setIcon(getResources().getDrawable(R.drawable.ic_accept));					
+			cancelAction.setIcon(getResources().getDrawable(R.drawable.pc_cancel));					
 		}
 		return cancelAction;
 	}
-	public ActionItem getDownloadAction() {
+	private ActionItem getDownloadAction() {
 		if(downloadAction == null){
 			downloadAction = new ActionItem();
 			downloadAction.setTitle(getActivity().getResources()
 					.getString(R.string.download));
-			downloadAction.setIcon(getResources().getDrawable(R.drawable.ic_accept));
+			downloadAction.setIcon(getResources().getDrawable(R.drawable.pc_download));
 		}
 		return downloadAction;
 	}
-	public ActionItem getStopDownloadAction() {
+	private ActionItem getStopDownloadAction() {
 		if(stopDownloadAction == null){
 			stopDownloadAction = new ActionItem();
 			stopDownloadAction.setTitle(getActivity().getResources()
 					.getString(R.string.stopDownload));
-			stopDownloadAction.setIcon(getResources().getDrawable(R.drawable.ic_accept));
+			stopDownloadAction.setIcon(getResources().getDrawable(R.drawable.pc_stopdown));
 		}
 		return stopDownloadAction;
+	}
+	
+	private class PushData{
+		public int id;
+		public String type;
+		public int typeDrawable;
+		public String title;		
+		public String content;
+		public String status;
+		public String time;
+		public String size;
+		public String path;
+		public int flag;
+	}
+	public class PushAdapter extends BaseAdapter {
+        
+        private List<PushData> mData = new ArrayList<PushData>();
+
+        private int mResource;
+        private int mDropDownResource;
+        private LayoutInflater mInflater;
+        
+        private final WeakHashMap<View, View[]> mHolders = new WeakHashMap<View, View[]>();
+
+        public PushAdapter(Context context,int resource) {           
+            mResource = mDropDownResource = resource; 
+            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }        
+        @Override
+		public boolean areAllItemsEnabled() {
+			return super.areAllItemsEnabled();
+		}
+		@Override
+		public boolean isEnabled(int position) {
+			return super.isEnabled(position);
+		}
+		public int getCount() {
+            return mData.size();
+        }
+        public Object getItem(int position) {
+        	return mData.get(position);
+        }
+        public long getItemId(int position) {
+        	return mData.get(position).id;
+        }
+        public int idToPosition(int id){
+        	// TODO need to optimize
+        	int position = -1;
+        	Iterator<PushData> it = mData.iterator();
+        	int i = 0;
+        	while(it.hasNext()){
+        		PushData pd = it.next();
+        		if(pd.id == id){
+        			position = i;
+        			break;
+        		}
+        		i++;
+        	}
+        	return position;
+        }
+        
+        public View getView(int position, View convertView, ViewGroup parent) {
+        	return createViewFromResource(position, convertView, parent, mResource);
+        }
+        
+        private View createViewFromResource(int position, View convertView,
+                ViewGroup parent, int resource) {
+            View v;
+            if (convertView == null) {
+                v = mInflater.inflate(resource, parent, false);
+            
+                final View[] holder = new View[7];
+               
+                holder[0] = v.findViewById(R.id.iv_pushcontent_type);
+                holder[1] = v.findViewById(R.id.tv_pushcontent_title);
+                holder[2] = v.findViewById(R.id.tv_pushcontent_content);                
+                holder[3] = v.findViewById(R.id.tv_pushcontent_size);
+                holder[4] = v.findViewById(R.id.tv_pushcontent_time);
+                holder[5] = v.findViewById(R.id.tv_pushcontent_status);
+                holder[6] = v.findViewById(R.id.progressBar);                
+                mHolders.put(v, holder);
+            } else {
+                v = convertView;
+            }
+
+            bindView(position, v);            
+            return v;
+        }
+        
+        public void setDropDownViewResource(int resource) {
+            this.mDropDownResource = resource;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return createViewFromResource(position, convertView, parent, mDropDownResource);
+        }
+        public void setViewImage(ImageView v, int value) {
+            v.setImageResource(value);
+        }
+        public void setViewImage(ImageView v, String value) {
+            try {
+                v.setImageResource(Integer.parseInt(value));
+            } catch (NumberFormatException nfe) {
+                v.setImageURI(Uri.parse(value));
+            }
+        }
+       
+        public void setViewText(TextView v, String text) {
+            v.setText(text);
+        }
+
+        private void bindView(int position, View view) {
+            final PushData dataSet = mData.get(position);
+            if (dataSet == null) {
+                return;
+            }
+            
+            final View[] holder = mHolders.get(view);           
+            if(holder == null){
+            	return;
+            }
+            ImageView imageView = (ImageView)holder[0];
+            imageView.setImageResource(dataSet.typeDrawable);
+            TextView titleView = (TextView)holder[1];  
+            titleView.setText(dataSet.title);
+            TextView contentView = (TextView)holder[2];
+            contentView.setText(dataSet.content);
+            TextView sizeView = (TextView)holder[3];
+            sizeView.setText(dataSet.size);
+            TextView timeView = (TextView)holder[4];
+            timeView.setText(dataSet.time);
+            TextView statusView = (TextView)holder[5];
+            statusView.setText(dataSet.status);   
+            if(dataSet.flag == STATUS_DOWNLOAD_ING){
+            	holder[6].setVisibility(View.VISIBLE);
+            	statusView.setText(R.string.pushcontent_Downloading);
+            }else if(dataSet.flag == STATUS_DOWNLOAD_CANCEL){
+            	holder[6].setVisibility(View.GONE);
+            	statusView.setText(R.string.stopDownload);
+            }else if(dataSet.flag == STATUS_DOWNLOAD_FINISH){
+            	holder[6].setVisibility(View.GONE);
+            	statusView.setText(R.string.pushcontent_finishDownload);
+            }else if(dataSet.flag == STATUS_DOWNLOAD_FAIL){
+            	holder[6].setVisibility(View.GONE);
+            	statusView.setText(R.string.pushcontent_downloadFail);
+            }else{
+            	holder[6].setVisibility(View.GONE);
+            }
+           
+        }// the end of bind view function
+        public void updateView(View view, int position, int nfinish, int nTotal, int status){
+        	final View[] holder = mHolders.get(view);           
+            if(holder == null){
+            	return;
+            }
+            PushData pd = getData(position);
+            if(pd != null && pd.flag != STATUS_DOWNLOAD_CANCEL){
+            	ProgressBar bar = (ProgressBar)holder[6];
+                bar.setVisibility(View.VISIBLE);
+                bar.setMax(nTotal);
+                bar.setProgress(nfinish);
+            }
+            
+        }
+        public void addItem(PushData pd){
+        	mData.add(pd);
+        }
+        public void initData(){
+        	mData.clear();
+        }
+        public PushData getData(int position){
+        	if(position < mData.size()){
+        		return mData.get(position);
+        	}
+        	return null;
+        }
+        public PushData getDataById(int id){
+        	Iterator<PushData> it = mData.iterator();
+        	while(it.hasNext()){
+        		PushData pd = it.next();
+        		if(pd.id == id){
+        			return pd;
+        		}
+        	}
+        	return null;
+        }
+        public void setDownloadStatus(int id,int flag){
+        	Iterator<PushData> it = mData.iterator();
+        	while(it.hasNext()){
+        		PushData pd = it.next();
+        		if(pd.id == id){
+        			pd.flag = flag;
+        		}
+        	}
+        }
+    }
+	@Override
+	public void handleMessage(Message msg) {
+        switch (msg.what) {                          
+        case PushServiceUtil.MSG_DOWNLOAD:
+        case PushServiceUtil.MSG_DOWNLOAD_STOP:
+        	handleNotify(msg);        	
+        	break;
+        case PushServiceUtil.MSG_NEW_PUSH_CONTENT:
+        	initAdapter();
+        	break;
+        }				
+	}
+	private void handleNotify(Message msg){
+		
+		DownloadInf downloadInf = (DownloadInf)msg.obj;    	
+		
+		if(downloadInf.status == PushServiceUtil.DOWNLOAD_ONGOING){
+    		Log.e(TAG,PRE+ "have finish:" +downloadInf.nFinishSize);
+        	int position = pushAdapter.idToPosition(downloadInf.id);    		
+    		int childPos = position - getListView().getFirstVisiblePosition();
+    		View itemView = getListView().getChildAt(childPos);;
+    		if(itemView == null){
+    			return;
+    		}  
+    		pushAdapter.updateView(itemView,position,downloadInf.nFinishSize,
+    				downloadInf.nTotalSize,downloadInf.status);
+    		return;
+    	}
+		
+		int flag = 0;
+		
+		if(PushServiceUtil.MSG_DOWNLOAD == msg.what){
+			if(downloadInf.status == PushServiceUtil.DOWNLOAD_SUCCESS){ 
+	    		
+				pushContentDB.updateItem(downloadInf.id, PushContentDB.LOCAL_PATH, 
+						downloadInf.desPath);
+	    		flag = STATUS_DOWNLOAD_FINISH;
+	    		showToast(R.string.pushcontent_finishDownload,Toast.LENGTH_SHORT);    		
+	    		
+	    	}else if(downloadInf.status == PushServiceUtil.DOWNLOAD_FAIL ||
+	    			downloadInf.status == PushServiceUtil.DOWNLOAD_NONETWORK){
+	    		
+	    		flag = STATUS_DOWNLOAD_FAIL;
+	    		showToast(R.string.pushcontent_downloadFail,Toast.LENGTH_SHORT);	    		
+	    	}
+		}else if(PushServiceUtil.MSG_DOWNLOAD_STOP == msg.what){
+			flag = STATUS_DOWNLOAD_CANCEL;
+    		//showToast(R.string.stopDownload,Toast.LENGTH_SHORT);
+		}
+    	
+    	pushAdapter.setDownloadStatus(downloadInf.id, flag);
+		pushContentDB.updateItem(downloadInf.id, PushContentDB.FLAG, 
+				String.valueOf(flag));
+    	pushAdapter.notifyDataSetChanged();
 	}
 	
 }

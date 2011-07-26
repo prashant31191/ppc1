@@ -125,7 +125,9 @@ public class FriendListFragment extends Fragment
 		mFriendListView = (FriendGroupListView)v.findViewById(R.id.listview_friend);
 		mFriendListView.setEditable(mEditable);
 		indicatorGroup = (LinearLayout)v.findViewById(R.id.indicatorGroup);
-		indicatorGroup.setVisibility(View.INVISIBLE);
+		if(mEditable || mEditable == false){
+			indicatorGroup.setVisibility(View.INVISIBLE);
+		}
 		
         mAdapter = new RosterExpandableListAdapter(mActivity); 
         inflater.inflate(mEditable?R.layout.im_friend_item_group_edit:
@@ -793,45 +795,62 @@ public class FriendListFragment extends Fragment
 		if(mEditable){			
 			return;
 		}
+		if(mEditable == false){			
+			return;
+		}
+
 		ExpandableListView listView = (ExpandableListView)view;
-		int npos = view.pointToPosition(1,0);
+		
+		/**
+		 * calculate point (0,0)
+		 */
+		int npos = view.pointToPosition(0,0);
 		if(npos != AdapterView.INVALID_POSITION){
 			long pos = listView.getExpandableListPosition(npos);
 			int childPos = ExpandableListView.getPackedPositionChild(pos);
 			int groupPos = ExpandableListView.getPackedPositionGroup(pos);
 			if(childPos == AdapterView.INVALID_POSITION){
 				View groupView = listView.getChildAt(npos - listView.getFirstVisiblePosition());
-				indicatorGroupHeight = groupView.getHeight();
-				if(indicatorGroupHeight == 0){
-					return;
-				}
+				indicatorGroupHeight = groupView.getHeight();				
 			}
+			// get an error data, so return now
+			if(groupPos == AdapterView.INVALID_POSITION || indicatorGroupHeight == 0){
+				return;
+			}
+			// update the data of indicator group view
 			if(groupPos != indicatorGroupId){				
-				mAdapter.getGroupView(groupPos, 
-						listView.isGroupExpanded(groupPos), indicatorGroup.getChildAt(0), null);				
+				mAdapter.getGroupView(groupPos, listView.isGroupExpanded(groupPos),
+						indicatorGroup.getChildAt(0), null);				
 				indicatorGroupId = groupPos;				
-				mAdapter.hideGroup(groupPos);				
-				mAdapter.notifyDataSetChanged();
-				Log.e(TAG,PRE + "move to new group" + groupPos);
+				Log.e(TAG,PRE + "bind to new group,group position = " + groupPos);
+				//mAdapter.hideGroup(indicatorGroupId); // we set this group view to be hided				
+				//mAdapter.notifyDataSetChanged();				
 			}
 		}
-		int imageHeight = indicatorGroupHeight;
-		int nEndPos = listView.pointToPosition(1,indicatorGroupHeight-1);
+		if(indicatorGroupId == -1){
+			return;
+		}
+		
+		/**
+		 * calculate point (0,indicatorGroupHeight)
+		 */	
+		int showHeight = indicatorGroupHeight;
+		int nEndPos = listView.pointToPosition(0,indicatorGroupHeight);
 		if(nEndPos != AdapterView.INVALID_POSITION){
 			long pos = listView.getExpandableListPosition(nEndPos);
 			int groupPos = ExpandableListView.getPackedPositionGroup(pos);
-			if(groupPos != indicatorGroupId){
-				//group
+			if(groupPos != indicatorGroupId){				
 				View viewNext = listView.getChildAt(nEndPos-listView.getFirstVisiblePosition());
-				imageHeight = viewNext.getTop();
-				Log.e(TAG,PRE + "START UP MOVE:" + imageHeight);
+				showHeight = viewNext.getTop();	
+				Log.e(TAG,PRE + "update the show part height of indicator group:" + showHeight);
 			}
-		}
-		// show group
-		MarginLayoutParams layoutParams = (MarginLayoutParams)indicatorGroup.getLayoutParams();
+		}	
 		
-		layoutParams.topMargin = imageHeight-indicatorGroupHeight;
-		indicatorGroup.setLayoutParams(layoutParams);
+		// update group position
+		MarginLayoutParams layoutParams = (MarginLayoutParams)indicatorGroup.getLayoutParams();
+		layoutParams.topMargin = -(indicatorGroupHeight-showHeight);		
+		indicatorGroup.setLayoutParams(layoutParams);	
+		
 		int firstVisible = listView.getFirstVisiblePosition();
 		if(firstVisible != AdapterView.INVALID_POSITION){			
 			int firstGroup = ExpandableListView.getPackedPositionGroup(

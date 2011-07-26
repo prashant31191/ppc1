@@ -5,14 +5,26 @@
   android:layout_height="match_parent" 
   android:orientation="vertical"
   android:background="@drawable/widget_frame_001">
-    <TextView android:layout_width="wrap_content" 
-    	android:text="@string/pc_title" 
-    	android:layout_height="wrap_content" 
-    	android:id="@+id/textView1">
-    </TextView>
+   <LinearLayout android:layout_width="fill_parent"
+		android:layout_height="40dp" android:orientation="horizontal">
+		<TextView android:id="@+id/tvlive_apname" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="20sp"
+			android:text="@string/pc_title" android:textColor="@color/write"
+			android:layout_marginLeft="5dp" />
+	</LinearLayout>
     <fragment class="com.openims.view.pushContent.PushContentListFragment"	  	
 			android:id="@+id/list_fragment" 
 			android:layout_width="match_parent"
 			android:layout_height="0dp"			 
 			android:layout_weight="10"/>
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="40dp" android:orientation="vertical"
+		android:gravity="center_horizontal">
+		<ImageView android:id="@+id/tvlive_line"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:background="@drawable/s0_bar_cut_off_land" />
+		<ImageView android:id="@+id/tvlive_more"
+			android:layout_margin="10dp" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:background="@drawable/s0_stat_button_more" />
+	</LinearLayout>
 </LinearLayout>

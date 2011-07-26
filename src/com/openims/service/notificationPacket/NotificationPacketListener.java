@@ -15,7 +15,6 @@
  */
 package com.openims.service.notificationPacket;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.jivesoftware.smack.PacketListener;
@@ -32,14 +31,13 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.smit.EasyLauncher.R;
 import com.openims.model.pushService.PushContent;
 import com.openims.model.pushService.PushContentDB;
 import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.XmppManager;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
-import com.openims.view.pushContent.PushActivity;
+import com.smit.EasyLauncher.R;
 
 /**
  * 用于接收PUSH过来的消息
@@ -97,8 +95,12 @@ public class NotificationPacketListener implements PacketListener {
                 	// 保存到数据库
                 	saveContent(ntPushID,ntTitle,ntMessage,time);
                 	
-                }else if(ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_URL)){                	
+                }else if(ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_URL)){ 
+                	if(ntUri.toLowerCase().startsWith("http://") == false){
+                		ntUri = "http://" + ntUri;
+                	}
                 	openUrl(ntUri);
+                	saveContent(ntPushID,ntTitle,ntUri,time);
                 }else if(ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_VIDEO)
                 		|| ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_PICTURE)
                 		|| ntPushID.equalsIgnoreCase(PushServiceUtil.DEFAULTID_AUDIO)){
@@ -111,6 +113,14 @@ public class NotificationPacketListener implements PacketListener {
         }
 
     }
+    /**
+     * notify user push content
+     * @param pushID
+     * @param title
+     * @param message
+     * @param uriString
+     * @param ticker
+     */
     private void sendPushInf(String pushID,String title,
     		String message,String uriString,String ticker){
     	PushInfoManager pushInfo = 
@@ -187,15 +197,16 @@ public class NotificationPacketListener implements PacketListener {
     	push.setStatus(read);
     	push.setType(type);
     	push.setContent(message);
-    	push.setFlag(title);
+    	push.setTitle(title);
     	push.setTime(time);
     	push.setSize("10K");
     	PushContentDB pushDB = new PushContentDB(serviceContext);
     	pushDB.insertItem(push);
     	pushDB.close();
-    	// 测试一下，给标题发点东西
-    	Intent intent = new Intent(PushServiceUtil.ACTION_UI_PUSHCONTENT);    	
-    	serviceContext.sendBroadcast(intent);
+    	
+    	//Intent intent = new Intent(PushServiceUtil.ACTION_UI_PUSHCONTENT);    	
+    	//serviceContext.sendBroadcast(intent);
+    	xmppManager.setNewPushContent();
     	notifyNewMessage(title);
     }
     /**
@@ -218,13 +229,11 @@ public class NotificationPacketListener implements PacketListener {
     	CharSequence contentText = titile;  
     	
     	
-    	Intent intent = new Intent(serviceContext,PushActivity.class);
     	PendingIntent contentIntent = 
-    		PendingIntent.getActivity(serviceContext, 
-    		0, intent, 0);  
+    		PendingIntent.getActivity(serviceContext, 0, null, 0);  
     	notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);  
     	notification.defaults |= Notification.DEFAULT_VIBRATE;
-    	mNotificationManager.notify(1, notification);
+    	mNotificationManager.notify(11, notification);
     	
     }
     private void openUrl(String ntUri){    	

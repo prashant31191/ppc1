@@ -31,7 +31,7 @@ public class PushServiceUtil{
      * broadcast connection status
      */
     public static final String ACTION_STATUS = "com.openims.CONNECT_STATUS";
-    public static final String ACTION_UI_PUSHCONTENT = "com.openims.ui.pushContent";
+    //public static final String ACTION_UI_PUSHCONTENT = "com.openims.ui.pushContent";
     
     public static final int PUSH_TIMEOUT_TIME = 5000; // as long as possible
        
@@ -130,7 +130,13 @@ public class PushServiceUtil{
     
     public static final int MSG_ROSTER_DELETE = 6;
     
-    public static final int MSG_REQUEST_VCARD = 7; 
+    public static final int MSG_REQUEST_VCARD = 7;
+    
+    public static final int MSG_DOWNLOAD = 8;
+    
+    public static final int MSG_DOWNLOAD_STOP = 9;
+    
+    public static final int MSG_NEW_PUSH_CONTENT = 10; 
     
     
     public static ColorFilter GREY_COLOR_FILTER = new ColorMatrixColorFilter( new ColorMatrix(new float[]{0.5f,0.5f,0.5f,0,0, 
@@ -139,4 +145,10 @@ public class PushServiceUtil{
             0,0,0,1,0,0, 
             0,0,0,0,1,0 
             })); 
+    
+    public static final int DOWNLOAD_FAIL = 0;
+    public static final int DOWNLOAD_SUCCESS = 1;
+    public static final int DOWNLOAD_NONETWORK = 2;
+    public static final int DOWNLOAD_ONGOING = 3;
+    public static final int DOWNLOAD_STOP = 4;
 }

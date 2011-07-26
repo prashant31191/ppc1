@@ -35,13 +35,9 @@ import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.packet.XMPPError.Type;
 import org.jivesoftware.smack.provider.PrivacyProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
-import org.jivesoftware.smackx.Form;
-import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.GroupChatInvitation;
 import org.jivesoftware.smackx.PrivateDataManager;
-import org.jivesoftware.smackx.ReportedData;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
-import org.jivesoftware.smackx.ReportedData.Row;
 import org.jivesoftware.smackx.filetransfer.FileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
@@ -82,10 +78,11 @@ import org.jivesoftware.smackx.pubsub.Subscription;
 import org.jivesoftware.smackx.pubsub.packet.PubSubNamespace;
 import org.jivesoftware.smackx.pubsub.provider.SubscriptionProvider;
 import org.jivesoftware.smackx.search.UserSearch;
-import org.jivesoftware.smackx.search.UserSearchManager;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Handler;
@@ -97,8 +94,8 @@ import com.openims.model.chat.VCardDataBase;
 import com.openims.service.chat.ChatPacketListener;
 import com.openims.service.chat.MyRosterListener;
 import com.openims.service.chat.PresenceListener;
+import com.openims.service.connection.ConnectivityReceiver;
 import com.openims.service.connection.PersistentConnectionListener;
-import com.openims.service.connection.ReconnectionThread;
 import com.openims.service.fileTransfer.FileReceiver;
 import com.openims.service.notificationPacket.NotificationIQ;
 import com.openims.service.notificationPacket.NotificationIQProvider;
@@ -110,6 +107,7 @@ import com.openims.service.notificationPacket.UserQueryIQ;
 import com.openims.service.pubsub.SubListener;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
+import com.smit.EasyLauncher.R;
 /**
  * This class deal with login logout send message and broadcast
  * it is smack center
@@ -138,6 +136,8 @@ public class XmppManager{
     private IMService imservice;
     private IMService.TaskSubmitter taskSubmitter;
     private IMService.TaskTracker taskTracker;
+    
+    private BroadcastReceiver connectivityReceiver;
     
     // TODO 需要优化离线和待机的情况，释放一下资源
     private List<Runnable> taskList;
@@ -211,6 +211,13 @@ public class XmppManager{
      */
     public void disconnect() {
         Log.d(LOGTAG, "disconnect()...");
+        if(connectivityReceiver != null){
+        	imservice.unregisterReceiver(connectivityReceiver);
+        	connectivityReceiver = null;
+        }
+        RosterDataBase rosterDataBase = new RosterDataBase(this.imservice,mAdminJid);
+    	rosterDataBase.removeAll();  // delete all
+    	rosterDataBase.close();
         if (getConnection() != null && 
             	getConnection().isConnected()) 
         {
@@ -968,6 +975,16 @@ public class XmppManager{
     	MyApplication app = (MyApplication)this.imservice.getApplication();
     	app.setConnection(getConnection(),username+"@"+serverName);
     	app.setServeName("@"+serverName);
+    	
+    	// register reconnection
+    	if(connectivityReceiver == null){
+    		connectivityReceiver = new ConnectivityReceiver(this.imservice);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
+            filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
+            imservice.registerReceiver(connectivityReceiver, filter);     		
+    	}
+    	
     }
    
     public void updateRoster(String jid){
@@ -1009,6 +1026,10 @@ public class XmppManager{
     			rosterDataBase.insert(entry.getUser(), entry.getName(), rg.getName(),presenceInf);
     			
     		}
+    	}
+    	String defaultGroupName = getContext().getResources().getString(R.string.im_default_group_name);
+    	if(rosterDataBase.isGroupNameExist(defaultGroupName) == false){
+    		rosterDataBase.insert(mAdminJid, mAdminJid, defaultGroupName, null);
     	}
     	
     	rosterDataBase.close();
@@ -1184,6 +1205,10 @@ public class XmppManager{
 					e.printStackTrace();
 				}
             }
+    }
+    
+    public void setNewPushContent(){
+    	imservice.setNewPushContent();
     }
     
 }

@@ -23,6 +23,7 @@
     <string name="pushcontent_uread">未读</string>
     <string name="pushcontent_read">已读</string>    
     <string name="pushcontent_beginDownload">开始下载</string>
+    <string name="pushcontent_Downloading">下载中</string>
     <string name="pushcontent_finishDownload">下载完成</string>
     <string name="pushcontent_downloadFail">下载失败</string>
     <string name="pushcontent_stopFail">无法停止下载</string> 
@@ -86,7 +87,7 @@
     <string name="alert_dialog_cancel">取消</string>
     <string name="im_no_group">no groups</string>
     <string name="im_input_new_group">输入新的分组名</string>
-    <string name="im_default_group_name">好友</string>
+    <string name="im_default_group_name">好朋友</string>
     
     <string name="im_import_note">重要提示</string>
     <string name="im_del_group_commit">你确认要删除 %s 分组吗？改分组的联系人将被移动到默认分组中</string>
@@ -104,5 +105,7 @@
     <string name="pc_title">PC推送助手</string>
     <string name="im_new_message">有新的消息啦</string>
     <string name="im_no_more_group">没有更多分组</string>
+    <string name="pc_start_download_fail">启动下载服务失败</string>
+    <string name="create_file_fail">创建文件失败</string>
     
 </resources>

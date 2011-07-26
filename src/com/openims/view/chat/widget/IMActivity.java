@@ -1,5 +1,6 @@
 package com.openims.view.chat.widget;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -9,14 +10,15 @@ import android.view.Window;
 import com.smit.EasyLauncher.R;
 import com.openims.model.MyApplication;
 import com.openims.utility.LogUtil;
+import com.openims.utility.PushServiceUtil;
 
 public class IMActivity extends FragmentActivity {
 
 	private static final String TAG = LogUtil.makeLogTag(IMActivity.class);
 	private static final String PRE = "Class IMActivity--";
 	
-	private IMWidgetFragment mIMWidgetFragment;
-	private final static String TAG_IM_MAIN = "TAG_IM_MAIN";
+/*	private IMWidgetFragment mIMWidgetFragment;
+	private final static String TAG_IM_MAIN = "TAG_IM_MAIN";*/
 	
 	@Override
 	protected void onCreate(Bundle bundle) {		
@@ -26,16 +28,7 @@ public class IMActivity extends FragmentActivity {
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);		
 		setContentView(R.layout.im_widget);
 		
-		if(bundle == null){
-			final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-			mIMWidgetFragment = new IMWidgetFragment();			
-	        ft.add(R.id.widget_container_im, mIMWidgetFragment,TAG_IM_MAIN).commit();
-			
-		}else{			
-			mIMWidgetFragment = (IMWidgetFragment)getSupportFragmentManager()
-					.findFragmentByTag(TAG_IM_MAIN);
-		}
-		
+		startService(new Intent(PushServiceUtil.ACTION_SERVICE_CONNECT));
 		
 	}
 	
@@ -76,6 +69,7 @@ public class IMActivity extends FragmentActivity {
 	@Override
 	protected void onDestroy() {
 		Log.i(TAG, PRE + "onDestroy");
+		//stopService(new Intent(PushServiceUtil.ACTION_SERVICE_REGISTER_USER));
 		super.onDestroy();
 	}
 	

@@ -203,7 +203,7 @@ public class RosterDataBase {
 	public Cursor queryAll(){
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		Cursor cursor = db.query(TABLE_NAME, null, ADMIN + "=\"" + mAdmin + "\"",
-				null,null,null,null);
+				null,null,null,GROUP_NAME + " DESC");
 		return cursor;
 	}
 	public Cursor queryById(long id){

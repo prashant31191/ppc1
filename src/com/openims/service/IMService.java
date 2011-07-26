@@ -1,6 +1,17 @@
 package com.openims.service;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -30,13 +42,17 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.openims.downloader.DownloadInf;
 import com.openims.model.pushService.PushInfoManager;
 import com.openims.service.connection.ConnectivityReceiver;
 import com.openims.service.notificationPacket.RegPushIQ;
 import com.openims.utility.DeviceFun;
 import com.openims.utility.LogUtil;
 import com.openims.utility.PushServiceUtil;
+import com.openims.widgets.BigToast;
+import com.smit.EasyLauncher.R;
 
 
 public class IMService extends Service  {
@@ -45,7 +61,7 @@ public class IMService extends Service  {
     private static final String PRE = LogUtil.makeTag(IMService.class);
     public static final String SERVICE_NAME = "com.openims.service.IMService";
     
-    private BroadcastReceiver connectivityReceiver;
+    
     
     private ExecutorService executorService;
     private TaskSubmitter taskSubmitter;
@@ -55,8 +71,10 @@ public class IMService extends Service  {
    
 
     /** Keeps track of all current registered clients. */
-    private ArrayList<Messenger> mClients = new ArrayList<Messenger>();
+    private List<Messenger> mClients = Collections.synchronizedList(
+    		new ArrayList<Messenger>());
     final Messenger mMessenger = new Messenger(new IncomingHandler());
+    private Map<Integer,DownloadAsyncTask> mDownloadTaskMap = null;
     
     private View mPopupView;
     private int mCurrentY;
@@ -150,9 +168,12 @@ public class IMService extends Service  {
 
     public void disconnect() {
         Log.d(TAG, PRE + "disconnect()...");
+        if(getXmppManager().getConnection() == null){
+        	return;
+        }
         taskSubmitter.submit(new Runnable() {
             public void run() {
-                IMService.this.getXmppManager().disconnect();
+                getXmppManager().disconnect();
             }
         });
     }
@@ -311,13 +332,7 @@ public class IMService extends Service  {
     }
     
     private void login() {
-        Log.d(TAG, PRE + "start()...");        
-        
-        connectivityReceiver = new ConnectivityReceiver(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(connectivityReceiver, filter);        
+        Log.d(TAG, PRE + "start()...");                
         
         taskSubmitter.submit(new Runnable() {
             public void run() {
@@ -326,11 +341,8 @@ public class IMService extends Service  {
         });
     }
 
-    private void logout() {            
+    private void logout() {
         
-        if(connectivityReceiver != null){
-        	unregisterReceiver(connectivityReceiver);
-        }
         disconnect();
         try {
 			executorService.awaitTermination(1000, TimeUnit.MILLISECONDS);
@@ -482,12 +494,45 @@ public class IMService extends Service  {
                     break;              
                 case PushServiceUtil.MSG_REQUEST_VCARD:
                 	loadVCard((String)msg.obj);
-                	break;                
+                	break; 
+                case PushServiceUtil.MSG_DOWNLOAD:
+                	if(mDownloadTaskMap == null){
+                		mDownloadTaskMap= new HashMap<Integer,DownloadAsyncTask>();
+            		}
+                	DownloadInf dl = (DownloadInf)msg.obj;
+                	DownloadAsyncTask task = new DownloadAsyncTask();
+                	mDownloadTaskMap.put(dl.id, task);
+                	task.execute(dl);
+                	break;
+                case PushServiceUtil.MSG_DOWNLOAD_STOP:
+                	if(mDownloadTaskMap == null){
+                		return;
+                	}
+                	DownloadInf dlInf = (DownloadInf)msg.obj;                	
+                	DownloadAsyncTask t = mDownloadTaskMap.get(dlInf.id);
+                	if(t != null){
+            			if(t.cancel(true)){
+            				IMService.this.notifyClients(
+            						PushServiceUtil.MSG_DOWNLOAD_STOP,0,0,msg.obj);
+            			}else{
+            				showToast(R.string.pushcontent_stopFail,Toast.LENGTH_LONG);
+            			}
+            		}
+                	break;
                 default:
                     super.handleMessage(msg);
             }
+            Log.e(TAG, PRE+"Messager client num:"+ mClients.size());
         }
     }
+    private void showToast(int text,int duration){
+		Toast t = BigToast.makeText(this,
+				getResources().getString(text), 
+				duration);						
+		t.setGravity(Gravity.RIGHT|Gravity.BOTTOM, 0, 0);
+		t.setMargin(PushServiceUtil.HORIZONTAL_MARGIN, PushServiceUtil.VERTICAL_MARGIN);
+		t.show();
+	}
     private void sendMessageChat(Intent intent){
     	if(xmppManager.isAuthenticated() == false){
     		return;
@@ -514,31 +559,8 @@ public class IMService extends Service  {
     		//connect();
     		xmppManager.broadcastStatus(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL);
     	}
-    }
-    public void notifyRosterUpdated(String jid){
-    	for (int i=mClients.size()-1; i>=0; i--) {
-            try {
-                mClients.get(i).send(Message.obtain(null,
-                		PushServiceUtil.MSG_ROSTER_UPDATED, 0, 1,jid));
-            } catch (RemoteException e) {               
-                mClients.remove(i);
-            }
-		}    	
-    }
-    public void setOneUnreadMessage(String jid){    			
-    	
-		for (int j=mClients.size()-1; j>=0; j--) {
-            try {
-                mClients.get(j).send(Message.obtain(null,
-                		PushServiceUtil.MSG_NEW_MESSAGE, 
-                		0, 0, jid));
-            } catch (RemoteException e) {               
-                mClients.remove(j);
-            }
-		} 
-		
-    }
-    
+    }    
+   
     private void loadVCard(final String jid){
     	if(xmppManager.isAuthenticated() == false){
     		return;
@@ -549,20 +571,10 @@ public class IMService extends Service  {
             	try {
         			xmppManager.getVCard(jid);
         		} catch (Exception e) {
-        			// TODO Auto-generated catch block
         			e.printStackTrace();
         			return;
         		} 
-        		
-        		for (int j=mClients.size()-1; j>=0; j--) {
-                    try {
-                        mClients.get(j).send(Message.obtain(null,
-                        		PushServiceUtil.MSG_REQUEST_VCARD, 
-                        		0, 0, jid));
-                    } catch (RemoteException e) {               
-                        mClients.remove(j);
-                    }
-        		}
+        		notifyClients(PushServiceUtil.MSG_REQUEST_VCARD,0, 0, jid);        		
         		Log.e(TAG, PRE + "END LOAD CARD");
             }
         });
@@ -642,6 +654,117 @@ public class IMService extends Service  {
     	  mCurrentY = mWmlp.y;
 
     }
+    
+    public class DownloadAsyncTask extends AsyncTask<DownloadInf,DownloadInf,DownloadInf>{
+
+		@Override
+		protected DownloadInf doInBackground(DownloadInf... params) {
+
+			int nBufSize = 1024; 
+			DownloadInf dInf = params[0];
+			dInf.status = PushServiceUtil.DOWNLOAD_ONGOING;				
+			
+			FileOutputStream fos = null;
+			try {				
+				URL url = new URL(dInf.url);
+			    File file = new File(dInf.desPath);
+			    fos = new FileOutputStream(file);
+			    
+			    long startTime = System.currentTimeMillis();
+			    URLConnection ucon = url.openConnection();
+			    InputStream is = ucon.getInputStream();
+			    BufferedInputStream bis = new BufferedInputStream(is);
+			    
+			    dInf.nTotalSize = ucon.getContentLength();
+			    if(dInf.nTotalSize == -1){
+			    	Log.e(TAG, PRE + "can't get file lenght:"+dInf.url);
+			    	dInf.nTotalSize = 102400;
+			    }
+			    byte[] data = new byte[nBufSize]; 
+			    int nFinishSize = 0;
+			    int nread = 0;
+			    while( (nread = bis.read(data, 0, nBufSize)) != -1){
+			    	fos.write(data, 0, nread);                	
+			    	nFinishSize += nread;
+			    	Thread.sleep( 1 ); // this make cancel method work
+			    	dInf.nFinishSize = nFinishSize;			    	
+			    	publishProgress(dInf);
+			    	
+			    }              
+				data = null;    
+				Log.d(TAG, PRE+"download ready in"
+				  + ((System.currentTimeMillis() - startTime) / 1000)
+				  + " sec");
+				dInf.status = PushServiceUtil.DOWNLOAD_SUCCESS;	
+			        
+			} catch (IOException e) {
+			        Log.d(TAG, PRE + "Error: " + e);			       
+			        dInf.status = PushServiceUtil.DOWNLOAD_FAIL;
+			} catch(InterruptedException e){
+				
+			}catch (Exception e){
+					 e.printStackTrace(); 
+					 dInf.status = PushServiceUtil.DOWNLOAD_FAIL;
+			} finally{
+				try {
+					if(fos != null)
+						fos.close();
+				} catch (IOException e) {
+					Log.d(TAG, PRE + "Error: " + e);
+					e.printStackTrace();
+				}
+			}			
+			return dInf;
+		}
+
+		@Override
+		protected void onPostExecute(DownloadInf result) {			
+			mDownloadTaskMap.remove(result.id);
+			if(PushServiceUtil.DOWNLOAD_STOP != result.status){
+				notifyClients(PushServiceUtil.MSG_DOWNLOAD,0,0,result);
+			}else{
+				notifyClients(PushServiceUtil.MSG_DOWNLOAD_STOP,0,0,result);
+			}
+			super.onPostExecute(result);
+		}
+
+		@Override
+		protected void onProgressUpdate(DownloadInf... values) {
+			Log.e(TAG, PRE+"onProgressUpdate Messager client num:"+ mClients.size());
+			DownloadInf result = values[0];
+			if(PushServiceUtil.DOWNLOAD_STOP != result.status){
+				notifyClients(PushServiceUtil.MSG_DOWNLOAD,0,0,result);
+			}else{
+				notifyClients(PushServiceUtil.MSG_DOWNLOAD_STOP,0,0,result);
+			}
+			super.onProgressUpdate(values);
+		}
+    	
+    }
+    
+    private void notifyClients(int what, int arg1, int arg2, Object obj){
+    	for (int j=mClients.size()-1; j>=0; j--) {
+            try {
+                mClients.get(j).send(Message.obtain(null,
+                		what, arg1, arg2, obj));
+            } catch (RemoteException e) {               
+                mClients.remove(j);
+            }
+		} 
+    }
+    
+    public void notifyRosterUpdated(String jid){
+    	notifyClients(PushServiceUtil.MSG_ROSTER_UPDATED, 0, 1,jid);
+    }
+    
+    public void setOneUnreadMessage(String jid){ 		
+		notifyClients(PushServiceUtil.MSG_NEW_MESSAGE,0, 0, jid);		
+    }
+    
+    public void setNewPushContent(){
+    	notifyClients(PushServiceUtil.MSG_NEW_PUSH_CONTENT,0, 0, null);
+    }
+    
     
     
 }

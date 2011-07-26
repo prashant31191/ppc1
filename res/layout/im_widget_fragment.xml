@@ -96,14 +96,16 @@
     	android:layout_width="match_parent" 
     	android:layout_height="40dp"     	
     	>
-    	<Button 
+    	<ImageButton 
    	     	android:id="@+id/btn_im_setting" 
    	     	android:layout_width="wrap_content" 
    	     	android:layout_height="wrap_content"
-   	     	android:background="@drawable/s0_add_friend_button_qqwideget"   	     	
-   	     	android:layout_marginLeft="5dp"
-   	     	android:layout_gravity="center">
-   	     </Button>
+   	     	android:src="@drawable/im_setting"
+   	     	android:background="@null"
+   	     	android:layout_marginRight="5dp"
+   	     	android:layout_gravity="center"
+   	     	android:padding="10dp">
+   	     </ImageButton>    	
    	     <TextView android:text="TextView" 
    	     	android:id="@+id/textView3" 
    	     	android:layout_width="wrap_content" 
@@ -126,14 +128,16 @@
    	     	android:layout_weight="5"
    	     	android:visibility="invisible">
    	     </TextView>
-   	     <Button 
+   	     <ImageButton 
    	     	android:id="@+id/btn_add_friend" 
    	     	android:layout_width="wrap_content" 
    	     	android:layout_height="wrap_content"
-   	     	android:background="@drawable/s0_add_friend_button_qqwideget"
+   	     	android:src="@drawable/im_user_search"
+   	     	android:background="@null"
    	     	android:layout_marginRight="5dp"
-   	     	android:layout_gravity="center">
-   	     </Button>
+   	     	android:layout_gravity="center"
+   	     	android:padding="10dp">
+   	     </ImageButton>
     </LinearLayout>
    	 
 </LinearLayout>
