@@ -399,6 +399,7 @@ public class TVLiveFragment extends Fragment {
 		} else {
 			return true;
 		}
+		
 	}
 
 	public static class GobalFunVar {

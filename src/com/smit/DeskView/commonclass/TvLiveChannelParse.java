@@ -30,7 +30,7 @@ import android.util.Log;
 
 public class TvLiveChannelParse {
 
-	public LinkedList<ItemVideoInfo> allMovieInfo = null; // 全部电影信息
+	public LinkedList<ItemTvInfo> allMovieInfo = null; // 全部电影信息
 	public String strSrc;
 	public InputStream mInputStream;
 
@@ -44,14 +44,14 @@ public class TvLiveChannelParse {
 	// 读取str
 	public TvLiveChannelParse(String str) {
 		strSrc = str;
-		allMovieInfo = new LinkedList<ItemVideoInfo>();
+		allMovieInfo = new LinkedList<ItemTvInfo>();
 
 	}
 
 	// 读取xml
 	public TvLiveChannelParse(InputStream InputStream) {
 		mInputStream = InputStream;
-		allMovieInfo = new LinkedList<ItemVideoInfo>();
+		allMovieInfo = new LinkedList<ItemTvInfo>();
 		CreateSdcardPath();
 	}
 
@@ -84,7 +84,7 @@ public class TvLiveChannelParse {
 			DocumentBuilder dbuilder = dbf.newDocumentBuilder();
 			Document doc = dbuilder.parse(mInputSource);
 			// 得到当前信息
-			LinkedList<ItemVideoInfo> tmpallMovieInfo = null;
+			LinkedList<ItemTvInfo> tmpallMovieInfo = null;
 
 			if (getcurInfo(doc, allMovieInfo)) {
 
@@ -109,7 +109,7 @@ public class TvLiveChannelParse {
 			DocumentBuilder dbuilder = dbf.newDocumentBuilder();
 			Document doc = dbuilder.parse(mInputStream);
 			// 得到当前信息
-			LinkedList<ItemVideoInfo> tmpallMovieInfo = null;
+			LinkedList<ItemTvInfo> tmpallMovieInfo = null;
 
 			if (getcurInfo(doc, allMovieInfo)) {
 
@@ -133,7 +133,7 @@ public class TvLiveChannelParse {
 
 	}
 
-	public boolean getcurInfo(Document mdoc, LinkedList<ItemVideoInfo> tmpinfo) {
+	public boolean getcurInfo(Document mdoc, LinkedList<ItemTvInfo> tmpinfo) {
 
 		boolean nRet = false;
 		do {
@@ -150,7 +150,7 @@ public class TvLiveChannelParse {
 					continue;
 				}
 
-				ItemVideoInfo videoInfo = new ItemVideoInfo();
+				ItemTvInfo videoInfo = new ItemTvInfo();
 
 				String string = item.getChildNodes().item(0).getNodeValue();
 				videoInfo.tv_name = string;
@@ -196,7 +196,7 @@ public class TvLiveChannelParse {
 	public void downloadMoviePic() {
 		int count = allMovieInfo.size();
 		int piccount;
-		ItemVideoInfo curinfo;
+		ItemTvInfo curinfo;
 		FileDownloadThread downthtrad;
 		URL url;
 		String picstr, filepath;
@@ -286,16 +286,16 @@ public class TvLiveChannelParse {
 	public void downloadChannelProgramList() {
 		int count = allMovieInfo.size();
 		int piccount;
-		ItemVideoInfo curinfo;
+		ItemTvInfo curinfo;
 		FileXmlDownloadThread downthtrad;
 		URL url;
 		String channelstr, filepath;
+
+		
 		for (int i = 0; i < count; i++) {
 			curinfo = allMovieInfo.get(i);
 
 			filepath = curinfo.channelPath;
-			// if (isExistFile(filepath)) {
-			// http://localhost:8080/pring/live.do?type=地方频道&channel=BTV卫视
 			try {
 				channelstr = CommonDataFun.myServerAddr
 						+ "live.do?type="+chinatoString("地方频道")+"&channel=" + chinatoString(curinfo.tv_name);
@@ -310,6 +310,7 @@ public class TvLiveChannelParse {
 			// }
 
 		}
+		
 	}
 
 	public boolean isExistFile(String str) {
@@ -324,7 +325,7 @@ public class TvLiveChannelParse {
 		}
 	}
 
-	public ItemVideoInfo getCurInfo(int i) {
+	public ItemTvInfo getCurInfo(int i) {
 		if (i < getItemCount()) {
 			return allMovieInfo.get(i);
 		} else {
@@ -338,7 +339,7 @@ public class TvLiveChannelParse {
 	}
 
 	// 一项电影信息
-	public class ItemVideoInfo {
+	public class ItemTvInfo {
 		// public LinkedList<String> movie_src_url=null;
 		public LinkedList<String> tv_channel_icon_url = null;
 		public LinkedList<String> tv_channel_icon_path = null;
@@ -349,7 +350,7 @@ public class TvLiveChannelParse {
 		// public String movie_descri=null;
 		// public String movie_time=null;
 
-		public ItemVideoInfo() {
+		public ItemTvInfo() {
 			tv_channel_icon_url = new LinkedList<String>();
 			tv_channel_icon_path = new LinkedList<String>();
 		}

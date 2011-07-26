@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.graphics.drawable.AnimationDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -83,6 +84,7 @@ public class VODVideoFragment extends Fragment {
 			if (checkWifiIscon()) {
 				requestXml();
 				mHandler.postDelayed(mRunnable, 700);
+				
 
 				SetCurShow(SHOW_LAODING);
 			} else {
@@ -93,7 +95,6 @@ public class VODVideoFragment extends Fragment {
 				}
 				if (IsExistvodMove(mMovieParse)) {
 					SetCurShow(SHOW_LIST);
-					//showVodVideoList();
 				} else {
 					SetCurShow(SHOW_FLASH);
 				}
@@ -104,17 +105,6 @@ public class VODVideoFragment extends Fragment {
 				
 			}else{
 				SetCurShow(curMyStatus);
-				/*String str = ReadVodVideoItemXML();
-				if (str != null) {
-					mMovieParse = new VodVideoMoveParse(str);
-					mMovieParse.parseDataStr();
-				}
-				if (IsExistvodMove(mMovieParse)) {
-					SetCurShow(SHOW_LIST);
-					//showVodVideoList();
-				} else {
-					SetCurShow(SHOW_FLASH);
-				}*/
 			}		
 		}	
 		existInstance =false;
@@ -293,6 +283,7 @@ public class VODVideoFragment extends Fragment {
 			mHandler.postDelayed(mRunnable, 700);
 			vodvideo_image_loading
 					.setBackgroundResource(GobalFunVar.LOAD_PIC[GobalFunVar.CUR_PIC]);
+			
 		}
 
 	};
@@ -425,6 +416,23 @@ public class VODVideoFragment extends Fragment {
 		}
 	}
 
+	/* public void LoadAnimationEvent(boolean flag){  
+		 
+		 	vodvideo_image_loading.setBackgroundResource(R.drawable.load_animation);
+	        
+	        AnimationDrawable animationDrawable = (AnimationDrawable)vodvideo_image_loading.getBackground();  
+	           
+	        if(flag){  
+	           
+	            animationDrawable.start();  
+	        }  
+	        else{  
+	        	animationDrawable.stop();
+	        }  
+	          
+	          
+	    }  */
+	
 	public static class GobalFunVar {
 		public static int CUR_PIC = 0;
 		public final static int LOAD_COUNT = 10;

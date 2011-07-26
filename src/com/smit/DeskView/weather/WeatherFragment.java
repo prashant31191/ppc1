@@ -28,6 +28,7 @@ import com.smit.DeskView.commonclass.RequestXml;
 import com.smit.DeskView.commonclass.VodVideoMoveParse;
 import com.smit.DeskView.commonclass.VodVideoMoveParse.ItemVideoInfo;
 import com.smit.DeskView.commonclass.WeatherParse.Currforecast;
+import com.smit.DeskView.tvlive.TvProgramListActivity;
 import com.smit.DeskView.vodvideo.VODVideoListFragment.VodVideoAdapter;
 import com.smit.EasyLauncher.R;
 
@@ -277,6 +278,14 @@ public class WeatherFragment extends Fragment {
 			@Override
 			public void onClick(View arg0) {
 				PopWeatherSet(0, 0);
+				
+				/* Intent intent = new Intent();
+				 intent.setClass(getActivity(),TvProgramListActivity.class);
+				 Bundle myBund = new Bundle();
+				 myBund.putString("tvname","abc");
+				 myBund.putString("tvprogramfilepath", "edf");
+				 intent.putExtras(myBund);
+				 startActivity(intent); */
 			}
 		});
 		
