@@ -344,6 +344,8 @@ public class PushContentListFragment extends BaseServiceFragment{
 		String fileName = pd.title;
 		if(fileName.isEmpty()){
 			fileName = FileOperation.getFileName(pd.content);
+		}else{
+			fileName+= FileOperation.getExtName(pd.content);
 		}
 		
 		try {
