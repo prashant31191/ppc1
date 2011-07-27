@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -238,14 +239,18 @@ public class TVLiveFragment extends Fragment {
 	}
 
 	private boolean showTvList() {
-
-		tvListFragment = (TVLiveListFragment) getFragmentManager()
-				.findFragmentById(R.id.tvlive_listdragment_fragment);
-		if (tvListFragment == null) {
-			return false;
+		FragmentManager mFragmentManager=getFragmentManager();
+		if (mFragmentManager!=null) {
+			tvListFragment=(TVLiveListFragment)mFragmentManager.findFragmentById(R.id.tvlive_listdragment_fragment);
+			if (tvListFragment == null) {
+				return false;
+			}else {
+				return tvListFragment.ShowCurList();
+			}
 		}else {
-			return tvListFragment.ShowCurList();
+			return false;
 		}
+		
 
 	}
 
