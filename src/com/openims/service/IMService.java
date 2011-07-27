@@ -683,7 +683,8 @@ public class IMService extends Service  {
 			    byte[] data = new byte[nBufSize]; 
 			    int nFinishSize = 0;
 			    int nread = 0;
-			    while( (nread = bis.read(data, 0, nBufSize)) != -1){
+			    while( (nread = bis.read(data, 0, nBufSize)) != -1 && 
+			    		isCancelled() == false){
 			    	fos.write(data, 0, nread);                	
 			    	nFinishSize += nread;
 			    	Thread.sleep( 1 ); // this make cancel method work

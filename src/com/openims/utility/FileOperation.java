@@ -12,6 +12,11 @@ public class FileOperation {
     			.makeLogTag(FileOperation.class);
 	private static final String PRE = "FileOperation--";
 
+	/**
+	 * 
+	 * @param filePathWithName
+	 * @return with extension
+	 */
 	public static String getFileName(String filePathWithName){
 		String name;
 		int n = filePathWithName.lastIndexOf("/");
@@ -22,6 +27,17 @@ public class FileOperation {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return name;
+	}
+	/**
+	 * 
+	 * @param filePathWithName
+	 * @return with .
+	 */
+	public static String getExtName(String filePathWithName){
+		String name;
+		int n = filePathWithName.lastIndexOf(".");
+		name = filePathWithName.substring(n);		
 		return name;
 	}
 	
