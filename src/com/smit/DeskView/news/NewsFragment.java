@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -234,15 +235,17 @@ public class NewsFragment extends Fragment {
 	}
 
 	private boolean showNewsList() {
-
-		newsListFragment = (NewsListFragment) getFragmentManager()
-				.findFragmentById(R.id.news_listdragment_fragment);
-		if (newsListFragment == null) {
-			return false;
+		FragmentManager mFragmentManager=getFragmentManager();
+		if (mFragmentManager!=null) {
+			newsListFragment = (NewsListFragment) mFragmentManager.findFragmentById(R.id.news_listdragment_fragment);
+			if (newsListFragment == null) {
+				return false;
+			}else {
+				return newsListFragment.ShowCurList();
+			}
 		}else {
-			return newsListFragment.ShowCurList();
+			return false;
 		}
-
 	}
 
 	private String checkNetworkInfo() {

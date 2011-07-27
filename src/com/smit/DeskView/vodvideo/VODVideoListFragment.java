@@ -97,18 +97,6 @@ public class VODVideoListFragment extends ListFragment {
 				if (curItem!=null && curItem.getSrcUrl(0)!=null
 						&&curItem.getSrcUrl(0).length()>0) {
 					
-				/*	WebView mWebView=new WebView(getActivity());
-					WebSettings mWebSetting = null;
-					if (mWebSetting == null) {
-						mWebSetting = mWebView.getSettings();
-					}
-
-						mWebSetting.setJavaScriptEnabled(true);
-						mWebSetting.setSupportZoom(true);
-						mWebSetting.setJavaScriptCanOpenWindowsAutomatically(true);
-						mWebSetting.setPluginsEnabled(true);
-						mWebView.loadUrl(curItem.getSrcUrl(0));*/
-					
 						
 					Intent intent = new Intent();
 					intent.setClass(getActivity(), FlashPlayerActivity.class);
@@ -171,7 +159,7 @@ public class VODVideoListFragment extends ListFragment {
 			mMovieParse = new VodVideoMoveParse(str);
 			if (mMovieParse!=null) {
 				mMovieParse.parseDataStr();
-				mMovieParse.downloadMoviePic();
+				//mMovieParse.downloadMoviePic();
 				setListAdapter(new VodVideoAdapter());	
 			}else {
 				return false;
@@ -354,6 +342,7 @@ public class VODVideoListFragment extends ListFragment {
 				}		
 			}else {
 				vodvideo_cover.setBackgroundResource(R.drawable.video_load);
+				mMovieParse.downloadMoviePic(position,getListView());
 			}
 			
 			vodvideo_title = (AlwaysMarqueeTextView) convertView.findViewById(R.id.vodvideo_title);

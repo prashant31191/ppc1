@@ -13,7 +13,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;  
 import java.net.URLConnection;  
 import java.net.URLEncoder;
+
+import com.openims.downloader.DownloadInf;
    
+import android.os.AsyncTask;
 import android.util.Log;  
 /** 
  *  Copyright (C) 2010 ideasandroid 
@@ -62,7 +65,6 @@ public class FileXmlDownloadThread extends Thread{
 			HttpURLConnection connection = (HttpURLConnection) url
 					.openConnection();
 			connection.setDoOutput(true);
-			//connection.setRequestMethod("POST");
 			connection.setUseCaches(false);// ºöÂÔ»º´æ
 
 			int responseCode = connection.getResponseCode();
@@ -133,4 +135,6 @@ public class FileXmlDownloadThread extends Thread{
     public int getDownloadSize() {  
         return downloadSize;  
     }  
+    
+    
 }  

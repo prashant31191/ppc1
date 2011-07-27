@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -245,13 +246,18 @@ public class VODVideoFragment extends Fragment {
 
 	private boolean showVodVideoList() {
 
-			vodListFragment = (VODVideoListFragment) getFragmentManager()
-				.findFragmentById(R.id.vodvideo_listdragment_fragment);
-		if (vodListFragment == null) {
-			return false;
+		FragmentManager myFragmentManager=getFragmentManager();
+		if (myFragmentManager!=null) {
+			vodListFragment = (VODVideoListFragment)myFragmentManager.findFragmentById(R.id.vodvideo_listdragment_fragment);
+			if (vodListFragment == null) {
+				return false;
+			}else {
+				return vodListFragment.ShowCurList();
+			}
 		}else {
-			return vodListFragment.ShowCurList();
+			return false;
 		}
+		
 
 	}
 
