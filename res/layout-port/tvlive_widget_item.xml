@@ -9,10 +9,12 @@
 		android:layout_marginTop="5px">
 
 	<LinearLayout android:orientation="vertical"
-		android:layout_width="100dp" android:layout_height="110dp">
+		android:layout_width="100dp" android:layout_height="110dp"
+		android:gravity="center_horizontal">"
 		<ImageView android:id="@+id/tvlive_cover"
-			android:layout_width="100dp" android:layout_height="110dp"
-			android:layout_gravity="left" android:background="@drawable/video_load" />
+			android:layout_width="70dp" 
+			android:layout_height="70dp"
+			android:background="@drawable/tv_load" />
 	</LinearLayout>
 
 	<LinearLayout android:orientation="vertical"

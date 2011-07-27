@@ -528,12 +528,12 @@ public class TVLiveListFragment extends ListFragment {
 				Bitmap bm = BitmapFactory.decodeFile(curItem.getPicPath(0));
 				Drawable drawable = new BitmapDrawable(bm);
 				if (bm == null || drawable == null) {
-					vodvideo_cover.setBackgroundResource(R.drawable.video_load);
+					vodvideo_cover.setBackgroundResource(R.drawable.tv_load);
 				} else {
 					vodvideo_cover.setBackgroundDrawable(drawable);
 				}
 			} else {
-				vodvideo_cover.setBackgroundResource(R.drawable.video_load);
+				vodvideo_cover.setBackgroundResource(R.drawable.tv_load);
 			}
 
 			vodvideo_title = (AlwaysMarqueeTextView) convertView

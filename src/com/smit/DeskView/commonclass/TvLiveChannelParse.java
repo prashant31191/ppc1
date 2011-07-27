@@ -706,7 +706,7 @@ public class TvLiveChannelParse {
 						if (vodvideo_cover!=null) {
 							if (bm==null||drawable==null) {
 								
-								vodvideo_cover.setBackgroundResource(R.drawable.video_load);
+								vodvideo_cover.setBackgroundResource(R.drawable.tv_load);
 							}else {
 								vodvideo_cover.setBackgroundDrawable(drawable);	
 							}
