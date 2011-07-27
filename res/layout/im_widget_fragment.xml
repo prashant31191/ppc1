@@ -63,7 +63,7 @@
     <FrameLayout android:id="@+id/im_center"
     	android:layout_width="match_parent" 
    	 	android:layout_height="match_parent"
-		android:layout_weight="10"		
+		android:layout_weight="10"	android:visibility="gone"	
 		>
 		<fragment class="com.openims.view.chat.widget.FriendListFragment"	  	
 			android:id="@+id/friend_list_fragment" 
@@ -75,18 +75,19 @@
    	<RelativeLayout android:id="@+id/im_unlogin"
     	android:layout_width="match_parent" 
    	 	android:layout_height="match_parent"
-		android:layout_weight="10" android:visibility="gone">
+		android:layout_weight="10" >
    		<Button android:layout_height="wrap_content" 
    			android:id="@+id/im_btn_login" 
    			android:layout_centerInParent="true"
 			android:layout_width="wrap_content" 
-			android:text="@string/im_login">
+			android:text="@string/im_login"
+			android:background="@drawable/im_btn_login">
 		</Button>
    		<TextView android:layout_height="wrap_content" 
    			android:layout_width="wrap_content" 
    			android:id="@+id/textView4" 
    			android:text="@string/im_not_login" 
-   			android:layout_below="@+id/im_btn_login" 
+   			android:layout_above="@+id/im_btn_login" 
    			android:layout_centerHorizontal="true"></TextView>
    	</RelativeLayout>
    	<ImageView android:id="@+id/vodvideo_line"

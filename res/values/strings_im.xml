@@ -102,10 +102,11 @@
     <integer name="tag_groupname">0</integer>
     <string name="move_user_suc">已经移动联系人到新分组</string>
     <string name="add_user">点击搜索添加联系人</string>
-    <string name="pc_title">PC推送助手</string>
+    <string name="pc_title">PC推送接收</string>
     <string name="im_new_message">有新的消息啦</string>
     <string name="im_no_more_group">没有更多分组</string>
     <string name="pc_start_download_fail">启动下载服务失败</string>
     <string name="create_file_fail">创建文件失败</string>
+    <string name="pc_new_message">有新的信息推送过来啦</string>
     
 </resources>
