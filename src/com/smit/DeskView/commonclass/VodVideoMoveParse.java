@@ -1,5 +1,6 @@
 package com.smit.DeskView.commonclass;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -8,8 +9,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Timer;
@@ -23,18 +26,24 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.openims.downloader.DownloadInf;
-import com.smit.DeskView.commonclass.TvLiveChannelParse.DownloadAsyncTask;
+import com.smit.EasyLauncher.R;
+
 
 import android.R.integer;
 import android.R.string;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ListView;
 
 
 public class VodVideoMoveParse {
@@ -281,7 +290,7 @@ public class VodVideoMoveParse {
 						//url=new URL(picstr);			
 						//downthtrad=new FileDownloadThread(url,filepath,0,0);
 						//downthtrad.start();
-							DownloadInf dl = new DownloadInf();
+							VodVideoDownloadInfo dl = new VodVideoDownloadInfo();
 							dl.desPath = filepath;
 							dl.id = i;
 							dl.nTotalSize = 2662720;
@@ -298,76 +307,117 @@ public class VodVideoMoveParse {
 			}
 		}
 		
-		 public class DownloadAsyncTaskPic extends AsyncTask<DownloadInf,DownloadInf,DownloadInf>{
+		public void downloadMoviePic(int index,ListView listView){
+			int count=allMovieInfo.size();
+			int piccount;
+			ItemVideoInfo curinfo;
+			FileDownloadThread downthtrad;
+			URL url;
+			String picstr,filepath;
+			if (index<count) {
+				curinfo=allMovieInfo.get(index);
+				piccount=curinfo.movie_pic_url.size();
+				for (int j = 0; j < piccount; j++) {
+					filepath=curinfo.movie_pic_path.get(j);
+					if (!isExistFile(filepath)) {			
+						picstr=curinfo.movie_pic_url.get(j);
+						try {
+							
+							VodVideoDownloadInfo dl = new VodVideoDownloadInfo();
+							dl.desPath = filepath;
+							dl.id = index;
+							dl.nTotalSize = 2662720;
+							dl.url = picstr;
+							dl.listView=listView;
+							
+							DownloadAsyncTaskPic task = new DownloadAsyncTaskPic();
+			            	task.execute(dl);	
+							
+						} catch (Exception e) {
+							Log.e(tag, "PIC URL ERROR");
+						}	
+					}
+				}
+			}
+				
+		}
+		
+		 public class DownloadAsyncTaskPic extends AsyncTask<VodVideoDownloadInfo,VodVideoDownloadInfo,VodVideoDownloadInfo>{
 
 		    	public static final String Tag="DownloadAsyncTask"; 
+		    	private static final int BUFFER_SIZE = 1024;
+		    	private int downloadSize = 0;
 				  
 				  @Override
-				protected DownloadInf doInBackground(DownloadInf... arg0) {
+				protected VodVideoDownloadInfo doInBackground(VodVideoDownloadInfo... arg0) {
 				// TODO Auto-generated method stub
 					  StringBuffer sb = new StringBuffer();
-					  DownloadInf dInf = arg0[0];
-						try {
-							URL url = new URL(dInf.url);
+					  VodVideoDownloadInfo dInf = arg0[0];
+					  
+						BufferedInputStream bis = null;  
+				        RandomAccessFile fos = null;                                                 
+				        byte[] buf = new byte[BUFFER_SIZE];  
+				        URLConnection con = null;  
+				        try {
+				        	URL url = new URL(dInf.url);
 						    File file = new File(dInf.desPath);
-							
-							HttpURLConnection connection = (HttpURLConnection) url
-									.openConnection();
-							connection.setDoOutput(true);
-							connection.setUseCaches(false);// 忽略缓存
-
-							int responseCode = connection.getResponseCode();
-
-							Log.e(Tag, "Response code :" + connection.getResponseCode());
-							if (HttpURLConnection.HTTP_OK == responseCode) {
-								// 当正确响应时处理数据
-								String readLine;
-								BufferedReader responseReader;
-								// 处理响应流，必须与服务器响应流输出的编码一致
-								responseReader = new BufferedReader(new InputStreamReader(
-										connection.getInputStream(), "UTF-8"));
-								while ((readLine = responseReader.readLine()) != null) {
-									sb.append(readLine).append("\n");
-								}
-								responseReader.close();
-
-							} else {
-
-							}
-							connection.disconnect();
-
-							FileOutputStream fileos = null;
-							try {
-								fileos = new FileOutputStream(file);
-							} catch (FileNotFoundException e) {
-								Log.e(Tag, e.toString());
-							}
-
-							try {
-								byte buf[] = sb.toString().getBytes();
-								int numread = 0;
-
-								numread = buf.length;
-								if (numread <= 0) {
-									// break;
-								} else {
-									fileos.write(buf, 0, numread);
-								}
-								fileos.close();
-							} catch (Exception e) {
-								// Log.e("Exception","error occurred while creating xml file");
-								Log.e(Tag, e.toString());
-							}
-						}catch (Exception e) {
-							// TODO: handle exception
-						}
+				        	
+				            con = url.openConnection();  
+				            con.setAllowUserInteraction(true); 
+				          
+				            fos = new RandomAccessFile(file, "rw");         
+				            fos.seek(0); 
+				            //获取下载文件的总大小  
+				            int fileSize = con.getContentLength(); 
+				            
+				            bis = new BufferedInputStream(con.getInputStream());
+				            while (true) {  
+				            int len = bis.read(buf, 0, BUFFER_SIZE);                  
+				            if (len == -1) {  
+				                break;  
+				            }  
+				            fos.write(buf, 0, len);  
+				            downloadSize+=len;
+				        }  
+		
+				            bis.close();  
+				            fos.close();  
+				        } catch (IOException e) {  
+				          Log.d(tag, e.getMessage());  
+				        }  
 					  
 					  
-					  return null;
+					  return dInf;
 				}
 
 					@Override
-					protected void onPostExecute(DownloadInf result) {			
+					protected void onPostExecute(VodVideoDownloadInfo result) {
+						
+						Bitmap bm = BitmapFactory.decodeFile(result.desPath);
+						Drawable drawable = new BitmapDrawable(bm);
+						ImageView vodvideo_cover;
+						if (result.listView!=null) {
+							View view=result.listView.getChildAt(result.id-result.listView.getFirstVisiblePosition());
+							if (view!=null) {
+								vodvideo_cover = (ImageView) view.findViewById(R.id.vodvideo_cover);
+							}else {
+								vodvideo_cover=null;
+							}
+							
+						}else {
+							vodvideo_cover=null;
+						}
+									
+						if (vodvideo_cover!=null) {
+							if (bm==null||drawable==null) {
+								
+								vodvideo_cover.setBackgroundResource(R.drawable.video_load);
+							}else {
+								vodvideo_cover.setBackgroundDrawable(drawable);	
+							}
+							
+						}
+						
 						/*mDownloadTaskMap.remove(result.id);
 						if(PushServiceUtil.DOWNLOAD_STOP != result.status){
 							notifyClients(PushServiceUtil.MSG_DOWNLOAD,0,0,result);
@@ -378,7 +428,7 @@ public class VodVideoMoveParse {
 					}
 
 					@Override
-					protected void onProgressUpdate(DownloadInf... values) {
+					protected void onProgressUpdate(VodVideoDownloadInfo... values) {
 						/*Log.e(TAG, PRE+"onProgressUpdate Messager client num:"+ mClients.size());
 						DownloadInf result = values[0];
 						if(PushServiceUtil.DOWNLOAD_STOP != result.status){

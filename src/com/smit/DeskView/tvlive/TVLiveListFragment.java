@@ -82,7 +82,7 @@ public class TVLiveListFragment extends ListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		mHandler.postDelayed(mRunnable, 5000);
+		//mHandler.postDelayed(mRunnable, 5000);
 		setRetainInstance(true);
 	}
 
@@ -155,9 +155,9 @@ public class TVLiveListFragment extends ListFragment {
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
-		if (mHandler!=null) {
+		/*if (mHandler!=null) {
 			mHandler.removeCallbacks(mRunnable);
-		}
+		}*/
 	}
 	
 	public Handler mHandler = new Handler() {
@@ -188,11 +188,11 @@ public class TVLiveListFragment extends ListFragment {
 			mtvParse = new TvLiveChannelParse(str);
 			if (mtvParse != null) {
 				mtvParse.parseDataStr();
-				mtvParse.downloadMoviePic();
-				if (!downProgramList) {		
+				//mtvParse.downloadMoviePic();
+				/*if (!downProgramList) {		
 					mtvParse.downloadChannelProgramList();
 					downProgramList=true;
-				}	
+				}*/	
 				listAdapter=new VodVideoAdapter();
 				setListAdapter(listAdapter);
 			} else {
@@ -326,7 +326,7 @@ public class TVLiveListFragment extends ListFragment {
 		}
 	}
 	
-	private Runnable mRunnable = new Runnable() {
+	/*private Runnable mRunnable = new Runnable() {
 		public void run() {
 			if(listAdapter!=null&&!listAdapter.isEmpty())
 			{
@@ -335,7 +335,7 @@ public class TVLiveListFragment extends ListFragment {
 			mHandler.postDelayed(mRunnable, 5000);
 		}
 
-	};
+	};*/
 
 	public class VodVideoAdapter extends BaseAdapter {
 
@@ -546,12 +546,14 @@ public class TVLiveListFragment extends ListFragment {
 			}
 
 			String isplayingString=getCurPlayProgram(curItem);
-			tvlive_isplay = (TextView) convertView
-					.findViewById(R.id.tvlive_isplay);
+			tvlive_isplay = (TextView) convertView.findViewById(R.id.tvlive_isplay);
 			if (isplayingString!=null) {
 				tvlive_isplay.setText(getResources().getString(R.string.tvlive_widget_isplaying)+isplayingString);
 			}else {
 				tvlive_isplay.setText("");
+				if(!isExistFile(curItem.channelPath)){
+					mtvParse.downloadChannelProgramList(position, getListView());
+				}
 			}
 			
 			tv_live_programlistButton=(Button)convertView.findViewById(R.id.tvlive_program_info);
