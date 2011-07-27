@@ -1,9 +1,14 @@
 package com.smit.DeskView.commonclass;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -18,10 +23,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.openims.downloader.DownloadInf;
+import com.smit.DeskView.commonclass.TvLiveChannelParse.DownloadAsyncTask;
+
 import android.R.integer;
 import android.R.string;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -269,9 +278,18 @@ public class VodVideoMoveParse {
 					if (!isExistFile(filepath)) {			
 						picstr=curinfo.movie_pic_url.get(j);
 						try {
-						url=new URL(picstr);			
-						downthtrad=new FileDownloadThread(url,filepath,0,0);
-						downthtrad.start();
+						//url=new URL(picstr);			
+						//downthtrad=new FileDownloadThread(url,filepath,0,0);
+						//downthtrad.start();
+							DownloadInf dl = new DownloadInf();
+							dl.desPath = filepath;
+							dl.id = i;
+							dl.nTotalSize = 2662720;
+							dl.url = picstr;
+							
+							DownloadAsyncTaskPic task = new DownloadAsyncTaskPic();
+			            	task.execute(dl);	
+							
 						} catch (Exception e) {
 							Log.e(tag, "PIC URL ERROR");
 						}	
@@ -279,6 +297,122 @@ public class VodVideoMoveParse {
 				}
 			}
 		}
+		
+		 public class DownloadAsyncTaskPic extends AsyncTask<DownloadInf,DownloadInf,DownloadInf>{
+
+		    	public static final String Tag="DownloadAsyncTask"; 
+				  
+				  @Override
+				protected DownloadInf doInBackground(DownloadInf... arg0) {
+				// TODO Auto-generated method stub
+					  StringBuffer sb = new StringBuffer();
+					  DownloadInf dInf = arg0[0];
+						try {
+							URL url = new URL(dInf.url);
+						    File file = new File(dInf.desPath);
+							
+							HttpURLConnection connection = (HttpURLConnection) url
+									.openConnection();
+							connection.setDoOutput(true);
+							connection.setUseCaches(false);// 忽略缓存
+
+							int responseCode = connection.getResponseCode();
+
+							Log.e(Tag, "Response code :" + connection.getResponseCode());
+							if (HttpURLConnection.HTTP_OK == responseCode) {
+								// 当正确响应时处理数据
+								String readLine;
+								BufferedReader responseReader;
+								// 处理响应流，必须与服务器响应流输出的编码一致
+								responseReader = new BufferedReader(new InputStreamReader(
+										connection.getInputStream(), "UTF-8"));
+								while ((readLine = responseReader.readLine()) != null) {
+									sb.append(readLine).append("\n");
+								}
+								responseReader.close();
+
+							} else {
+
+							}
+							connection.disconnect();
+
+							FileOutputStream fileos = null;
+							try {
+								fileos = new FileOutputStream(file);
+							} catch (FileNotFoundException e) {
+								Log.e(Tag, e.toString());
+							}
+
+							try {
+								byte buf[] = sb.toString().getBytes();
+								int numread = 0;
+
+								numread = buf.length;
+								if (numread <= 0) {
+									// break;
+								} else {
+									fileos.write(buf, 0, numread);
+								}
+								fileos.close();
+							} catch (Exception e) {
+								// Log.e("Exception","error occurred while creating xml file");
+								Log.e(Tag, e.toString());
+							}
+						}catch (Exception e) {
+							// TODO: handle exception
+						}
+					  
+					  
+					  return null;
+				}
+
+					@Override
+					protected void onPostExecute(DownloadInf result) {			
+						/*mDownloadTaskMap.remove(result.id);
+						if(PushServiceUtil.DOWNLOAD_STOP != result.status){
+							notifyClients(PushServiceUtil.MSG_DOWNLOAD,0,0,result);
+						}else{
+							notifyClients(PushServiceUtil.MSG_DOWNLOAD_STOP,0,0,result);
+						}*/
+						super.onPostExecute(result);
+					}
+
+					@Override
+					protected void onProgressUpdate(DownloadInf... values) {
+						/*Log.e(TAG, PRE+"onProgressUpdate Messager client num:"+ mClients.size());
+						DownloadInf result = values[0];
+						if(PushServiceUtil.DOWNLOAD_STOP != result.status){
+							notifyClients(PushServiceUtil.MSG_DOWNLOAD,0,0,result);
+						}else{
+							notifyClients(PushServiceUtil.MSG_DOWNLOAD_STOP,0,0,result);
+						}*/
+						super.onProgressUpdate(values);
+					}
+			    	
+			    }
+			    
+			    private void notifyClients(int what, int arg1, int arg2, Object obj){
+			    	/*for (int j=mClients.size()-1; j>=0; j--) {
+			            try {
+			                mClients.get(j).send(Message.obtain(null,
+			                		what, arg1, arg2, obj));
+			            } catch (RemoteException e) {               
+			                mClients.remove(j);
+			            }
+					} */
+			    }
+			    
+			   /* public void notifyRosterUpdated(String jid){
+			    	notifyClients(PushServiceUtil.MSG_ROSTER_UPDATED, 0, 1,jid);
+			    }
+			    
+			    public void setOneUnreadMessage(String jid){ 		
+					notifyClients(PushServiceUtil.MSG_NEW_MESSAGE,0, 0, jid);		
+			    }
+			    
+			    public void setNewPushContent(){
+			    	notifyClients(PushServiceUtil.MSG_NEW_PUSH_CONTENT,0, 0, null);
+			    }*/
 		
 		public boolean isExistFile(String str) {
 			if (str==null) {

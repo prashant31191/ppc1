@@ -1,15 +1,21 @@
 package com.smit.DeskView.tvlive;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.PublicKey;
 
+import com.openims.downloader.DownloadInf;
+import com.openims.utility.PushServiceUtil;
 import com.smit.DeskView.commonclass.CommonDataFun;
 import com.smit.DeskView.commonclass.RequestXml;
 import com.smit.DeskView.commonclass.VodVideoMoveParse;
@@ -22,9 +28,11 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
@@ -412,5 +420,7 @@ public class TVLiveFragment extends Fragment {
 				R.drawable.s0_login_loading_07, R.drawable.s0_login_loading_08,
 				R.drawable.s0_login_loading_09, };
 	}
+	
+	
 
 }

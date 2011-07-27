@@ -27,9 +27,11 @@ import android.content.Intent;
 import android.content.pm.PackageParser.NewPermissionInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,7 +54,7 @@ public class TvProgramListActivity extends Activity implements OnClickListener {
 	String path;
 	String tvname;
 	LinkedList<ItemProgramList> allprogram = new LinkedList<ItemProgramList>();
-	int CurWeek=0;
+	int CurWeek=0,TodayWeek=0,curProgram;
 	boolean isExistprogram=false;
 	
 	private final static String Tag = "TvProgramListActivity";
@@ -78,7 +80,7 @@ public class TvProgramListActivity extends Activity implements OnClickListener {
 		
 		allprogram.clear();
 		
-		isExistprogram=getProgramList();
+		isExistprogram=getProgramList();	
 		if (isExistprogram) {
 			mMonday.setText(getResources().getString(R.string.monday)+"\n"+allprogram.get(0).item_data);
 			mTuesday.setText(getResources().getString(R.string.tuesday)+"\n"+allprogram.get(1).item_data);
@@ -90,6 +92,8 @@ public class TvProgramListActivity extends Activity implements OnClickListener {
 		}	
 		
 		CurWeek=getCurWeek();
+		TodayWeek=CurWeek;
+		curProgram=getCurProgramindex();
 		View weekView=null;
 		switch (CurWeek) {
 		case 0:{
@@ -270,6 +274,15 @@ public class TvProgramListActivity extends Activity implements OnClickListener {
 		}
 		return week;
 	}
+	
+	public int GetCurTime() {
+		Calendar calendar = Calendar.getInstance();
+		int hour = calendar.get(Calendar.HOUR);
+		int minute = calendar.get(Calendar.MINUTE);
+		Time m_time=new Time();
+		m_time.setToNow();		
+		return m_time.hour * 60 + m_time.minute;
+	}
 
 	public String GetCurData() {
 		Calendar calendar = Calendar.getInstance();
@@ -380,6 +393,47 @@ public class TvProgramListActivity extends Activity implements OnClickListener {
 
 		return nRet;
 	}
+	
+	public int getCurProgramindex(){
+		int curIndex=0;
+		ItemProgramList itemProgramList;
+		do {
+			
+			if (allprogram==null) {
+				break;
+			}
+			if (TodayWeek>=allprogram.size()) {
+				break;
+			}
+			
+			int frontTime = 0, behindTime = 0;
+			int SystemTime = GetCurTime();
+			itemProgramList=allprogram.get(TodayWeek);
+			int timecount=itemProgramList.item_time.size()-1;
+			int i=0;
+			for (i = 0; i < timecount; i++) {
+				String[] lunars1 = itemProgramList.item_time.get(i).split(":");
+				frontTime = Integer.parseInt(lunars1[0])* 60+ Integer.parseInt(lunars1[1]);
+				String[] lunars2 = itemProgramList.item_time.get(i+1).split(":");
+				behindTime = Integer.parseInt(lunars2[0])* 60+ Integer.parseInt(lunars2[1]);
+				
+				if (SystemTime >= frontTime
+						&& SystemTime < behindTime) {
+					curIndex=i;
+					break;
+				}
+			}
+			if (i==timecount) {
+				curIndex=timecount;
+			}else {
+				
+			}
+			
+			
+			
+		} while (false);
+		return curIndex;
+	}
 
 	public class ProgramListAdapter extends BaseAdapter {
 		Context mContext;
@@ -417,6 +471,14 @@ public class TvProgramListActivity extends Activity implements OnClickListener {
 			program_tv = (TextView) convertView.findViewById(R.id.tv_program_program);
 			program_tv.setText(curItem.item_program.get(position));
 
+			if (TodayWeek==CurWeek&&curProgram==position) {
+				program_time.setTextColor(Color.YELLOW);
+				program_tv.setTextColor(Color.YELLOW);
+			}else {
+				program_time.setTextColor(Color.WHITE);
+				program_tv.setTextColor(Color.WHITE);
+			}
+			
 			return convertView;
 		}
 	}

@@ -1,6 +1,7 @@
 package com.smit.DeskView.tvlive;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,7 +9,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StreamCorruptedException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
 
@@ -21,6 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.openims.downloader.DownloadInf;
 import com.smit.DeskView.commonclass.*;
 import com.smit.DeskView.commonclass.TvLiveChannelParse.ItemTvInfo;
 import com.smit.DeskView.tvlive.TVLiveFragment.GobalFunVar;
@@ -40,6 +44,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -48,11 +53,13 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -108,10 +115,11 @@ public class TVLiveListFragment extends ListFragment {
 					View arg1, int arg2, long arg3) {
 				ItemTvInfo curItem = null;
 				if (mtvParse != null) {
+					
 					curItem = mtvParse.getCurInfo(arg2);
 				}
 				
-				 if (curItem!=null) 
+				/* if (curItem!=null) 
 				 { 
 					 Intent intent = new Intent();
 					 intent.setClass(getActivity(),TvProgramListActivity.class);
@@ -120,12 +128,13 @@ public class TVLiveListFragment extends ListFragment {
 					 myBund.putString("tvprogramfilepath", curItem.channelPath);
 					 intent.putExtras(myBund);
 					 startActivity(intent); 
-				}
+				}*/
 				 
 
 			};
 		});
 	}
+	
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -180,7 +189,7 @@ public class TVLiveListFragment extends ListFragment {
 			if (mtvParse != null) {
 				mtvParse.parseDataStr();
 				mtvParse.downloadMoviePic();
-				if (!downProgramList) {
+				if (!downProgramList) {		
 					mtvParse.downloadChannelProgramList();
 					downProgramList=true;
 				}	
@@ -500,6 +509,7 @@ public class TVLiveListFragment extends ListFragment {
 			AlwaysMarqueeTextView vodvideo_title;
 			ImageView vodvideo_cover;
 			TextView vodvideo_time, tvlive_isplay;
+			Button tv_live_programlistButton;
 
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.tvlive_widget_item,
@@ -543,11 +553,37 @@ public class TVLiveListFragment extends ListFragment {
 			}else {
 				tvlive_isplay.setText("");
 			}
+			
+			tv_live_programlistButton=(Button)convertView.findViewById(R.id.tvlive_program_info);
+			tv_live_programlistButton.setTag(position);
+			tv_live_programlistButton.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View arg0) {
+					ItemTvInfo curItem = null;
+					if (mtvParse != null) {
+						int curIndex=(Integer)arg0.getTag();
+						curItem = mtvParse.getCurInfo(curIndex);
+					}
+					
+					 if (curItem!=null) 
+					 { 
+						 Intent intent = new Intent();
+						 intent.setClass(getActivity(),TvProgramListActivity.class);
+						 Bundle myBund = new Bundle();// 创建Bundle，用于保存要传送的数据 String 
+						 myBund.putString("tvname",curItem.tv_name);// KEY-VALUE保存起来 intent.putExtras(myBund);//
+						 myBund.putString("tvprogramfilepath", curItem.channelPath);
+						 intent.putExtras(myBund);
+						 startActivity(intent); 
+					}
+				}
+			});
 
 			return convertView;
 
 		}
 
 	}
+	
 
 }
