@@ -367,7 +367,8 @@ public class LoginActivity extends Activity {
 		    		m_Dialog.dismiss();
 		    		LoginActivity.this.finish();
 					
-	    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL)){
+	    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL)
+	    				||status.equals(PushServiceUtil.PUSH_STATUS_CONNECTION_FAIL)){
 					Toast.makeText(context, R.string.login_login_fail, Toast.LENGTH_SHORT).show();		
 		    		m_Dialog.dismiss();
 	    		}

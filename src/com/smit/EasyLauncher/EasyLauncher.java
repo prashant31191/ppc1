@@ -205,7 +205,8 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private boolean mWaitingForResult;
     private boolean mOnResumeNeedsLoad;
     private boolean mLocaleChanged = false;
-    private boolean isLogin = false;
+    private static boolean isLogin = false;
+
     private ProgressDialog m_Dialog;
 
     private Bundle mSavedInstanceState;
@@ -279,7 +280,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         if(!isFirstInit)
         destopv.startAnimation(myAnimation_Rotate);
         //isFirstInit=false;
-        
+        if(isFirstInit)
 		startService(new Intent(PushServiceUtil.ACTION_SERVICE_CONNECT));
     }
     public static boolean isFirstInit()
@@ -492,7 +493,12 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 			});;
 			//b.setText("hello");
 			mWindowManager.addView(mControlView, wmParams);
- 
+			
+			if(!isLogin){
+    			mLoginButton.setImageResource(R.drawable.unloginface_selector);	    			
+    		}else{	    
+    			mLoginButton.setImageResource(R.drawable.quitface_selector);	
+    		}
 	}
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -995,7 +1001,12 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         if (keyCode == KeyEvent.KEYCODE_MENU && event.isLongPress()) {
             return true;
         }
-
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            
+        	startService(new Intent(PushServiceUtil.ACTION_SERVICE_LOGOUT));	
+        	isLogin = false;
+            return true;
+        }
         return handled;
     }
 
@@ -1320,8 +1331,6 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     @Override
     public void onDestroy() {
         super.onDestroy();
-       
-    	startService(new Intent(PushServiceUtil.ACTION_SERVICE_LOGOUT));	
 
         try {
             mAppWidgetHost.stopListening();
