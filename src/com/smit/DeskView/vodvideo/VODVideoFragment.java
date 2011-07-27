@@ -85,6 +85,7 @@ public class VODVideoFragment extends Fragment {
 		intentFilter.addAction(PushServiceUtil.ACTION_REGISTRATION);
 		intentFilter.addAction(PushServiceUtil.ACTION_RECEIVE);
 		intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
+		intentFilter.addCategory("com.smit.DeskView.vodvideo.VODVideoFragment");
 	    getActivity().registerReceiver(mybroad, intentFilter);
 	    
 	    regPushService(true);
@@ -463,11 +464,9 @@ public class VODVideoFragment extends Fragment {
 			regIntent.putExtra(PushServiceUtil.PUSH_DEVELOPER,
 					"mtv");
 			regIntent.putExtra(PushServiceUtil.PUSH_NAME_KEY,
-			"T3aXoTF0oz8nIbqCBdEq34a00O67rblh");
-			regIntent.putExtra(PushServiceUtil.PUSH_PACKAGENAME, 
-					PushServiceUtil.PACKAGE_NAME);
-			regIntent.putExtra(PushServiceUtil.PUSH_CLASSNAME, 
-					"com.smit.DeskView.vodvideo.VODVideoFragment.PushServiceReceiver");
+			"T3aXoTF0oz8nIbqCBdEq34a00O67rblh");			
+			regIntent.putExtra(PushServiceUtil.PUSH_CATEGORY, 
+					"com.smit.DeskView.vodvideo.VODVideoFragment");
 			
 			getActivity().startService(regIntent);	
 	    }

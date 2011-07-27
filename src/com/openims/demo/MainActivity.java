@@ -171,11 +171,9 @@ public class MainActivity extends Activity {
 		regIntent.putExtra(PushServiceUtil.PUSH_DEVELOPER,
 				"mtv");
 		regIntent.putExtra(PushServiceUtil.PUSH_NAME_KEY,
-		"V1p0Ue5W3zpFqUmzd1W988N0Ci7aPMV3");
-		regIntent.putExtra(PushServiceUtil.PUSH_PACKAGENAME, 
-				PushServiceUtil.PACKAGE_NAME);
-		regIntent.putExtra(PushServiceUtil.PUSH_CLASSNAME, 
-				"com.openims.demo.PushServiceReceiver");
+		"V1p0Ue5W3zpFqUmzd1W988N0Ci7aPMV3");		
+		regIntent.putExtra(PushServiceUtil.PUSH_CATEGORY, 
+				"com.openims.view.pushContent.PushServiceReceiver");
 		
 		startService(regIntent);	
     }
