@@ -10,16 +10,21 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.PublicKey;
 
+import com.openims.utility.PushServiceUtil;
 import com.smit.DeskView.commonclass.CommonDataFun;
 import com.smit.DeskView.commonclass.RequestXml;
 import com.smit.DeskView.commonclass.VodVideoMoveParse;
 import com.smit.DeskView.vodvideo.VODVideoListFragment.VodVideoAdapter;
+import com.smit.EasyLauncher.LoginActivity;
 import com.smit.EasyLauncher.R;
+import com.smit.EasyLauncher.Register.RegisterReceiver;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.AssetManager;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.ConnectivityManager;
@@ -40,12 +45,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class VODVideoFragment extends Fragment {
 	private LayoutInflater mInflater = null;
 	private ImageView moreImage;
 	private final static int GET_VOD_VIDEO_XML = 0x800;
 	private final static String Tag = "VODVideoFragment";
+	private final static String categoryString="com.smit.DeskView.vodvideo.VODVideoFragment";
 	public VodVideoMoveParse mMovieParse = null;
 	private static String VIDEO_ITEM_FILE_DIR = "data/data/com.smit.EasyLauncher/files";// 视屏文件
 	private static String VIDEO_ITEM_FILE = "data/data/com.smit.EasyLauncher/files/vodvideo.xml";// 视屏文件
@@ -64,18 +71,23 @@ public class VODVideoFragment extends Fragment {
 	public final static int SHOW_LIST = 2;
 	
 	public int curMyStatus=SHOW_LAODING;
-
-	 
+	
+	private BroadcastReceiver loginReceiver,pushReceiver;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-
+		
 		existInstance = true;
 		setRetainInstance(true);
+		
+		loginReceiver=new InnerReceiver();
+		pushReceiver=new PushServiceReceiver();
+		
+		
 	}
-
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -110,14 +122,7 @@ public class VODVideoFragment extends Fragment {
 		}	
 		existInstance =false;
 	
-	}
-	
-	@Override
-	public void onStart() {
-		// TODO Auto-generated method stub
-		super.onStart();
-		
-	}
+	}	
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -147,10 +152,30 @@ public class VODVideoFragment extends Fragment {
 	}
 
 	@Override
+	public void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+		
+		  IntentFilter intentFilter = new IntentFilter();
+	      intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
+	      getActivity().registerReceiver(loginReceiver, intentFilter);  
+	      
+			intentFilter=new IntentFilter();
+			intentFilter.addAction(PushServiceUtil.ACTION_REGISTRATION);
+			intentFilter.addAction(PushServiceUtil.ACTION_RECEIVE);
+			intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
+			intentFilter.addCategory(categoryString);
+		    getActivity().registerReceiver(pushReceiver, intentFilter);
+		
+	}
+	
+	@Override
 	public void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
 
+		getActivity().unregisterReceiver(loginReceiver);
+		getActivity().unregisterReceiver(pushReceiver);
 	}
 
 	@Override
@@ -422,22 +447,6 @@ public class VODVideoFragment extends Fragment {
 		}
 	}
 
-	/* public void LoadAnimationEvent(boolean flag){  
-		 
-		 	vodvideo_image_loading.setBackgroundResource(R.drawable.load_animation);
-	        
-	        AnimationDrawable animationDrawable = (AnimationDrawable)vodvideo_image_loading.getBackground();  
-	           
-	        if(flag){  
-	           
-	            animationDrawable.start();  
-	        }  
-	        else{  
-	        	animationDrawable.stop();
-	        }  
-	          
-	          
-	    }  */
 	
 	public static class GobalFunVar {
 		public static int CUR_PIC = 0;
@@ -449,5 +458,117 @@ public class VODVideoFragment extends Fragment {
 				R.drawable.s0_login_loading_07, R.drawable.s0_login_loading_08,
 				R.drawable.s0_login_loading_09, };
 	}
+	
+	
+	//开启服务
+	  void regPushService(boolean bReg){
+	    	Intent regIntent = new Intent(PushServiceUtil.ACTION_SERVICE_REGISTER);	
+
+			if(bReg){
+				regIntent.putExtra(PushServiceUtil.PUSH_TYPE,PushServiceUtil.PUSH_TYPE_REG);
+			}else{
+				regIntent.putExtra(PushServiceUtil.PUSH_TYPE,PushServiceUtil.PUSH_TYPE_UNREG);
+			}
+					
+			regIntent.putExtra(PushServiceUtil.PUSH_DEVELOPER,
+					"mtv");
+			regIntent.putExtra(PushServiceUtil.PUSH_NAME_KEY,
+			"T3aXoTF0oz8nIbqCBdEq34a00O67rblh");
+			regIntent.addCategory(categoryString);
+			
+			getActivity().startService(regIntent);	
+	    }
+	    
+	 
+	//push 广播
+	public class PushServiceReceiver extends BroadcastReceiver{
+		
+		private static final String LOGTAG = "PushServiceReceiver";
+	    private static final String tag = "";
+	    
+		public PushServiceReceiver(){
+			
+		}
+		
+		@Override
+	    public void onReceive(Context context, Intent intent) {
+			Log.d(LOGTAG,tag+"onReceiver");
+			
+			if(intent.getAction().equals("com.openims.pushService.REGISTRATION")){			
+				handleRegistration(context, intent);
+			}else if(intent.getAction().equals("com.openims.pushService.RECEIVE")){
+				handleMessage(context, intent);
+			}else if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
+				//handleStatus(context, intent);
+			}else{
+				Log.e(LOGTAG,tag+"receiver error type");
+			}
+			//你可以在这里给的UI发内部类的广播，也可以startActivity，但是要注意activity要设置一下
+			//启动的模式为singleTask和重载activity的onNewStart（Intent intent）以获得最新的
+			//Intent
+			
+		}
+		
+		//注册广播
+		private void handleRegistration(Context context, Intent intent) {
+			
+			Log.d(LOGTAG,tag+"handleRegistration");
+		    String pushId = intent.getStringExtra(PushServiceUtil.PUSH_ID); 
+		    String pustStatus = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
+		    boolean bRegOrUnreg = true;
+		    if(PushServiceUtil.PUSH_TYPE_UNREG.equals(intent.getStringArrayExtra(PushServiceUtil.PUSH_TYPE))){
+		    	bRegOrUnreg = false;
+		    }
+		   
+		    Log.d(LOGTAG,tag+"Registration succuss and Id = " + pushId);
+		    Log.d(LOGTAG,tag+"Registration status = " + pustStatus);
+		    Log.d(LOGTAG,tag+"Registration Reg or Unreg = " + String.valueOf(bRegOrUnreg));
+		
+		        
+		}
+		
+		//收到广播消息
+		protected void handleMessage(Context context, Intent intent) {
+			
+			Log.d(LOGTAG,tag+"handleMessage");
+			
+			Log.d("handleMessage","===========1111111111111111111111============");
+			Log.d("handleMessage","===========2222222222222222222222============");
+			Log.d("handleMessage","===========3333333333333333333333============");
+			Log.d("handleMessage","===========4444444444444444444444============");
+			Log.d("handleMessage","===========5555555555555555555555============");
+			String title = intent.getStringExtra(PushServiceUtil.NTFY_TITLE);
+			String ticker = intent.getStringExtra(PushServiceUtil.NTFY_TICKER);
+			String uriString = intent.getStringExtra(PushServiceUtil.NTFY_URI);
+			String message = intent.getStringExtra(PushServiceUtil.NTFY_MESSAGE);
+			
+			StringBuilder all = new StringBuilder();
+			all.append("收到的push内容：ticker").append(ticker).
+			append("\nTitle:").append(title).append("\nUri:").
+			append(uriString).append("\nMessage:").append(message);
+			Log.d(LOGTAG,tag+"message:"+all);
+			Toast.makeText(context, all, Toast.LENGTH_LONG);
+			
+		}
+	}
+	
+	
+	//登陆广播
+	 public class InnerReceiver extends BroadcastReceiver{
+	        
+	    	@Override
+	    	public void onReceive(Context context,Intent intent){
+
+	    		if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
+		    		String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
+
+		    		if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_SUC)){
+		    			regPushService(true);	
+		    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL)
+		    				||status.equals(PushServiceUtil.PUSH_STATUS_CONNECTION_FAIL)){
+		    		}
+	    		}
+	    	}
+	    }
 
 }

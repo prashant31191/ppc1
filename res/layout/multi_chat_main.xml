@@ -51,6 +51,7 @@
 		android:layout_weight="10"
 		android:cacheColorHint="@color/transparent"
 		android:clickable="true"
+		android:background="@color/apple_grey"
     	>
 	</ListView>
 	

@@ -358,13 +358,12 @@ public class IMService extends Service  {
     	Bundle bundle = intent.getExtras();
     	String developer = bundle.getString(PushServiceUtil.PUSH_DEVELOPER);
     	String pushNameKey = bundle.getString(PushServiceUtil.PUSH_NAME_KEY);
-    	String packageName = bundle.getString(PushServiceUtil.PUSH_PACKAGENAME);
-    	String className = bundle.getString(PushServiceUtil.PUSH_CLASSNAME);
+    	String categoryName = bundle.getString(PushServiceUtil.PUSH_CATEGORY);
     	String regType = bundle.getString(PushServiceUtil.PUSH_TYPE);
     	
     	// IM service has not connected
     	if(xmppManager.isAuthenticated() == false){
-    		sendRegisterBroadcast(packageName,className,null,
+    		sendRegisterBroadcast(categoryName,null,
     				PushServiceUtil.PUSH_STATUS_UNCONNECT,
     				PushServiceUtil.PUSH_TYPE_REG,this);
     		return;
@@ -372,7 +371,7 @@ public class IMService extends Service  {
     	PushInfoManager pushInfo = new PushInfoManager(this);
     	if(regType.equals(PushServiceUtil.PUSH_TYPE_REG)){
     		if(pushInfo.isRegPush(pushNameKey,xmppManager.getUserNameWithHostName())){
-        		sendRegisterBroadcast(packageName,className,null,
+        		sendRegisterBroadcast(categoryName,null,
         				PushServiceUtil.PUSH_STATUS_HAVEREGISTER,
         				PushServiceUtil.PUSH_TYPE_REG,this);
         		Log.i(TAG, PRE + TAG + "已经注册" + pushNameKey + " " + xmppManager.getUserNameWithHostName());
@@ -381,7 +380,7 @@ public class IMService extends Service  {
         	}    		
     	}else{
     		if(!pushInfo.isRegPush(pushNameKey,xmppManager.getUserNameWithHostName())){
-        		sendRegisterBroadcast(packageName,className,null,
+        		sendRegisterBroadcast(categoryName,null,
         				PushServiceUtil.PUSH_STATUS_NOTREGISTER,
         				PushServiceUtil.PUSH_TYPE_UNREG,this);
         		Log.i(TAG, PRE + TAG + "已经销注 " + pushNameKey + " " + xmppManager.getUserNameWithHostName());
@@ -391,7 +390,8 @@ public class IMService extends Service  {
     	}
     	
     	// write information to database
-    	pushInfo.insertPushInfotoDb(xmppManager.getUserNameWithHostName(),developer, pushNameKey, packageName, className);
+    	pushInfo.insertPushInfotoDb(xmppManager.getUserNameWithHostName(),
+    			developer, pushNameKey, "", categoryName);
     	pushInfo.close();
     	// send packet
     	RegPushIQ regPushIQ = new RegPushIQ();
@@ -408,12 +408,11 @@ public class IMService extends Service  {
     	
     	// 等待超时！
     	Thread thread = new Thread(new WaitThread(pushNameKey,
-    			packageName,className,regType,this));
+    			categoryName,regType,this));
     	thread.start();
     	
     }
-    public static void sendRegisterBroadcast(String packageName,
-			   String className,
+    public static void sendRegisterBroadcast(String categoryName,
 			   String pushID,
 			   String status,
 			   String type,
@@ -421,12 +420,13 @@ public class IMService extends Service  {
     	
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("sendRegisterBroadcast to packageName:")
-		.append(packageName).append("className:").append(className)
+		.append("categoryName:").append(categoryName)
 		.append("pushID:").append(pushID).append("status:").append(status);
 		Log.d(TAG, PRE + TAG + stringBuilder);
 		
 		Intent intentSend = new Intent(PushServiceUtil.ACTION_REGISTRATION);
-		intentSend.setClassName(packageName, className);    	
+		//intentSend.setClassName(packageName, className);  
+		intentSend.addCategory(categoryName);
 		intentSend.putExtra(PushServiceUtil.PUSH_STATUS, status);
 		intentSend.putExtra(PushServiceUtil.PUSH_ID, pushID);
 		intentSend.putExtra(PushServiceUtil.PUSH_TYPE, type);
@@ -435,19 +435,17 @@ public class IMService extends Service  {
     private class WaitThread extends Thread {      
 
     	String pushName = null;
-    	String packageName = null;
+    	String categoryName = null;
     	String className = null;
     	String type = null;
     	Context context = null;
     	
         private WaitThread(String pushName,
-        				   String packageName,
-        				   String className,
+        				   String categoryName,
         				   String type,
         				   Context context) {
         	this.pushName = pushName;
-        	this.packageName = packageName;
-        	this.className = className;
+        	this.categoryName = categoryName;
         	this.type = type;
         	this.context = context;
         }
@@ -464,13 +462,13 @@ public class IMService extends Service  {
 			if(type.equals(PushServiceUtil.PUSH_TYPE_REG)){
 				if(pushInfo.isRegPush(pushName,xmppManager.getUserNameWithHostName()) == false){
 					Log.e(TAG, PRE + TAG + "register time out");
-					sendRegisterBroadcast(packageName,className,null,
+					sendRegisterBroadcast(categoryName,null,
 		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
 				}
 	    	}else if(type.equals(PushServiceUtil.PUSH_TYPE_UNREG)){
 	    		if(pushInfo.isRegPush(pushName,xmppManager.getUserNameWithHostName()) == true){
 					Log.e(TAG, PRE + TAG + "unregister time out");
-					sendRegisterBroadcast(packageName,className,null,
+					sendRegisterBroadcast(categoryName,null,
 		    				PushServiceUtil.PUSH_STATUS_FAIL,type,context);
 				}
 	    	}
@@ -683,7 +681,8 @@ public class IMService extends Service  {
 			    byte[] data = new byte[nBufSize]; 
 			    int nFinishSize = 0;
 			    int nread = 0;
-			    while( (nread = bis.read(data, 0, nBufSize)) != -1){
+			    while( (nread = bis.read(data, 0, nBufSize)) != -1 && 
+			    		isCancelled() == false){
 			    	fos.write(data, 0, nread);                	
 			    	nFinishSize += nread;
 			    	Thread.sleep( 1 ); // this make cancel method work
