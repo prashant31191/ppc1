@@ -15,6 +15,7 @@ import com.smit.DeskView.commonclass.CommonDataFun;
 import com.smit.DeskView.commonclass.RequestXml;
 import com.smit.DeskView.commonclass.VodVideoMoveParse;
 import com.smit.DeskView.vodvideo.VODVideoListFragment.VodVideoAdapter;
+import com.smit.EasyLauncher.LoginActivity;
 import com.smit.EasyLauncher.R;
 import com.smit.EasyLauncher.Register.RegisterReceiver;
 
@@ -51,6 +52,7 @@ public class VODVideoFragment extends Fragment {
 	private ImageView moreImage;
 	private final static int GET_VOD_VIDEO_XML = 0x800;
 	private final static String Tag = "VODVideoFragment";
+	private final static String categoryString="com.smit.DeskView.vodvideo.VODVideoFragment";
 	public VodVideoMoveParse mMovieParse = null;
 	private static String VIDEO_ITEM_FILE_DIR = "data/data/com.smit.EasyLauncher/files";// 视屏文件
 	private static String VIDEO_ITEM_FILE = "data/data/com.smit.EasyLauncher/files/vodvideo.xml";// 视屏文件
@@ -69,8 +71,8 @@ public class VODVideoFragment extends Fragment {
 	public final static int SHOW_LIST = 2;
 	
 	public int curMyStatus=SHOW_LAODING;
-
-	 
+	
+	private BroadcastReceiver loginReceiver,pushReceiver;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -80,15 +82,9 @@ public class VODVideoFragment extends Fragment {
 		existInstance = true;
 		setRetainInstance(true);
 		
-		PushServiceReceiver mybroad=new PushServiceReceiver();
-		IntentFilter intentFilter=new IntentFilter();
-		intentFilter.addAction(PushServiceUtil.ACTION_REGISTRATION);
-		intentFilter.addAction(PushServiceUtil.ACTION_RECEIVE);
-		intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
-		intentFilter.addCategory("com.smit.DeskView.vodvideo.VODVideoFragment");
-	    getActivity().registerReceiver(mybroad, intentFilter);
-	    
-	    regPushService(true);
+		loginReceiver=new InnerReceiver();
+		pushReceiver=new PushServiceReceiver();
+		
 		
 	}
 	
@@ -126,14 +122,7 @@ public class VODVideoFragment extends Fragment {
 		}	
 		existInstance =false;
 	
-	}
-	
-	@Override
-	public void onStart() {
-		// TODO Auto-generated method stub
-		super.onStart();
-		
-	}
+	}	
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -163,10 +152,30 @@ public class VODVideoFragment extends Fragment {
 	}
 
 	@Override
+	public void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+		
+		  IntentFilter intentFilter = new IntentFilter();
+	      intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
+	      getActivity().registerReceiver(loginReceiver, intentFilter);  
+	      
+			intentFilter=new IntentFilter();
+			intentFilter.addAction(PushServiceUtil.ACTION_REGISTRATION);
+			intentFilter.addAction(PushServiceUtil.ACTION_RECEIVE);
+			intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
+			intentFilter.addCategory(categoryString);
+		    getActivity().registerReceiver(pushReceiver, intentFilter);
+		
+	}
+	
+	@Override
 	public void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
 
+		getActivity().unregisterReceiver(loginReceiver);
+		getActivity().unregisterReceiver(pushReceiver);
 	}
 
 	@Override
@@ -464,15 +473,14 @@ public class VODVideoFragment extends Fragment {
 			regIntent.putExtra(PushServiceUtil.PUSH_DEVELOPER,
 					"mtv");
 			regIntent.putExtra(PushServiceUtil.PUSH_NAME_KEY,
-			"T3aXoTF0oz8nIbqCBdEq34a00O67rblh");			
-			regIntent.putExtra(PushServiceUtil.PUSH_CATEGORY, 
-					"com.smit.DeskView.vodvideo.VODVideoFragment");
+			"T3aXoTF0oz8nIbqCBdEq34a00O67rblh");
+			regIntent.addCategory(categoryString);
 			
 			getActivity().startService(regIntent);	
 	    }
 	    
 	 
-	
+	//push 广播
 	public class PushServiceReceiver extends BroadcastReceiver{
 		
 		private static final String LOGTAG = "PushServiceReceiver";
@@ -490,6 +498,8 @@ public class VODVideoFragment extends Fragment {
 				handleRegistration(context, intent);
 			}else if(intent.getAction().equals("com.openims.pushService.RECEIVE")){
 				handleMessage(context, intent);
+			}else if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
+				//handleStatus(context, intent);
 			}else{
 				Log.e(LOGTAG,tag+"receiver error type");
 			}
@@ -503,7 +513,6 @@ public class VODVideoFragment extends Fragment {
 		private void handleRegistration(Context context, Intent intent) {
 			
 			Log.d(LOGTAG,tag+"handleRegistration");
-			
 		    String pushId = intent.getStringExtra(PushServiceUtil.PUSH_ID); 
 		    String pustStatus = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
 		    boolean bRegOrUnreg = true;
@@ -540,20 +549,26 @@ public class VODVideoFragment extends Fragment {
 			Log.d(LOGTAG,tag+"message:"+all);
 			Toast.makeText(context, all, Toast.LENGTH_LONG);
 			
-			
-			
-		 /*   Intent intent1 = new Intent();
-		    intent1.setClassName("com.smit.PersonalityPage", 
-		    		"com.smit.PersonalityPage.PersonalityPageActivity");
-		    intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		    
-	        Bundle bundle = new Bundle();
-	        bundle.putInt(Gobaldata.PUSH_MESSAGE_SORT_STRING, Gobaldata.PUSH_MESSAGE_SORT_XML);
-	        bundle.putString(Gobaldata.PUSH_MESSAGE_DATA_XML,message);
-	        intent1.putExtras(bundle);
-		    
-		    context.startActivity(intent1);*/
 		}
 	}
+	
+	
+	//登陆广播
+	 public class InnerReceiver extends BroadcastReceiver{
+	        
+	    	@Override
+	    	public void onReceive(Context context,Intent intent){
+
+	    		if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
+		    		String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
+
+		    		if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_SUC)){
+		    			regPushService(true);	
+		    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_LOGIN_FAIL)
+		    				||status.equals(PushServiceUtil.PUSH_STATUS_CONNECTION_FAIL)){
+		    		}
+	    		}
+	    	}
+	    }
 
 }
