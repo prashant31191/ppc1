@@ -141,6 +141,8 @@ public class LauncherModel extends BroadcastReceiver {
      */
     static void addOrMoveItemInDatabase(Context context, ItemInfo item, long container,
             int screen, int cellX, int cellY) {
+    	System.out.println("**********************");
+    	
         if (item.container == ItemInfo.NO_ID) {
             // From all apps
             addItemToDatabase(context, item, container, screen, cellX, cellY, false);
@@ -160,6 +162,11 @@ public class LauncherModel extends BroadcastReceiver {
         item.cellX = cellX;
         item.cellY = cellY;
 
+        System.out.println("********  " + item.id);
+        System.out.println("********  " + screen);
+        System.out.println("********  " + cellX);
+        System.out.println("********  " + cellY);
+        
         final Uri uri = LauncherSettings.Favorites.getContentUri(item.id, false);
         final ContentValues values = new ContentValues();
         final ContentResolver cr = context.getContentResolver();
@@ -713,18 +720,18 @@ public class LauncherModel extends BroadcastReceiver {
                         case LauncherSettings.Favorites.ITEM_TYPE_OWNEIDGET:
                           	item=new ItemInfo();
                         	//ItemInfo.intent = intent;
-                        	item.id = c.getLong(ViewId);
-                        	 item.itemType=itemType;
-                             container = c.getInt(containerIndex);
-                             item.container = container;
-                             item.screen = c.getInt(screenIndex);
-                             item.cellX = c.getInt(cellXIndex);
-                             item.cellY = c.getInt(cellYIndex);
-                             
-                             item.spanX = c.getInt(spanXIndex);
-                             item.spanY = c.getInt(spanYIndex);
-                           //  item.
-                             mItems.add(item);
+							item.id = c.getLong(ViewId);
+							item.itemType = itemType;
+							container = c.getInt(containerIndex);
+							item.container = container;
+							item.screen = c.getInt(screenIndex);
+							item.cellX = c.getInt(cellXIndex);
+							item.cellY = c.getInt(cellYIndex);
+
+							item.spanX = c.getInt(spanXIndex);
+							item.spanY = c.getInt(spanYIndex);
+							// item.
+							mItems.add(item);
                             break;
                         case LauncherSettings.Favorites.ITEM_TYPE_OWNVIEW:
                   

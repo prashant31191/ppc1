@@ -1,68 +1,39 @@
 package com.smit.EasyLauncher;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-
-
-
-
-
-import com.openims.utility.PushServiceUtil;
-import com.smit.DeskView.vodvideo.VODVideoFragment;
-import com.smit.DeskView.vodvideo.VODVideoListFragment;
-import com.smit.MyView.MyViewctrl;
-
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.app.StatusBarManager;
 import android.app.WallpaperManager;
-import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Intent.ShortcutIconResource;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.os.SystemClock;
 import android.os.SystemProperties;
-import android.provider.LiveFolders;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.text.method.TextKeyListener;
 import android.util.Log;
 import android.view.Display;
@@ -74,25 +45,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.SlidingDrawer;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.openims.utility.PushServiceUtil;
+import com.smit.MyView.MyViewctrl;
 
 public class EasyLauncher extends FragmentActivity implements View.OnClickListener, OnLongClickListener,LauncherModel.Callbacks{
     /** Called when the activity is first created. */
@@ -206,6 +175,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private boolean mOnResumeNeedsLoad;
     private boolean mLocaleChanged = false;
     private static boolean isLogin = false;
+    private static boolean isSearch = false;
 
     private ProgressDialog m_Dialog;
 
@@ -221,9 +191,9 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private int heightOrig;
     static int mCurrentConfiguration=-1;
     
-    private View mControl;
-    private static boolean isFirstInit=true;
-    
+	private View mControl;
+	private static boolean isFirstInit = true;
+        
     private SpannableStringBuilder mDefaultKeySsb = null;
 	
     private ArrayList<ItemInfo> mDesktopItems = new ArrayList<ItemInfo>();
@@ -964,6 +934,11 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
             mRestoring = false;
             mOnResumeNeedsLoad = false;
         }
+        
+    	if(!isSearch)
+    		mControl.setVisibility(View.VISIBLE);
+    	else
+    		mControl.setVisibility(View.GONE);
     }
 
     @Override
@@ -973,6 +948,8 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
       //  dismissPreview(mPreviousView);
        // dismissPreview(mNextView);
         mDragController.cancelDrag();
+        
+    	mControl.setVisibility(View.GONE);   	     
     }
     private boolean acceptFilter() {
         final InputMethodManager inputManager = (InputMethodManager)
@@ -1000,6 +977,15 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         // Eat the long press event so the keyboard doesn't come up.
         if (keyCode == KeyEvent.KEYCODE_MENU && event.isLongPress()) {
             return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+        	if(isSearch)
+        		mControl.setVisibility(View.VISIBLE);
+        	else
+        		mControl.setVisibility(View.GONE);
+        	
+        	isSearch = !isSearch;
+        	return true;
         }
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             
@@ -2497,14 +2483,14 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 //                            false);
                     break;
                 case LauncherSettings.Favorites.ITEM_TYPE_OWNEIDGET:
-                	if(item.id==0)
+                	if(item.id==1)
                 	{
 	                	final View NewView = createNewsView(item);
 	                	workspace.addInScreen(NewView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
 	                              false);
                 	}
                 	
-                	else if(item.id==1)
+                	else if(item.id==2)
                 	{
                 		
 //                		final FrameLayout destop =(FrameLayout)findViewById(R.id.destop);
@@ -2514,18 +2500,18 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 	                	workspace.addInScreen(shortcut, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
 	                              false);
                 	}
-                	else if(item.id==2)
+                	else if(item.id==3)
                 	{
 	                	final View TvView = createTvView(item);
 	                	workspace.addInScreen(TvView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
 	                              false);
                 	}
-                	else if(item.id==3)
+                	else if(item.id==4)
                 	{
 	                	final View TvView = createImView(item);
 	                	workspace.addInScreen(TvView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
 	                              false);
-                	}else if(item.id==4)
+                	}else if(item.id==5)
                 	{
 	                	final View pushContentView = createPushContentView(item);
 	                	workspace.addInScreen(pushContentView, item.screen, item.cellX, item.cellY, item.spanX, item.spanY,
