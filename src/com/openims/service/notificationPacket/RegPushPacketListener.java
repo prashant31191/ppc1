@@ -51,8 +51,7 @@ public class RegPushPacketListener implements PacketListener {
             		return; // have timeout
         		pushInfo.getPushInfo(pushID, packageNameBuilder, classNameBuilder);
         	}         	
-        	IMService.sendRegisterBroadcast(packageNameBuilder.toString(), 
-        			classNameBuilder.toString(), 
+        	IMService.sendRegisterBroadcast(classNameBuilder.toString(), 
         			pushID, PushServiceUtil.PUSH_STATUS_SUC,type,xmppManager.getContext());
         	pushInfo.close();
         }

@@ -16,31 +16,41 @@ public class PushServiceUtil{
     public static final String ACTION_SERVICE_CONNECT = "com.openims.service.IMService.CONNECT";
     
     /**
+     * register user account
+     */
+    public static final String ACTION_SERVICE_REGISTER_USER = "com.openims.service.IMService.REGUSER";
+    
+    /**
      * login/logout server
      */
     public static final String ACTION_SERVICE_LOGIN = "com.openims.service.IMService.LOGIN";
     public static final String ACTION_SERVICE_LOGOUT = "com.openims.service.IMService.LOGOUT";
-    /**
-     * register user account
-     */
-    public static final String ACTION_SERVICE_REGISTER_USER = "com.openims.service.IMService.REGUSER";
-    // the action for broadcast
-    public static final String ACTION_REGISTRATION = "com.openims.pushService.REGISTRATION";
-    public static final String ACTION_RECEIVE = "com.openims.pushService.RECEIVE";
+
     /**
      * broadcast connection status
      */
     public static final String ACTION_STATUS = "com.openims.CONNECT_STATUS";
-    //public static final String ACTION_UI_PUSHCONTENT = "com.openims.ui.pushContent";
+    
+	/**
+	 * the action for broadcast
+	 */
+    public static final String ACTION_REGISTRATION = "com.openims.pushService.REGISTRATION";
+    public static final String ACTION_RECEIVE = "com.openims.pushService.RECEIVE";    
     
     public static final int PUSH_TIMEOUT_TIME = 5000; // as long as possible
        
-    // push register intent parameter
+    /**
+     * push register intent parameter
+     */
     public static final String PUSH_DEVELOPER = "developer";
-    public static final String PUSH_PACKAGENAME = "callBackPackageName";
-    public static final String PUSH_CLASSNAME = "callBackClassName";
+    public static final String PUSH_CATEGORY = "callBackCategory";
     public static final String PUSH_NAME_KEY = "pushNameKey";
     public static final String PUSH_ID = "PushServiceID";
+    
+    public static final String PUSH_TYPE = "pushType";
+    public static final String PUSH_TYPE_REG = "register";
+    public static final String PUSH_TYPE_UNREG = "unregister";  
+    
     /**
      * login & logout & push register status
      */
@@ -61,11 +71,6 @@ public class PushServiceUtil{
     // connection status
     public static final String PUSH_STATUS_NONETWORK = "NO_NETWORK";
     public static final String PUSH_STATUS_SENDFAIL = "SENDFAIL";
-    
-    
-    public static final String PUSH_TYPE = "pushType";
-    public static final String PUSH_TYPE_REG = "register";
-    public static final String PUSH_TYPE_UNREG = "unregister";   
    
     
     // the parameter for chat intent
