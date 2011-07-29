@@ -192,7 +192,8 @@ public class Register extends Activity {
 		    		m_Dialog.dismiss();
 		    		Register.this.finish();
 	                
-	    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_REGISTER_FAIL)){
+	    		}else if(status.equals(PushServiceUtil.PUSH_STATUS_REGISTER_FAIL)
+	    				||status.equals(PushServiceUtil.PUSH_STATUS_CONNECTION_FAIL)){
 					Toast.makeText(context, R.string.login_reg_fail, Toast.LENGTH_SHORT).show();
 		    		m_Dialog.dismiss();
 

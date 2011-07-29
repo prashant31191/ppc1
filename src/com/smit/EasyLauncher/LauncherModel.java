@@ -141,7 +141,6 @@ public class LauncherModel extends BroadcastReceiver {
      */
     static void addOrMoveItemInDatabase(Context context, ItemInfo item, long container,
             int screen, int cellX, int cellY) {
-    	System.out.println("**********************");
     	
         if (item.container == ItemInfo.NO_ID) {
             // From all apps
@@ -161,11 +160,6 @@ public class LauncherModel extends BroadcastReceiver {
         item.screen = screen;
         item.cellX = cellX;
         item.cellY = cellY;
-
-        System.out.println("********  " + item.id);
-        System.out.println("********  " + screen);
-        System.out.println("********  " + cellX);
-        System.out.println("********  " + cellY);
         
         final Uri uri = LauncherSettings.Favorites.getContentUri(item.id, false);
         final ContentValues values = new ContentValues();
