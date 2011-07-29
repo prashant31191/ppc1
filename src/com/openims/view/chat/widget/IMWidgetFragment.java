@@ -355,6 +355,7 @@ public class IMWidgetFragment extends Fragment
 			}
 		}
 	}
+	
 	public class IMStatusReceiver extends BroadcastReceiver{	    
     
     	@Override

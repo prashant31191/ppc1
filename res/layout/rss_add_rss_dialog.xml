@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="wrap_content">
+	
+	<LinearLayout 
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:paddingRight="10dip"
+		android:paddingLeft="10dip">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="18dip"
+			android:text="@string/rss_url" android:paddingRight="10dip" />
+		<EditText android:id="@+id/rssurl" android:text=" "
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			 />
+	</LinearLayout>
+	
+	<LinearLayout 
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:paddingRight="10dip"
+		android:paddingLeft="10dip" >
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="18dip"
+			android:text="@string/rss_choose" android:paddingRight="10dip" />
+		<Spinner android:id="@+id/spinnerchoose" 
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			/>
+	</LinearLayout>
+	
+	<LinearLayout 
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:paddingRight="10dip"
+		android:paddingLeft="91dip" android:gravity="center_vertical">
+		<Button android:id="@+id/rssadd" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="20dip"
+			android:textStyle="bold" android:text="@string/rss_add" 
+			android:layout_weight="1.0" />
+		<Button android:id="@+id/rsscanle" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="20dip"
+			android:textStyle="bold" android:text="@string/rss_cancle" 
+			android:layout_weight="1.0"/>
+	</LinearLayout>
+</LinearLayout>
