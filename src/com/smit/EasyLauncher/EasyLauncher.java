@@ -175,7 +175,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     private boolean mOnResumeNeedsLoad;
     private boolean mLocaleChanged = false;
     private static boolean isLogin = false;
-    private static boolean isSearch = false;
+    private static boolean controlShow = true;
 
     private ProgressDialog m_Dialog;
 
@@ -935,7 +935,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
             mOnResumeNeedsLoad = false;
         }
         
-    	if(!isSearch)
+    	if(controlShow)
     		mControl.setVisibility(View.VISIBLE);
     	else
     		mControl.setVisibility(View.GONE);
@@ -979,12 +979,13 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
             return true;
         }
         if (keyCode == KeyEvent.KEYCODE_SEARCH) {
-        	if(isSearch)
+        	controlShow = !controlShow;
+
+        	if(controlShow)
         		mControl.setVisibility(View.VISIBLE);
         	else
         		mControl.setVisibility(View.GONE);
         	
-        	isSearch = !isSearch;
         	return true;
         }
         if (keyCode == KeyEvent.KEYCODE_BACK) {

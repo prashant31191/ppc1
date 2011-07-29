@@ -51,7 +51,7 @@
 
 	<!-- delete widget -->
 	<LinearLayout android:layout_width="wrap_content" android:layout_gravity="center_horizontal"
-		android:layout_height="wrap_content" android:orientation="horizontal" android:paddingTop="20px">
+		android:layout_height="wrap_content" android:orientation="horizontal" android:paddingTop="10px">
 		<ImageButton android:id="@+id/page1" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:src="@drawable/pagebg"
 			android:focusable="true" android:clickable="true" android:padding="5dp"
