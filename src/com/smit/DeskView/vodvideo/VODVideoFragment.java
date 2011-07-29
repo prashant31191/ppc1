@@ -350,7 +350,8 @@ public class VODVideoFragment extends Fragment {
 	};
 
 	public void requestXml() {
-		String Url = CommonDataFun.myServerAddr + "video.do?columnKey=101";
+		//String Url = CommonDataFun.myServerAddr + "video.do?columnKey=101";
+		String Url = CommonDataFun.myServerAddr + "latestVideos.do";
 		try {
 			URL url = new URL(Url);
 			if (mThread != null) {

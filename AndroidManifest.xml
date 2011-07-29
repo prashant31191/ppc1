@@ -84,6 +84,11 @@
 	  android:label="@string/app_name">
      </activity>
      
+
+     <activity android:name="com.smit.DeskView.tvlive.TvProgramListActivity"
+	  android:label="@string/app_name">
+     </activity>
+     
 	<!-- add by chenyz -->
       
     	<activity android:name="com.openims.view.onlineHelper.ChatActivity"
