@@ -119,8 +119,8 @@ public class WeatherFragment extends Fragment {
 	private static final int WidthPIX=800;
 	private static final int HeightPIX=480;
 	private static final int UpSpace=80;
-	private static final int RightSpaceLand=295;
-	private static final int RightSpacePort=250;
+	private static final int RightSpaceLand=275;
+	private static final int RightSpacePort=275;
 	
 
 	public final static int SHOW_HISTORY = 0;
