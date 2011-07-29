@@ -4,7 +4,7 @@
 	android:orientation="vertical">
 
 	<LinearLayout android:layout_width="fill_parent"
-		android:layout_height="40dp" 
+		android:layout_height="32dp" 
 		android:orientation="horizontal">
 
 		<Button android:id="@+id/weatherpopback"
@@ -46,6 +46,7 @@
 		android:layout_height="fill_parent"
 		android:layout_gravity="center_horizontal"		
 		android:orientation="vertical"
+		android:layout_marginTop="5dp"
 		android:background="@drawable/s0_city_selector_inner_bg">
 		
 		<FrameLayout android:id="@+id/weatherframe_changecity"
@@ -57,7 +58,7 @@
 				android:gravity="center"
 				android:orientation="vertical">
 		
-			<LinearLayout android:layout_width="200dp"
+			<LinearLayout android:layout_width="225dp"
 				android:layout_height="fill_parent" 
 				android:orientation="vertical">
 								
@@ -72,7 +73,7 @@
 				<ListView android:id="@+id/weatherpophistorylist"
 					android:layout_width="fill_parent" 
 					android:layout_height="0dp"
-					android:layout_weight="3"
+					android:layout_weight="4"
 					android:background="@drawable/s0_city_config_page_setting_bg"
 					android:cacheColorHint="#00000000" />
 
@@ -114,7 +115,7 @@
 				android:orientation="vertical">
 				
 			<ListView android:id="@+id/weatherpophotcitylist"
-				android:layout_width="200dp" 
+				android:layout_width="225dp" 
 				android:layout_height="200dp"
 				android:background="@drawable/s0_city_config_page_setting_bg"
 				android:cacheColorHint="#00000000"/>
@@ -129,7 +130,7 @@
 				android:gravity="center"
 				android:orientation="vertical">
 		
-				<LinearLayout android:layout_width="200dp"
+				<LinearLayout android:layout_width="225dp"
 				android:layout_height="40dp"				
 				android:orientation="horizontal"
 				android:gravity="center_vertical"
@@ -147,14 +148,14 @@
 					 />
 				</LinearLayout>
 				<LinearLayout 
-				android:layout_width="200dp"
+				android:layout_width="225dp"
 				android:layout_height="fill_parent"				
 				android:layout_marginTop="5dp"
 				android:orientation="vertical"
 				android:gravity="center">
 					<ListView android:id="@+id/weatherpopsearchlist"
 					android:background="@drawable/s0_city_config_page_setting_bg"
-					android:layout_width="200dp" 
+					android:layout_width="225dp" 
 					android:layout_height="160dp"	
 				android:cacheColorHint="#00000000" />
 				</LinearLayout>
