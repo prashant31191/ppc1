@@ -310,7 +310,8 @@ public class NewsFragment extends Fragment {
 	};
 
 	public void requestXml() {
-		String Url = CommonDataFun.myServerAddr+"news.do?columnKey=316";
+		//String Url = CommonDataFun.myServerAddr+"news.do?columnKey=316";
+		String Url = CommonDataFun.myServerAddr+"latestNews.do";
 		try {
 			URL url = new URL(Url);
 			if (mThread!=null) {
