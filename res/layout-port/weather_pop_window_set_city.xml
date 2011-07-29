@@ -4,7 +4,8 @@
 	android:orientation="vertical">
 
 	<LinearLayout android:layout_width="fill_parent"
-		android:layout_height="40dp" android:orientation="horizontal">
+		android:layout_height="32dp" 
+		android:orientation="horizontal">
 
 		<Button android:id="@+id/weatherpopback"
 			android:layout_width="0dp" android:layout_height="fill_parent"	
@@ -15,22 +16,23 @@
 			android:textColor="@color/write"/>
 
 		<TextView android:id="@+id/weatherpoptips"
-			android:layout_width="0dp" android:layout_height="fill_parent"
+			android:layout_width="0dp" 
+			android:layout_height="fill_parent"
 			android:text="@string/weather_pop_change_city"
 			android:textSize="20sp"
 			android:layout_weight="2"
 			android:gravity="center"/>
 				
 		<FrameLayout android:layout_width="50dp"
-		android:layout_height="fill_parent">		
-		<Button android:id="@+id/wetherpopsearch"
+		android:layout_height="fill_parent">
+			<Button android:id="@+id/wetherpopsearch"
 			android:layout_width="50dp" 
 			android:layout_height="fill_parent"
 			android:background="@drawable/weather_popup_window_search"
 			android:textColor="@color/write"
 			android:textSize="18sp"
 			 />
-		<ImageView android:id="@+id/wetherpopsearchpic" 
+		<ImageView android:id="@+id/wetherpopsearchpic"
 		android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:layout_gravity="center"
@@ -40,10 +42,11 @@
 
 	</LinearLayout>
 
-	<LinearLayout android:layout_width="230dp"
+	<LinearLayout android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:layout_gravity="center_horizontal"		
 		android:orientation="vertical"
+		android:layout_marginTop="5dp"
 		android:background="@drawable/s0_city_selector_inner_bg">
 		
 		<FrameLayout android:id="@+id/weatherframe_changecity"
@@ -55,7 +58,7 @@
 				android:gravity="center"
 				android:orientation="vertical">
 		
-			<LinearLayout android:layout_width="200dp"
+			<LinearLayout android:layout_width="225dp"
 				android:layout_height="fill_parent" 
 				android:orientation="vertical">
 								
@@ -70,7 +73,7 @@
 				<ListView android:id="@+id/weatherpophistorylist"
 					android:layout_width="fill_parent" 
 					android:layout_height="0dp"
-					android:layout_weight="3"
+					android:layout_weight="4"
 					android:background="@drawable/s0_city_config_page_setting_bg"
 					android:cacheColorHint="#00000000" />
 
@@ -78,9 +81,9 @@
 					android:layout_width="fill_parent"
 					android:layout_height="0dp" 
 					android:orientation="horizontal"
+					android:gravity="center_vertical"
 					android:layout_weight="1"
 					android:layout_marginTop="10dp"
-					android:gravity="center_vertical"
 					android:background="@drawable/s0_city_config_page_setting_bg"
 					>
 					
@@ -112,7 +115,7 @@
 				android:orientation="vertical">
 				
 			<ListView android:id="@+id/weatherpophotcitylist"
-				android:layout_width="200dp" 
+				android:layout_width="225dp" 
 				android:layout_height="200dp"
 				android:background="@drawable/s0_city_config_page_setting_bg"
 				android:cacheColorHint="#00000000"/>
@@ -127,7 +130,7 @@
 				android:gravity="center"
 				android:orientation="vertical">
 		
-				<LinearLayout android:layout_width="200dp"
+				<LinearLayout android:layout_width="225dp"
 				android:layout_height="40dp"				
 				android:orientation="horizontal"
 				android:gravity="center_vertical"
@@ -145,14 +148,14 @@
 					 />
 				</LinearLayout>
 				<LinearLayout 
-				android:layout_width="200dp"
+				android:layout_width="225dp"
 				android:layout_height="fill_parent"				
 				android:layout_marginTop="5dp"
 				android:orientation="vertical"
 				android:gravity="center">
 					<ListView android:id="@+id/weatherpopsearchlist"
 					android:background="@drawable/s0_city_config_page_setting_bg"
-					android:layout_width="200dp" 
+					android:layout_width="225dp" 
 					android:layout_height="160dp"	
 				android:cacheColorHint="#00000000" />
 				</LinearLayout>

@@ -11,6 +11,7 @@ import java.net.URL;
 import java.security.PublicKey;
 
 import com.openims.utility.PushServiceUtil;
+import com.openims.view.setting.Setting;
 import com.smit.DeskView.commonclass.CommonDataFun;
 import com.smit.DeskView.commonclass.RequestXml;
 import com.smit.DeskView.commonclass.VodVideoMoveParse;
@@ -499,7 +500,7 @@ public class VODVideoFragment extends Fragment {
 			}else if(intent.getAction().equals("com.openims.pushService.RECEIVE")){
 				handleMessage(context, intent);
 			}else if(intent.getAction().equals(PushServiceUtil.ACTION_STATUS)){
-				//handleStatus(context, intent);
+				handleStatus(context, intent);
 			}else{
 				Log.e(LOGTAG,tag+"receiver error type");
 			}
@@ -542,6 +543,7 @@ public class VODVideoFragment extends Fragment {
 			String uriString = intent.getStringExtra(PushServiceUtil.NTFY_URI);
 			String message = intent.getStringExtra(PushServiceUtil.NTFY_MESSAGE);
 			
+			
 			StringBuilder all = new StringBuilder();
 			all.append("收到的push内容：ticker").append(ticker).
 			append("\nTitle:").append(title).append("\nUri:").
@@ -549,6 +551,15 @@ public class VODVideoFragment extends Fragment {
 			Log.d(LOGTAG,tag+"message:"+all);
 			Toast.makeText(context, all, Toast.LENGTH_LONG);
 			
+		}
+		
+		private void handleStatus(Context context, Intent intent) {
+			String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
+			Log.d(LOGTAG,tag+"status:"+status);
+		    
+			//Intent intentBroadcast = new Intent(Setting.InnerReceiver.ACTION);
+			//intentBroadcast.putExtra(PushServiceUtil.PUSH_STATUS, status);
+			//context.sendBroadcast(intentBroadcast);
 		}
 	}
 	

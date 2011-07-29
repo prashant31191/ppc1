@@ -134,10 +134,9 @@ public class NotificationPacketListener implements PacketListener {
     	if(bool==false){
     		return;
     	}
-    	String packageName = packageNameBuilder.substring(0);
-    	String className = classNameBuilder.substring(0);
+    	String category = classNameBuilder.substring(0);
 		Intent intentSend = new Intent(PushServiceUtil.ACTION_RECEIVE);
-		intentSend.setClassName(packageName, className);
+		intentSend.addCategory(category);
 		intentSend.putExtra(PushServiceUtil.NTFY_TITLE, title);
 		intentSend.putExtra(PushServiceUtil.NTFY_TICKER, ticker);
 		intentSend.putExtra(PushServiceUtil.NTFY_MESSAGE, message);
