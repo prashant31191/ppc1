@@ -52,6 +52,7 @@ public class VODVideoFragment extends Fragment {
 	private LayoutInflater mInflater = null;
 	private ImageView moreImage;
 	private final static int GET_VOD_VIDEO_XML = 0x800;
+	private final static int PUSH_VOD_VIDEO_XML = 0x801;
 	private final static String Tag = "VODVideoFragment";
 	private final static String categoryString="com.smit.DeskView.vodvideo.VODVideoFragment";
 	public VodVideoMoveParse mMovieParse = null;
@@ -96,7 +97,7 @@ public class VODVideoFragment extends Fragment {
 		setupView(getView());
 		if (existInstance) {
 			if (checkWifiIscon()) {
-				requestXml();
+				requestXml(null,GET_VOD_VIDEO_XML);
 				mHandler.postDelayed(mRunnable, 700);
 				
 
@@ -208,7 +209,7 @@ public class VODVideoFragment extends Fragment {
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				if (checkWifiIscon()) {
-					requestXml();
+					requestXml(null,GET_VOD_VIDEO_XML);
 					mHandler.postDelayed(mRunnable, 1000);
 
 					SetCurShow(SHOW_LAODING);
@@ -343,22 +344,49 @@ public class VODVideoFragment extends Fragment {
 				break;
 
 			}
+			case PUSH_VOD_VIDEO_XML:{
+				if (mThread == null) {
+					return;
+				}
+				String str = (String) msg.obj;
+				if (str != null && str.length() > 0) {
+					VodVideoMoveParse mTmpMovieParse=new VodVideoMoveParse(str);
+					mTmpMovieParse.parseDataStr();
+					if (mTmpMovieParse != null && mTmpMovieParse.getItemCount() > 0) {	
+						Log.i(Tag, "==================PUSH_VOD_VIDEO_XML SUCESS==================");
+						WriteVodVideoItemXML(str);
+						mMovieParse=mTmpMovieParse;
+						SetCurShow(SHOW_LIST);
+					} else {
+						SetCurShow(SHOW_FLASH);
+					}
+				} else {
+					SetCurShow(SHOW_FLASH);
+				}
+				break;
+			}
 			case 2:
 				break;
 			}
 		}
 	};
 
-	public void requestXml() {
+	public void requestXml(String urlString,int Id) {
 		//String Url = CommonDataFun.myServerAddr + "video.do?columnKey=101";
-		String Url = CommonDataFun.myServerAddr + "latestVideos.do";
+		String Url;
+		if (urlString==null) {
+			Url = CommonDataFun.myServerAddr + "latestVideos.do";
+		}else {
+			Url=urlString;
+		}
+		
 		try {
 			URL url = new URL(Url);
 			if (mThread != null) {
 				mThread.stopThread();
 				mThread = null;
 			}
-			mThread = new RequestXml(url, mHandler, GET_VOD_VIDEO_XML, null);
+			mThread = new RequestXml(url, mHandler, Id, null);
 
 			mThread.start();
 		} catch (Exception e) {
@@ -476,7 +504,9 @@ public class VODVideoFragment extends Fragment {
 					"mtv");
 			regIntent.putExtra(PushServiceUtil.PUSH_NAME_KEY,
 			"T3aXoTF0oz8nIbqCBdEq34a00O67rblh");
-			regIntent.addCategory(categoryString);
+			regIntent.putExtra(PushServiceUtil.PUSH_CATEGORY,categoryString);
+			
+			
 			
 			getActivity().startService(regIntent);	
 	    }
@@ -544,13 +574,15 @@ public class VODVideoFragment extends Fragment {
 			String uriString = intent.getStringExtra(PushServiceUtil.NTFY_URI);
 			String message = intent.getStringExtra(PushServiceUtil.NTFY_MESSAGE);
 			
-			
-			StringBuilder all = new StringBuilder();
+			if (checkWifiIscon()){
+				requestXml(uriString,PUSH_VOD_VIDEO_XML);
+			}
+		/*	StringBuilder all = new StringBuilder();
 			all.append("收到的push内容：ticker").append(ticker).
 			append("\nTitle:").append(title).append("\nUri:").
 			append(uriString).append("\nMessage:").append(message);
 			Log.d(LOGTAG,tag+"message:"+all);
-			Toast.makeText(context, all, Toast.LENGTH_LONG);
+			Toast.makeText(context, all, Toast.LENGTH_LONG);*/
 			
 		}
 		
