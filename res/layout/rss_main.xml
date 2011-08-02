@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<ExpandableListView
+		android:layout_height="fill_parent"
+		android:id="@+id/expandlist"
+		android:layout_width="fill_parent"
+		android:layout_weight="1.0" />
+
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<LinearLayout
+			android:id="@+id/layout_category"
+			android:layout_weight="1.0"
+			android:orientation="vertical"
+			android:layout_width="fill_parent"
+			android:gravity="center_horizontal"
+			android:layout_height="wrap_content">
+			<ImageView
+				android:id="@+id/addcategory"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:src="@drawable/rss_icon" />
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/rss_addcategory" />
+		</LinearLayout>
+		<LinearLayout
+			android:id="@+id/layout_rss"
+			android:layout_weight="1.0"
+			android:orientation="vertical"
+			android:layout_width="fill_parent"
+			android:gravity="center_horizontal"
+			android:layout_height="wrap_content">
+			<ImageView
+				android:id="@+id/addrss"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:src="@drawable/rss_icon" />
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/rss_addrss" />
+		</LinearLayout>
+		<LinearLayout android:id="@+id/updatecontent"
+			android:layout_weight="1.0"
+			android:orientation="vertical"
+			android:layout_width="fill_parent"
+			android:gravity="center_horizontal"
+			android:layout_height="wrap_content">
+			<ImageView
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:src="@drawable/rss_icon" />
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/rss_update" />
+		</LinearLayout>
+        <LinearLayout android:id="@+id/layout_favo"
+			android:layout_weight="1.0"
+			android:orientation="vertical"
+			android:layout_width="fill_parent"
+			android:gravity="center_horizontal"
+			android:layout_height="wrap_content">
+			<ImageView
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:src="@drawable/rss_icon" />
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/rss_favorite" />
+		</LinearLayout>
+	</LinearLayout>
+
+</LinearLayout>

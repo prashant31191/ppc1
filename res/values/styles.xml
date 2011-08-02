@@ -133,7 +133,7 @@
         <item name="android:button">@drawable/qq_btn_check</item>
     </style>
     <style name="TransparentAnimi">
-		<item name="@android:windowEnterAnimation">@anim/my_initrotate_action</item>
+		<item name="@android:windowEnterAnimation">@anim/my_scale_action</item>
 		<item name="@android:windowExitAnimation">@anim/my_scaleout_action</item>
 	</style>
     <style name="Transparent">  

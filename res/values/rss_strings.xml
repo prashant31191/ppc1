@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rss_reader">RSS Reader</string>
+    <string name="rss_back">返回</string>
+    <string name="rss_addcategory">添加分类</string>
+    <string name="rss_category">分类类别:</string>
+    <string name="rss_description">分类描述:</string>
+    <string name="rss_addrss">添加RSS</string>
+    <string name="rss_url">RSS地址:</string>
+    <string name="rss_choose">RSS类别:</string>
+    <string name="rss_add">添加</string>
+    <string name="rss_cancle">取消</string>
+    <string name="rss_update">更新内容</string>
+    <string name="rss_modification">修改</string>
+    <string name="rss_favorite">收藏夹</string>
+    <string name="rss_history">历史</string>
+    <string name="rss_last">上一条</string>
+    <string name="rss_next">下一条</string>
+    <string name="rss_add_favorite">加入收藏夹</string>
+</resources>

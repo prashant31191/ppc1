@@ -1,0 +1,70 @@
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content">
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:paddingRight="10dip"
+		android:paddingLeft="10dip">
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textSize="18dip"
+			android:text="@string/rss_category"
+			android:paddingRight="10dip" />
+		<EditText
+			android:id="@+id/editcategory"
+			android:text=" "
+			android:textColor="@color/rss_gray"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:lines="1" />
+	</LinearLayout>
+
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:paddingRight="10dip"
+		android:paddingLeft="10dip">
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textSize="18dip"
+			android:text="@string/rss_description"
+			android:paddingRight="10dip" />
+		<EditText
+			android:id="@+id/editdescription"
+			android:text=" "
+			android:textColor="@color/rss_gray"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:lines="1" />
+	</LinearLayout>
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:paddingRight="10dip"
+		android:paddingLeft="97dip">
+		<Button
+			android:id="@+id/modify"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textSize="20dip"
+			android:textStyle="bold"
+			android:text="@string/rss_modification"
+			android:layout_weight="1" />
+		<Button
+			android:id="@+id/editcanle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textSize="20dip"
+			android:textStyle="bold"
+			android:text="@string/rss_cancle"
+			android:layout_weight="1" />
+	</LinearLayout>
+</LinearLayout>
