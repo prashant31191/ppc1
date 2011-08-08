@@ -1433,13 +1433,14 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_ADD:
-                addItems();
+//                addItems();
+//                addWidget();
                 return true;
 //            case MENU_MANAGE_APPS:
 //                manageApps();
 //                return true;
             case MENU_WALLPAPER_SETTINGS:
-                startWallpaper();
+//                startWallpaper();
                 return true;
 //            case MENU_SEARCH:
 //                onSearchRequested();
