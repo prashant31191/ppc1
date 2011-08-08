@@ -63,6 +63,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Xml;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -116,11 +117,12 @@ public class WeatherFragment extends Fragment {
 	HistoryCityContentProvider mydatabase;
 	private WeatherParse wpWeatherdata = null;
 	
-	private static final int WidthPIX=800;
-	private static final int HeightPIX=480;
+	private  int WidthPIX=800;
+	private  int HeightPIX=480;
 	private static final int UpSpace=80;
 	private static final int RightSpaceLand=275;
 	private static final int RightSpacePort=275;
+	private Display display;
 	
 
 	public final static int SHOW_HISTORY = 0;
@@ -177,6 +179,10 @@ public class WeatherFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		existInstance=true;
 		setRetainInstance(true);
+		
+		display = getActivity().getWindowManager().getDefaultDisplay();
+		WidthPIX=display.getWidth();
+		HeightPIX=display.getHeight();
 	}
 	
 	@Override
