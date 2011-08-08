@@ -551,9 +551,9 @@ public class TVLiveListFragment extends ListFragment {
 				tvlive_isplay.setText(getResources().getString(R.string.tvlive_widget_isplaying)+isplayingString);
 			}else {
 				tvlive_isplay.setText("");
-				if(!isExistFile(curItem.channelPath)){
+				//if(!isExistFile(curItem.channelPath)){
 					mtvParse.downloadChannelProgramList(position, getListView());
-				}
+				//}
 			}
 			
 			tv_live_programlistButton=(Button)convertView.findViewById(R.id.tvlive_program_info);

@@ -1,7 +1,6 @@
 package com.smit.DeskView.commonclass;
 
 public class CommonDataFun {
-	//static String myServerAddr="http://localhost:8080/pring/";
+	//public static String myServerAddr="http://localhost:8080/pring/";
 	public static String myServerAddr="http://192.168.0.187:8080/pring/";
-	//public static String myServerAddr="http://192.168.0.169:8080/pring/";
 }

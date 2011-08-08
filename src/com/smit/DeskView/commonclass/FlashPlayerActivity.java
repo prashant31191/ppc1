@@ -39,8 +39,7 @@ public class FlashPlayerActivity extends Activity {
 		setWebViewClient();
 		
 		String string=getIntent().getExtras().getString("media");
-		mWebView.loadUrl(getIntent().getExtras().getString("media"));
-		
+		mWebView.loadUrl(getIntent().getExtras().getString("media"));	
 	}
 
 	public void onConfigurationChanged(Configuration newConfig) {
