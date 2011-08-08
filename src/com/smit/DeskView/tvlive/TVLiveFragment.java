@@ -104,14 +104,14 @@ public class TVLiveFragment extends Fragment {
 				}
 			}
 		} else {
-			if (curMyStatus==SHOW_LAODING) {
-				
-			}else{
+			if (curMyStatus == SHOW_LAODING) {
+
+			} else {
 				SetCurShow(curMyStatus);
 			}
 		}
-		
-		existInstance =false;
+
+		existInstance = false;
 
 	}
 
