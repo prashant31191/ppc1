@@ -3,82 +3,23 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="fill_parent"
+	android:background="@color/rss_white">
 	<ExpandableListView
 		android:layout_height="fill_parent"
 		android:id="@+id/expandlist"
 		android:layout_width="fill_parent"
+		android:cacheColorHint="@color/transparent"
 		android:layout_weight="1.0" />
-
-	<LinearLayout
-		android:orientation="horizontal"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
-
-		<LinearLayout
-			android:id="@+id/layout_category"
-			android:layout_weight="1.0"
-			android:orientation="vertical"
-			android:layout_width="fill_parent"
-			android:gravity="center_horizontal"
-			android:layout_height="wrap_content">
-			<ImageView
-				android:id="@+id/addcategory"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:src="@drawable/rss_icon" />
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/rss_addcategory" />
-		</LinearLayout>
-		<LinearLayout
-			android:id="@+id/layout_rss"
-			android:layout_weight="1.0"
-			android:orientation="vertical"
-			android:layout_width="fill_parent"
-			android:gravity="center_horizontal"
-			android:layout_height="wrap_content">
-			<ImageView
-				android:id="@+id/addrss"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:src="@drawable/rss_icon" />
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/rss_addrss" />
-		</LinearLayout>
-		<LinearLayout android:id="@+id/updatecontent"
-			android:layout_weight="1.0"
-			android:orientation="vertical"
-			android:layout_width="fill_parent"
-			android:gravity="center_horizontal"
-			android:layout_height="wrap_content">
-			<ImageView
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:src="@drawable/rss_icon" />
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/rss_update" />
-		</LinearLayout>
-        <LinearLayout android:id="@+id/layout_favo"
-			android:layout_weight="1.0"
-			android:orientation="vertical"
-			android:layout_width="fill_parent"
-			android:gravity="center_horizontal"
-			android:layout_height="wrap_content">
-			<ImageView
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:src="@drawable/rss_icon" />
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/rss_favorite" />
-		</LinearLayout>
+    <!--  测试取消订阅
+    <Button android:id="@+id/btntest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+    />
+    -->
+	<LinearLayout 
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:gravity="bottom">
+		<include layout="@layout/rss_bottommenu" />
 	</LinearLayout>
-
 </LinearLayout>

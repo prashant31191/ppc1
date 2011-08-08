@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="rss_reader">RSS Reader</string>
+    <string name="rss_app_name">RSS Reader</string>
     <string name="rss_back">返回</string>
     <string name="rss_addcategory">添加分类</string>
     <string name="rss_category">分类类别:</string>
@@ -17,4 +18,7 @@
     <string name="rss_last">上一条</string>
     <string name="rss_next">下一条</string>
     <string name="rss_add_favorite">加入收藏夹</string>
+    <string name="rss_login">登录</string>
+    <string name="rss_mark_all"><u>标记所有</u></string>
+    <string name="rss_recommend">精彩推荐</string>
 </resources>

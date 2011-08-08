@@ -44,7 +44,38 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 						+ " varchar," + ITEM_DES + " varchar," + ITEM_PUBDATE
 						+ " varchar," + ITEM_LINK + " varchar," + ISREAD
 						+ " integer," + ISONSERVER + " integer)");
+		db.execSQL("insert into " + TAB_CATEGORY
+				+ " (category, description) values ('体育', '')");
+		db.execSQL("insert into " + TAB_CATEGORY
+				+ " (category, description) values ('博客', '')");
+		db
+				.execSQL("insert into rss_info(category,rssurl,channeltitle,itemtitle,itemdescription,itempubdate,itemlink,isread,onserver) values('体育',"
+						+ "'http://rss.sina.com.cn/news/allnews/sports.xml',"
+						+ "'焦点新闻-新浪体育',"
+						+ "'庄则栋：何谓美德 乒乓球队长久不衰秘诀',"
+						+ "'',"
+						+ "'2011-08-08',"
+						+ "'http://go.rss.sina.com.cn/redirect.php?url=http://blog.sina.com.cn/s/blog_4cf7b4ec0102dry8.html',"
+						+ "'0', '0')");
+		db
+		.execSQL("insert into rss_info(category,rssurl,channeltitle,itemtitle,itemdescription,itempubdate,itemlink,isread,onserver) values('体育',"
+				+ "'http://rss.sina.com.cn/news/allnews/sports.xml',"
+				+ "'焦点新闻-新浪体育',"
+				+ "'老将莫科已基本确定离队 防守不兴奋让邓帅不感冒',"
+				+ "'记者袁俊8月7日广州报道&nbsp; 在王治郅还在养伤的时候，谁会是易建联最好的内线搭档。恐怕大多数人会想到的是莫科。但是出人意料的是，在斯杯海宁站的头两场中短暂出场之后，莫科更多时候是坐在替补席上看着队友们表现。而在广州站的比赛中，莫科虽然在和新西兰的比赛中出场....',"
+				+ "'2011-08-08',"
+				+ "'http://go.rss.sina.com.cn/redirect.php?url=http://sports.sina.com.cn/cba/2011-08-08/15255694418.shtml',"
+				+ "'0', '0')");
 
+		db
+		.execSQL("insert into rss_info(category,rssurl,channeltitle,itemtitle,itemdescription,itempubdate,itemlink,isread,onserver) values('博客',"
+				+ "'http://feed.williamlong.info',"
+				+ "'月光博客',"
+				+ "'移动互联网的入口之争',"
+				+ "'入口是指你最常寻找信息、解决问题的方式，搜索引擎是互联网最大的入口，网址导航提供与搜索引擎不同价值的入口。QQ是一个中国互联网的怪胎巨鳄，拥有最完整、最真实的社交网络，但是因为它没有广泛输出价值所以现在还不算入口，浏览器作为用户访问互联网的重要工具也成为入口，而操作系统则是整个链条中最大的入口。',"
+				+ "'2011-08-08',"
+				+ "'http://www.williamlong.info/archives/2766.html',"
+				+ "'0', '0')");
 	}
 
 	@Override
@@ -72,10 +103,17 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 
 	}
 
+	public Cursor queryFeed() {
+		SQLiteDatabase db = this.getReadableDatabase();
+		return db.query(TAB_RSSINFO, null, RSS_URL + "!='" + "'", null, null,
+				null, null);
+
+	}
+
 	public Cursor queryWithUrl(String url) {
 		SQLiteDatabase db = this.getReadableDatabase();
-		return db.query(TAB_RSSINFO, new String[] { RSS_CATEGORY }, RSS_URL
-				+ "='" + url + "'", null, RSS_CATEGORY, null, null);
+		return db.query(TAB_RSSINFO, new String[] { RSS_CATEGORY, RSS_URL },
+				RSS_URL + "='" + url + "'", null, RSS_URL, null, null);
 	}
 
 	public Cursor queryWithCateChannel(String cate, String channel) {
@@ -92,12 +130,11 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 				null, RSS_URL, null, null);
 	}
 
-	public Cursor queryNotOnServer(String category, int flag) {
+	public Cursor queryNotOnServer(int onserver) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		return db.query(TAB_RSSINFO, new String[] { RSS_CATEGORY,
-				CHANNEL_TITLE, RSS_URL }, RSS_CATEGORY + "='" + category + "'"
-				+ " AND " + ISONSERVER + "='" + flag + "'", null, RSS_URL,
-				null, null);
+				CHANNEL_TITLE, RSS_URL }, ISONSERVER + "='" + onserver + "'",
+				null, RSS_URL, null, null);
 	}
 
 	public Cursor queryWithUrlAndCategory(String category, String url) {
@@ -106,11 +143,11 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 				+ " AND " + RSS_URL + "='" + url + "'", null, null, null, null);
 	}
 
-	public Cursor queryItem(String category, String channel, String itemTitle) {
+	public Cursor queryItem(String category, String link) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		return db.query(TAB_RSSINFO, null, RSS_CATEGORY + "='" + category + "'"
-				+ " AND " + CHANNEL_TITLE + "='" + channel + "'" + " AND "
-				+ ITEM_TITLE + "='" + itemTitle + "'", null, null, null, null);
+				+ " AND " + ITEM_LINK + "='" + link + "'", null, null, null,
+				null);
 	}
 
 	public Cursor queryWithCU(String cate, String url) {
@@ -131,6 +168,13 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 		return db.query(TAB_RSSINFO, null, RSS_CATEGORY + "='" + cate + "'"
 				+ " AND " + ITEM_LINK + "='" + link + "'" + " AND " + ISREAD
 				+ "='" + flag + "'", null, null, null, null);
+	}
+
+	public Cursor queryWithCFL(String cate, String feedUrl, String link) {
+		SQLiteDatabase db = this.getReadableDatabase();
+		return db.query(TAB_RSSINFO, null, RSS_CATEGORY + "='" + cate + "'"
+				+ " AND " + RSS_URL + "='" + feedUrl + "'" + " AND "
+				+ ITEM_LINK + "='" + link + "'", null, null, null, null);
 	}
 
 	public void insertCategory(String category, String description) {
@@ -191,10 +235,16 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 	public void updateISREAED(String category, String url, String link) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
-		values.put(ISREAD, 1);
-		db.update(TAB_RSSINFO, values, RSS_CATEGORY + "='" + category + "'"
-				+ " AND " + RSS_URL + "='" + url + "'" + " AND " + ITEM_LINK
-				+ "='" + link + "'", null);
+		values.put(ISREAD, RssReaderConstant.ISREAD);
+		if (link == null) {
+			db.update(TAB_RSSINFO, values, RSS_CATEGORY + "='" + category + "'"
+					+ " AND " + RSS_URL + "='" + url + "'", null);
+		} else {
+			db.update(TAB_RSSINFO, values, RSS_CATEGORY + "='" + category + "'"
+					+ " AND " + RSS_URL + "='" + url + "'" + " AND "
+					+ ITEM_LINK + "='" + link + "'", null);
+		}
+
 	}
 
 	public void deleteCategory(String category) {
@@ -212,10 +262,9 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public void deleteChannel(String cate, String channel) {
+	public void deleteChannel(String feedUrl) {
 		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TAB_RSSINFO, RSS_CATEGORY + "='" + cate + "'" + " AND "
-				+ CHANNEL_TITLE + "='" + channel + "'", null);
+		db.delete(TAB_RSSINFO, RSS_URL + "='" + feedUrl + "'", null);
 		db.close();
 	}
 }

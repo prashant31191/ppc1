@@ -21,18 +21,68 @@
  */
 package com.smit.rssreader.extension.notification;
 
+import java.util.Date;
+
 public class ItemExtension extends DefaultSuperfeerExtension{
 	
-	private EntryExtension entryExtension;
-	
-	public ItemExtension(EntryExtension entryExtension){
-		this.entryExtension = entryExtension;
-	}
-	
-	/**
-	 * @return the entry
-	 */
-	public EntryExtension getEntry() {
-		return entryExtension;
-	}
+		private String title;
+		private String summary;
+		private String link;
+        private String id;
+		private Date published;
+		
+		public ItemExtension(final String title, final String summary, final String link, final String id, final Date published
+	 ) {
+			this.title = title;
+			this.summary = summary;
+			this.link = link;
+			this.id = id;
+			this.published = published;
+		}
+
+		/**
+		 * The unique Id of this entry
+		 * 
+		 * @return a String that represents the id of this entry
+		 */
+		public String getId() {
+			return id;
+		}
+
+		/**
+		 * The link to the original information this entry represents
+		 * 
+		 * @return a String that links to the original information
+		 */
+		public String getLink() {
+			return link;
+		}
+
+		/**
+		 * The date the information has been published
+		 * 
+		 * @return the published date
+		 */
+		public Date getPublished() {
+			return published;
+		}
+
+		/**
+		 * The Summary of this entry
+		 * 
+		 * @return the summary
+		 */
+		public String getSummary() {
+			return summary;
+		}
+
+		/**
+		 * The title of this entry
+		 * 
+		 * @return the title
+		 */
+		public String getTitle() {
+			return title;
+		}
+
 }

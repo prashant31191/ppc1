@@ -3,10 +3,10 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/rss_white">
- <ListView android:id="@+id/itemlist" 
+    >
+ <ListView android:id="@+id/commendlist" 
     android:layout_width="fill_parent" 
     android:layout_height="fill_parent" 
-    android:cacheColorHint="@color/transparent"
-    android:layout_weight="1"/>
+    android:layout_weight="1"
+    />
 </LinearLayout>

@@ -8,7 +8,9 @@ import com.smit.EasyLauncher.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ShowDetailItemActivity extends Activity {
-	private final String READED_BROADCAST = "com.smit.rssreader.action.READED_BROADCAST";
 	private RSSOpenHelper myRssOpenHelper = new RSSOpenHelper(this);
 	private HistoryOpenHelper history = new HistoryOpenHelper(this);
 	private String channelTitle = null;
@@ -44,7 +45,8 @@ public class ShowDetailItemActivity extends Activity {
 				category = bundle.getString("CATEGORY");
 				itemTitle = bundle.getString("ITEMTITLE");
 				rssUrl = bundle.getString("RSSURL");
-				setTitle(channelTitle);
+				itemLink = bundle.getString("ITEMLINK");
+				//setTitle(channelTitle);
 			}
 		}
         
@@ -82,7 +84,7 @@ public class ShowDetailItemActivity extends Activity {
 						myRssOpenHelper.updateISREAED(category, rssUrl,itemLink);
 						
 						//发送广播通知RSSReaderActivity数据有更新
-						Intent i = new Intent(READED_BROADCAST);
+						Intent i = new Intent(RssReaderConstant.READED_BROADCAST);
 						sendBroadcast(i);
 					}
 				}
@@ -94,15 +96,17 @@ public class ShowDetailItemActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				if(isInHistory(itemLink)){
-					history.updateFavorite(itemLink, 1);
+				if(isInHistory(category,itemLink)){
+					history.updateFavorite(category,itemLink, RssReaderConstant.INFAVORITE);
 					Toast.makeText(ShowDetailItemActivity.this, "已经添加到收藏夹！", Toast.LENGTH_SHORT).show();
 				}else{
 					TextView tv =(TextView)findViewById(R.id.textview1);
 					String title = tv.getText().toString();
-					history.insertItem(title, itemLink, 1);
+					history.insertItem(category, title, itemLink, RssReaderConstant.INFAVORITE);
 					Toast.makeText(ShowDetailItemActivity.this, "已经添加到收藏夹！", Toast.LENGTH_SHORT).show();
 				}
+				Intent intent = new Intent(RssReaderConstant.ADDFAVORITE);
+				sendBroadcast(intent);
 			}
 		});
 		
@@ -120,7 +124,7 @@ public class ShowDetailItemActivity extends Activity {
 						myRssOpenHelper.updateISREAED(category, rssUrl,itemLink);
 						
 						//发送广播通知RSSReaderActivity数据有更新
-						Intent i = new Intent(READED_BROADCAST);
+						Intent i = new Intent(RssReaderConstant.READED_BROADCAST);
 						sendBroadcast(i);
 					}
 				}
@@ -140,10 +144,8 @@ public class ShowDetailItemActivity extends Activity {
 	}
 
 	private void initializeDatasource() {
-		Cursor c = myRssOpenHelper.queryItem(category, channelTitle, itemTitle);
+		Cursor c = myRssOpenHelper.queryItem(category,itemLink);
 		if (c.moveToFirst()) {
-			int linkIndex = c.getColumnIndex(RSSOpenHelper.ITEM_LINK);
-			itemLink = c.getString(linkIndex);
 
 			int desIndex = c.getColumnIndex(RSSOpenHelper.ITEM_DES);
 			int pubIndex = c.getColumnIndex(RSSOpenHelper.ITEM_PUBDATE);
@@ -151,15 +153,18 @@ public class ShowDetailItemActivity extends Activity {
 			String pub = c.getString(pubIndex);
 			
 			TextView tv1 =(TextView)findViewById(R.id.textview1);
+			tv1.setTextColor(Color.BLACK);
 			tv1.setText(replaceBlank(itemTitle));
 			
 			TextView tv2 =(TextView)findViewById(R.id.textview2);
-			tv2.setText(replaceBlank(des));
+			tv2.setTextColor(Color.BLACK);
+			tv2.setText(Html.fromHtml(replaceBlank(des)));
 			
 			txtLink.setText(replaceBlank(itemLink));
 			
 			TextView tv4 =(TextView)findViewById(R.id.textview4);
-			tv4.setText(replaceBlank(pub));
+			tv4.setTextColor(Color.BLACK);
+			tv4.setText("发布日期："+replaceBlank(pub));
 		}
 		c.close();
 	}
@@ -201,19 +206,22 @@ public class ShowDetailItemActivity extends Activity {
 		String tit = c.getString(titIndex);
 		
 		TextView tv1 =(TextView)findViewById(R.id.textview1);
-		tv1.setText(replaceBlank(tit));
+		tv1.setTextColor(Color.BLACK);
+		tv1.setText(Html.fromHtml(replaceBlank(tit)));
 		
 		TextView tv2 =(TextView)findViewById(R.id.textview2);
-		tv2.setText(replaceBlank(des));
+		tv2.setTextColor(Color.BLACK);
+		tv2.setText(Html.fromHtml(replaceBlank(des)));
 		
 		txtLink.setText(replaceBlank(itemLink));
 		
 		TextView tv4 =(TextView)findViewById(R.id.textview4);
-		tv4.setText(replaceBlank(pub));
+		tv4.setTextColor(Color.BLACK);
+		tv4.setText("发布日期："+replaceBlank(pub));
 	}
 	
-	private boolean isInHistory(String link){
-		Cursor c = history.queryWithHttp(link);
+	private boolean isInHistory(String cate, String link){
+		Cursor c = history.queryWithCH(cate,link);
 		if(c.moveToFirst()){
 			c.close();
 			return true ;

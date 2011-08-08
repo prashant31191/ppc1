@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_height="fill_parent"
+			android:text="@string/rss_app_name"
+			android:gravity="center_vertical"
+			android:textSize="14sp"
+			android:textStyle="bold" />
+
+		<Button
+			android:id="@+id/rss_login"
+			android:layout_width="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_height="fill_parent"
+			android:text="@string/rss_login"
+			android:textColor="@color/rss_blue"
+			android:visibility="invisible" />
+	</RelativeLayout>

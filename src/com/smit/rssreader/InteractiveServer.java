@@ -28,18 +28,12 @@ import android.util.Log;
 import com.smit.rssreader.extension.notification.SuperfeedrEventExtension;
 import com.smit.rssreader.extension.subscription.SubUnSubExtension;
 import com.smit.rssreader.iqrequest.SubUnsubIQ;
-import com.smit.rssreader.provider.EntryProvider;
 import com.smit.rssreader.provider.EventProvider;
-import com.smit.rssreader.provider.HttpProvider;
 import com.smit.rssreader.provider.ItemProvider;
 import com.smit.rssreader.provider.ItemsProvider;
-import com.smit.rssreader.provider.NextFetchProvider;
-import com.smit.rssreader.provider.StatusProvider;
 import com.smit.rssreader.provider.TitleProvider;
 
 public class InteractiveServer {
-	private final String IQRESPONSEYES = "com.smit.rssreader.action.IQ_YES_BROADCAST";
-	private final String IQRESPONSENO = "com.smit.rssreader.action.IQ_NO_BROADCAST";
 	private final String SUBSCRIBE = "sub";
 	private final String UNSUBSCRIBE = "unsub";
 
@@ -132,7 +126,7 @@ public class InteractiveServer {
 		List<String> list = new ArrayList<String>();
 		list.add(feedUrls.get(0).toString());
 		list.add(SUBSCRIBE);
-		subUnsubscribe(new SubUnSubExtension(feedUrls, jid + "@" + server,
+		subUnsubscribe(new SubUnSubExtension(feedUrls, jid,
 				SubUnSubExtension.TYPE_SUBSCRIPTION), list);
 	}
 
@@ -140,7 +134,7 @@ public class InteractiveServer {
 		List<String> list = new ArrayList<String>();
 		list.add(feedUrls.get(0).toString());
 		list.add(UNSUBSCRIBE);
-		subUnsubscribe(new SubUnSubExtension(feedUrls, jid + "@" + server,
+		subUnsubscribe(new SubUnSubExtension(feedUrls, jid,
 				SubUnSubExtension.TYPE_UNSUBSCRIPTION), list);
 	}
 
@@ -148,39 +142,27 @@ public class InteractiveServer {
 	private void registerExtensionProvider() {
 		ProviderManager pm = ProviderManager.getInstance();
 		pm.addExtensionProvider("event",
-				"http://jabber.org/protocol/pubsub#event", new EventProvider());
+				"smit:pubsub:notification", new EventProvider());
 
-		pm.addExtensionProvider("status",
-				"http://superfeedr.com/xmpp-pubsub-ext", new StatusProvider());
-
-		pm.addExtensionProvider("http",
-				"http://superfeedr.com/xmpp-pubsub-ext", new HttpProvider());
-
-		pm.addExtensionProvider("next_fetch",
-				"http://superfeedr.com/xmpp-pubsub-ext",
-				new NextFetchProvider());
 
 		pm.addExtensionProvider("title",
-				"http://superfeedr.com/xmpp-pubsub-ext", new TitleProvider());
+				"smit:pubsub:notification", new TitleProvider());
 
 		pm.addExtensionProvider("items",
-				"http://jabber.org/protocol/pubsub#event", new ItemsProvider());
+				"smit:pubsub:notification", new ItemsProvider());
 
-		pm.addExtensionProvider("item", "http://jabber.org/protocol/pubsub",
+		pm.addExtensionProvider("item", "smit:pubsub:notification",
 				new ItemProvider());
 
-		pm.addExtensionProvider("entry", "http://www.w3.org/2005/Atom",
-				new EntryProvider());
 	}
 
 	private class InteractivePacketListener implements PacketListener {
-		private static final String LOGTAG = "Notification";
 
 		@Override
 		public void processPacket(Packet packet) {
 			// TODO Auto-generated method stub
-			Log.d(LOGTAG, "NotificationPacketListener.processPacket()...");
-			Log.d(LOGTAG, "packet.toXML()=" + packet.toXML());
+			Log.i("收到服务器回应的包消息--------", "NotificationPacketListener.processPacket()...");
+			Log.i("收到的包内容---------", "packet.toXML()=" + packet.toXML());
 
 			if (packet instanceof Message) {
 				fireOnNotificationHandlers((SuperfeedrEventExtension) ((Message) packet)
@@ -196,7 +178,7 @@ public class InteractiveServer {
 					if (response.getType()==IQ.Type.ERROR) {
 						// setSuccess(true);
 						// 发送广播通知RSSReaderActivity数据有更新
-						Intent i = new Intent(IQRESPONSENO);
+						Intent i = new Intent(RssReaderConstant.IQRESPONSENO);
 						Bundle bundle = new Bundle();
 						bundle.putString("FEEDURL", feed);
 						bundle.putString("SUBUNSUB", flag);
@@ -205,7 +187,7 @@ public class InteractiveServer {
 						// handler1.onError(builder.toString());
 					} else {
 						// setSuccess(false);
-						Intent i = new Intent(IQRESPONSEYES);
+						Intent i = new Intent(RssReaderConstant.IQRESPONSEYES);
 						Bundle bundle = new Bundle();
 						bundle.putString("FEEDURL", feed);
 						bundle.putString("SUBUNSUB", flag);

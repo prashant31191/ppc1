@@ -14,8 +14,6 @@ import android.widget.EditText;
 
 public class CategoryEditDialog extends AlertDialog{
     
-	private final String EDIT_BROADCAST = "com.smit.rssreader.action.EDIT_BROADCAST";
-	
 	private Context context;
 	private String category ;
 	private RSSOpenHelper roh ;
@@ -78,8 +76,9 @@ public class CategoryEditDialog extends AlertDialog{
 				if(b1&&!b2){
 					roh.updateRssDes(str2, category);
 				}
-				Intent i1 = new Intent(EDIT_BROADCAST);
-				context.sendBroadcast(i1);
+//				Intent i1 = new Intent(RssReaderConstant.EDIT_BROADCAST);
+//				context.sendBroadcast(i1);
+				
 				listener.onOkClick();
 				field_cate.setText(" ");
 				field_des.setText(" ");

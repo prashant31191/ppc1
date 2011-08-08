@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jivesoftware.smack.packet.PacketExtension;
+import org.jivesoftware.smackx.provider.EmbeddedExtensionProvider;
 
 import com.smit.rssreader.extension.notification.ItemExtension;
 import com.smit.rssreader.extension.notification.ItemsExtension;

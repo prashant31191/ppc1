@@ -5,7 +5,7 @@ import org.jivesoftware.smack.packet.PacketExtension;
 public abstract class PseudoPubSubPacketExtension implements PacketExtension{
 	
 	public static final String ELEMENT_NAME = "pubsub";
-	public static final String NAMESPACE = "http://jabber.org/protocol/pubsub";
+	public static final String NAMESPACE = "smit:pubsub:subscribe";
 	
 	public String getElementName() {
 		return ELEMENT_NAME;

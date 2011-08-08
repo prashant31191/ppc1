@@ -2,10 +2,14 @@ package com.smit.rssreader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.code.rome.android.repackaged.com.sun.syndication.feed.synd.SyndEntry;
+import com.google.code.rome.android.repackaged.com.sun.syndication.feed.synd.SyndFeed;
 import com.smit.EasyLauncher.R;
+
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -60,24 +64,33 @@ public class CustomerDialog extends AlertDialog {
 		public void handleMessage(Message msg) {
 			// TODO Auto-generated method stub
 			FeedCategory fc = (FeedCategory) msg.obj;
-			RSSFeed feed = fc.getRssFeed();
+			SyndFeed feed = fc.getRssFeed();
 			String url = fc.getRssUrl();
 			if (feed == null) {
 				new PopupDialog("温馨提示", "订阅失败,请检查网络和RSS地址的合法性！", context).show();
 				pDialog.dismiss();
 			} else {
-				String channelTitle = feed.getTitle();
-				int count = feed.getItemCount();
-				RSSItem item = null;
+				String channelTitle = feed.getTitle().trim();
+				int count = feed.getEntries().size();
+				SyndEntry entry = null;
 				for (int i = 0; i < count; i++) {
-					item = feed.getItem(i);
-					String itemTitle = item.getTitle();
-					String itemDes = item.getDescription();
-					String itemPub = item.getPubDate();
-					String itemLink = item.getLink();
+					entry =(SyndEntry)feed.getEntries().get(i);
+					String itemTitle = entry.getTitle().trim();
+					String strDes = entry.getDescription().getValue().trim();
+					String itemDes = "";
+					if(strDes.contains("<span")){
+						int index = strDes.indexOf("<span");
+						itemDes = strDes.substring(0, index-1);
+					}else{
+						itemDes = strDes;
+					}
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+					String itemPub = sdf.format(entry.getPublishedDate());
+					
+					String itemLink = entry.getLink().trim();
 					rssOpenHelper.insertRssInfo(selectedCategory, url,
 							channelTitle, itemTitle, itemDes, itemPub,
-							itemLink, 0,0);
+							itemLink, RssReaderConstant.NOTREAD,RssReaderConstant.FEEDNOTONSERVER);
 				}
 				field_url.setText(" ");
 				dismiss();
@@ -98,8 +111,8 @@ public class CustomerDialog extends AlertDialog {
 		this.inter = inter;
 		
 		IntentFilter filter = new IntentFilter();
-		filter.addAction("com.smit.rssreader.action.IQ_YES_BROADCAST");
-		filter.addAction("com.smit.rssreader.action.IQ_NO_BROADCAST");
+		filter.addAction(RssReaderConstant.IQRESPONSEYES);
+		filter.addAction(RssReaderConstant.IQRESPONSENO);
 		diaReciver = new DialogReciver();
 		context.registerReceiver(diaReciver, filter);
 		
@@ -220,16 +233,25 @@ public class CustomerDialog extends AlertDialog {
 					// 验证RSS Feed地址的合法性
 					if (url.equals("")) {
 						new PopupDialog("错误提示:", "RSS地址不能为空", context).show();
-					} else if (isSameOfRssUrl(selectedCategory, url)) {
-						new PopupDialog("温馨提示:", "所选RSS类别中已经存在正在添加的RSS地址！",
-								context).show();
-					} else if((urlList = initUrlList(url))!=null){
-						pDialog = new ProgressDialog(context);
-						pDialog.setTitle("正在处理");
-						pDialog.setMessage("请稍后......");
-						pDialog.show();
-						
-						inter.subscribe(urlList);
+					}else{
+						String cate = getCategoryOfRssUrl(url);
+						if(cate == null){
+							pDialog = new ProgressDialog(context);
+							pDialog.setTitle("正在处理");
+							pDialog.setMessage("请稍后......");
+							pDialog.show();
+							if(inter!=null){
+								urlList = initUrlList(url);
+								inter.subscribe(urlList);
+							}else{
+								HttpGetThread hgt = new HttpGetThread(url, handler,
+										selectedCategory);
+								hgt.start();
+								}
+						}else{
+							new PopupDialog("温馨提示:", "您添加的RSS地址已经存在于:"+ cate + "类中！",
+									context).show();
+						}
 					}
 				}
 			});
@@ -238,14 +260,15 @@ public class CustomerDialog extends AlertDialog {
 	}
 
 	// 在某个RSS类中添加RSS地址时，判断有无重复
-	private boolean isSameOfRssUrl(String category, String url) {
-		Cursor c = rssOpenHelper.queryWithCU(category, url);
+	private String getCategoryOfRssUrl(String url) {
+		Cursor c = rssOpenHelper.queryWithUrl(url);
 		if (c.moveToFirst()) {
+			int cateIndex = c.getColumnIndex(RSSOpenHelper.RSS_CATEGORY);
+			return c.getString(cateIndex);
+		}else{
 			c.close();
-			return true;
+			return null;
 		}
-		c.close();
-		return false;
 	}
 
 	// 添加RSS类别字段时判断是否添加过该字段
@@ -295,6 +318,15 @@ public class CustomerDialog extends AlertDialog {
 		cursor.close();
 	}
 
+//	//添加完成后让对话框消失
+//	private void disappear(){
+//		if(){
+//			
+//		}else if{
+//			
+//		}
+//	}
+	
 	private class SpinnerBaseAdapter extends BaseAdapter {
 
 		@Override
@@ -362,13 +394,15 @@ public class CustomerDialog extends AlertDialog {
 			String action = intent.getAction();
 			String message = intent.getExtras().getString("FEEDURL");
 			String subFlag = intent.getExtras().getString("SUBUNSUB");
-			if(action.equals("com.smit.rssreader.action.IQ_YES_BROADCAST")){
+			if(action.equals(RssReaderConstant.IQRESPONSEYES)){
 				if(subFlag.equals("sub")){
 					new PopupDialog("温馨提示", message+"订阅成功！", context).show();
 					pDialog.dismiss();
+					field_url.setText("");
+					dismiss();
 				}
 				
-			}else if(action.equals("com.smit.rssreader.action.IQ_NO_BROADCAST")){
+			}else if(action.equals(RssReaderConstant.IQRESPONSENO)){
 				if(subFlag.equals("sub")){
 					HttpGetThread hgt = new HttpGetThread(message, handler,
 							selectedCategory);
