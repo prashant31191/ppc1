@@ -151,7 +151,8 @@ public class RSSReaderActivity extends Activity {
 		RSSReaderActivity.this.registerReceiver(loginReceiver, intentFilter);
 
 		findView();
-		writeToDatabase();
+		//writeToDatabase();
+		
 		getBasicInfo();
 		expandList.setAdapter(rssInfoAdapter);
 
@@ -647,7 +648,7 @@ public class RSSReaderActivity extends Activity {
 		mNotificationManager.notify(notification_id, notification);
 	}
 	
-	//写入几条初始数据
+	/*//写入几条初始数据
 	private void writeToDatabase(){
 		rssOpenHelper.insertCategory("体育", "");
 		rssOpenHelper.insertCategory("博客", "");
@@ -680,8 +681,8 @@ public class RSSReaderActivity extends Activity {
 				"2011-08-08",
 				"http://www.williamlong.info/archives/2766.html",
 				0, 0);
-	}
-
+	}*/
+	
 	private class BaseRssInfoAdapter extends BaseExpandableListAdapter {
 
 		Context context;
