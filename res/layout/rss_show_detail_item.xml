@@ -3,7 +3,8 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
 	android:layout_height="fill_parent"
-	android:layout_width="fill_parent">
+	android:layout_width="fill_parent"
+	android:background="@color/rss_white">
 	<LinearLayout
 		android:orientation="vertical"
 		android:layout_weight="1.0"
@@ -16,13 +17,44 @@
 			android:text=" "
 			android:gravity="center"
 			android:textSize="24dp" />
-		<TextView
-			android:id="@+id/textview2"
+			
+		<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+	            android:scrollbars="vertical"
+            android:fadingEdge="vertical">
+            <TextView
+	            android:id="@+id/textview2"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:text=" "
+	            android:gravity="center_vertical"
+	            android:textSize="18dp" />
+		</ScrollView>
+		<!--<TextView
+			android:id="@+id/textview3"
 			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
+			android:layout_height="fill_parent"
+			android:text=" "
+			android:gravity="center_vertical"
+			android:autoLink="all"
+			android:textSize="18dp" />
+		<TextView
+			android:id="@+id/textview4"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
 			android:text=" "
 			android:gravity="center_vertical"
 			android:textSize="18dp" />
+			-->
+	  </LinearLayout>
+	  <WebView
+		android:id="@+id/itemdetail"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+	  <LinearLayout 
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:gravity="bottom">
 		<TextView
 			android:id="@+id/textview3"
 			android:layout_width="fill_parent"
@@ -38,63 +70,14 @@
 			android:text=" "
 			android:gravity="center_vertical"
 			android:textSize="18dp" />
-	</LinearLayout>
-	<WebView
-		android:id="@+id/itemdetail"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
-	<RelativeLayout
+		<include layout="@layout/rss_show_detail_bottommenu" />
+	  </LinearLayout>
+	   <!--<RelativeLayout
 		android:id="@+id/relativeLayout1"
 		android:orientation="horizontal"
 		android:layout_height="wrap_content"
 		android:layout_width="fill_parent">
-		<LinearLayout android:id="@+id/layout_last"
-			android:layout_marginLeft="10dip"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:gravity="center_horizontal"
-			android:layout_alignParentLeft="true"
-			android:orientation="vertical">
-			<ImageView
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:src="@drawable/rss_icon"/>
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/rss_last"/>
-		</LinearLayout>
-		<LinearLayout android:id="@+id/layout_addfavorite"
-		    android:layout_centerInParent="true"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:gravity="center_horizontal"
-			android:orientation="vertical">
-			<ImageView
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:src="@drawable/rss_icon"/>
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/rss_add_favorite"/>
-		</LinearLayout>
-		<LinearLayout android:id="@+id/layout_next"
-			android:gravity="center_horizontal"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:orientation="vertical"
-			android:layout_marginRight="10dip">
-			<ImageView
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:src="@drawable/rss_icon"/>
-			<TextView
-				android:layout_width="wrap_content"
-				android:id="@+id/textView7"
-				android:layout_height="wrap_content"
-				android:text="@string/rss_next"/>
-		</LinearLayout>
+		<include layout="@layout/rss_show_detail_bottommenu" />
 	</RelativeLayout>
+    -->
 </LinearLayout>

@@ -38,8 +38,8 @@ public class MainActivity extends Activity {
 
 	private final static String Tag = "chenyz";
 	private XMPPConnection connection;
-	private boolean isLogin = false;
-    private LoginOrOutReceiver loginOrOutReceiver;
+//	private boolean isLogin = false;
+//    private LoginOrOutReceiver loginOrOutReceiver;
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -51,10 +51,10 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.main);
 		DeviceFun.printDeviceInf("OpenIMS");
 		
-		//注册广播，接收Login与Logout的广播
-		IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
-        MainActivity.this.registerReceiver(loginOrOutReceiver, intentFilter);
+//		//注册广播，接收Login与Logout的广播
+//		IntentFilter intentFilter = new IntentFilter();
+//        intentFilter.addAction(PushServiceUtil.ACTION_STATUS);
+//        MainActivity.this.registerReceiver(loginOrOutReceiver, intentFilter);
 		
         /*
 		 * Animation hyperspaceJumpAnimation =
@@ -117,12 +117,12 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		// RSS Reader
+	/*	// RSS Reader
 		Button rssReader = (Button) findViewById(R.id.start_rss);
 		rssReader.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(isLogin == true){
+//				if(isLogin == true){
 //					Intent intent = new Intent();
 //					MyApplication myApp = (MyApplication)MainActivity.this.getApplication();
 //	    	        XMPPConnection connection = myApp.getConnection();
@@ -131,15 +131,15 @@ public class MainActivity extends Activity {
 //	    	        interactive = new InteractiveServer(connection, jid, server, RSSReaderActivity.this);
 					startActivity(new Intent(MainActivity.this,
 							RSSReaderActivity.class));
-				}else{
-					//调用登录对话框
-					Intent intent = new Intent();
-					intent.setClass(MainActivity.this, LoginActivity.class);
-					startActivity(intent);	
-				}
+//				}else{
+//					//调用登录对话框
+//					Intent intent = new Intent();
+//					intent.setClass(MainActivity.this, LoginActivity.class);
+//					startActivity(intent);	
+//				}
 				
 			}
-		});
+		});*/
 
 		Button startChat = (Button) findViewById(R.id.chat);
 		startChat.setOnClickListener(new View.OnClickListener() {
@@ -218,18 +218,18 @@ public class MainActivity extends Activity {
 		startService(regIntent);
 	}
 
-	private class LoginOrOutReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
-			Log.i("STATUSE:", "-------" + status);
-			if (PushServiceUtil.PUSH_STATUS_LOGIN_SUC.equals(status)) {
-				isLogin = true;
-			}else if(PushServiceUtil.PUSH_STATUS_LOGOUT.equals(status)){
-				isLogin = false;
-			}
-		}
-	}
+//	private class LoginOrOutReceiver extends BroadcastReceiver {
+//
+//		@Override
+//		public void onReceive(Context context, Intent intent) {
+//			String status = intent.getStringExtra(PushServiceUtil.PUSH_STATUS);
+//			Log.i("STATUSE:", "-------" + status);
+//			if (PushServiceUtil.PUSH_STATUS_LOGIN_SUC.equals(status)) {
+//				isLogin = true;
+//			}else if(PushServiceUtil.PUSH_STATUS_LOGOUT.equals(status)){
+//				isLogin = false;
+//			}
+//		}
+//	}
 	
 }

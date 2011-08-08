@@ -45,6 +45,7 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 						+ " varchar," + ITEM_LINK + " varchar," + ISREAD
 						+ " integer," + ISONSERVER + " integer)");
 
+
 	}
 
 	@Override
@@ -72,10 +73,17 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 
 	}
 
+	public Cursor queryFeed() {
+		SQLiteDatabase db = this.getReadableDatabase();
+		return db.query(TAB_RSSINFO, null, RSS_URL + "!='" + "'", null, null,
+				null, null);
+
+	}
+
 	public Cursor queryWithUrl(String url) {
 		SQLiteDatabase db = this.getReadableDatabase();
-		return db.query(TAB_RSSINFO, new String[] { RSS_CATEGORY }, RSS_URL
-				+ "='" + url + "'", null, RSS_CATEGORY, null, null);
+		return db.query(TAB_RSSINFO, new String[] { RSS_CATEGORY, RSS_URL },
+				RSS_URL + "='" + url + "'", null, RSS_URL, null, null);
 	}
 
 	public Cursor queryWithCateChannel(String cate, String channel) {
@@ -92,12 +100,11 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 				null, RSS_URL, null, null);
 	}
 
-	public Cursor queryNotOnServer(String category, int flag) {
+	public Cursor queryNotOnServer(int onserver) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		return db.query(TAB_RSSINFO, new String[] { RSS_CATEGORY,
-				CHANNEL_TITLE, RSS_URL }, RSS_CATEGORY + "='" + category + "'"
-				+ " AND " + ISONSERVER + "='" + flag + "'", null, RSS_URL,
-				null, null);
+				CHANNEL_TITLE, RSS_URL }, ISONSERVER + "='" + onserver + "'",
+				null, RSS_URL, null, null);
 	}
 
 	public Cursor queryWithUrlAndCategory(String category, String url) {
@@ -106,11 +113,11 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 				+ " AND " + RSS_URL + "='" + url + "'", null, null, null, null);
 	}
 
-	public Cursor queryItem(String category, String channel, String itemTitle) {
+	public Cursor queryItem(String category, String link) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		return db.query(TAB_RSSINFO, null, RSS_CATEGORY + "='" + category + "'"
-				+ " AND " + CHANNEL_TITLE + "='" + channel + "'" + " AND "
-				+ ITEM_TITLE + "='" + itemTitle + "'", null, null, null, null);
+				+ " AND " + ITEM_LINK + "='" + link + "'", null, null, null,
+				null);
 	}
 
 	public Cursor queryWithCU(String cate, String url) {
@@ -131,6 +138,13 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 		return db.query(TAB_RSSINFO, null, RSS_CATEGORY + "='" + cate + "'"
 				+ " AND " + ITEM_LINK + "='" + link + "'" + " AND " + ISREAD
 				+ "='" + flag + "'", null, null, null, null);
+	}
+
+	public Cursor queryWithCFL(String cate, String feedUrl, String link) {
+		SQLiteDatabase db = this.getReadableDatabase();
+		return db.query(TAB_RSSINFO, null, RSS_CATEGORY + "='" + cate + "'"
+				+ " AND " + RSS_URL + "='" + feedUrl + "'" + " AND "
+				+ ITEM_LINK + "='" + link + "'", null, null, null, null);
 	}
 
 	public void insertCategory(String category, String description) {
@@ -191,10 +205,16 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 	public void updateISREAED(String category, String url, String link) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
-		values.put(ISREAD, 1);
-		db.update(TAB_RSSINFO, values, RSS_CATEGORY + "='" + category + "'"
-				+ " AND " + RSS_URL + "='" + url + "'" + " AND " + ITEM_LINK
-				+ "='" + link + "'", null);
+		values.put(ISREAD, RssReaderConstant.ISREAD);
+		if (link == null) {
+			db.update(TAB_RSSINFO, values, RSS_CATEGORY + "='" + category + "'"
+					+ " AND " + RSS_URL + "='" + url + "'", null);
+		} else {
+			db.update(TAB_RSSINFO, values, RSS_CATEGORY + "='" + category + "'"
+					+ " AND " + RSS_URL + "='" + url + "'" + " AND "
+					+ ITEM_LINK + "='" + link + "'", null);
+		}
+
 	}
 
 	public void deleteCategory(String category) {
@@ -212,10 +232,9 @@ public class RSSOpenHelper extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public void deleteChannel(String cate, String channel) {
+	public void deleteChannel(String feedUrl) {
 		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TAB_RSSINFO, RSS_CATEGORY + "='" + cate + "'" + " AND "
-				+ CHANNEL_TITLE + "='" + channel + "'", null);
+		db.delete(TAB_RSSINFO, RSS_URL + "='" + feedUrl + "'", null);
 		db.close();
 	}
 }

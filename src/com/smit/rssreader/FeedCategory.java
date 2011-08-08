@@ -1,17 +1,19 @@
 package com.smit.rssreader;
 
+import com.google.code.rome.android.repackaged.com.sun.syndication.feed.synd.SyndFeed;
+
 public class FeedCategory {
-	private RSSFeed rFeed;
+	private SyndFeed rFeed;
 	private String category ;
 	private String urlFeed ;
 	
-	public FeedCategory(RSSFeed feed , String cate ,String urlFeed){
+	public FeedCategory(SyndFeed feed , String cate ,String urlFeed){
 		this.rFeed = feed ;
 		this.category = cate ;
 		this.urlFeed = urlFeed ;
 	}
 
-	public RSSFeed getRssFeed(){
+	public SyndFeed getRssFeed(){
 		return rFeed;
 	}
 	

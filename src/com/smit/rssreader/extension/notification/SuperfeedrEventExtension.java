@@ -23,10 +23,10 @@ package com.smit.rssreader.extension.notification;
 
 public class SuperfeedrEventExtension extends DefaultSuperfeerExtension {
 	
-	public static final String NAMESPACE = "http://jabber.org/protocol/pubsub#event";
+	public static final String NAMESPACE = "smit:pubsub:notification";
 	public static final String ELEMENT_NAME = "event";
 
-	private StatusExtension status;
+	private String  channelTitle;
 	
 	private ItemsExtension items;
 	
@@ -41,13 +41,13 @@ public class SuperfeedrEventExtension extends DefaultSuperfeerExtension {
 	}
 
 	
-	public SuperfeedrEventExtension(StatusExtension status, ItemsExtension items) {
-		this.status = status;
+	public SuperfeedrEventExtension(String channel, ItemsExtension items) {
+		this.channelTitle = channel;
 		this.items = items;
 	}
 	
-	public StatusExtension getStatus(){
-		return status;
+	public String getChannelTitle(){
+		return channelTitle;
 	}
 	
 	public ItemsExtension getItems(){

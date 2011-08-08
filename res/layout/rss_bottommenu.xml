@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:layout_width="fill_parent"
+	android:layout_height="wrap_content">
+	<LinearLayout android:id="@+id/layout_category"
+		android:orientation="vertical" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_gravity="center"
+		android:background="@drawable/rss_menu_normal_background" android:layout_weight="1.0">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="@string/rss_addcategory"
+			android:layout_gravity="center_horizontal" android:paddingTop="29px"/>
+	</LinearLayout>
+	<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content"  android:src="@drawable/rss_line" />
+	<LinearLayout android:id="@+id/layout_rss"
+		android:orientation="vertical" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:background="@drawable/rss_menu_normal_background"
+	    android:layout_weight="1.0" android:layout_gravity="center">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="@string/rss_addrss"
+			android:layout_gravity="center_horizontal" android:paddingTop="29px" />
+	</LinearLayout>
+	<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content"  android:src="@drawable/rss_line" />
+	<LinearLayout android:id="@+id/updatecontent"
+		android:orientation="vertical" android:layout_width="wrap_content" 
+		android:layout_height="wrap_content" android:background="@drawable/rss_menu_normal_background"
+		android:layout_weight="1.0" android:layout_gravity="center">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="@string/rss_update"
+			android:layout_gravity="center_horizontal" android:paddingTop="29px"/>
+	</LinearLayout>
+	<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content"  android:src="@drawable/rss_line" />
+	<LinearLayout android:id="@+id/layout_favo"
+		android:orientation="vertical" android:layout_width="wrap_content" 
+		android:layout_height="wrap_content" android:background="@drawable/rss_menu_normal_background"
+		android:layout_weight="1.0" android:layout_gravity="center">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="@string/rss_favorite"
+			android:layout_gravity="center_horizontal" android:paddingTop="29px"/>
+	</LinearLayout>
+	<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content"  android:src="@drawable/rss_line" />
+	<LinearLayout android:id="@+id/layout_recommend"
+		android:orientation="vertical" android:layout_width="wrap_content" 
+		android:layout_height="wrap_content" android:background="@drawable/rss_menu_normal_background"
+		android:layout_weight="1.0" android:layout_gravity="center">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="@string/rss_recommend"
+			android:layout_gravity="center_horizontal" android:paddingTop="29px"/>
+	</LinearLayout>
+</LinearLayout>

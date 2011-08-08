@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:orientation="horizontal" 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent">
+    <TextView android:layout_width="wrap_content" 
+        android:layout_alignParentLeft="true" 
+        android:gravity="center_vertical"
+        android:layout_height="fill_parent" 
+        android:text="@string/rss_app_name"
+        android:textSize="14sp"
+        android:textStyle="bold"/>
+    <TextView android:id="@+id/rss_mark"
+        android:layout_width="wrap_content" 
+        android:layout_alignParentRight="true" 
+        android:gravity="center_vertical"
+        android:layout_height="fill_parent" 
+        android:text="@string/rss_mark_all" 
+        android:textColor="@color/rss_blue"/>
+</RelativeLayout>

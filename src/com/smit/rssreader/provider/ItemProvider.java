@@ -21,22 +21,52 @@
  */
 package com.smit.rssreader.provider;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Date;
 
 import org.jivesoftware.smack.packet.PacketExtension;
+import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.xmlpull.v1.XmlPullParser;
 
-import com.smit.rssreader.extension.notification.EntryExtension;
+import com.smit.rssreader.InteractiveServer;
 import com.smit.rssreader.extension.notification.ItemExtension;
 
 
-public class ItemProvider extends EmbeddedExtensionProvider
-{
-
-	@Override
-	protected PacketExtension createReturnExtension(String currentElement, String currentNamespace, Map<String, String> attributeMap,
-			List<? extends PacketExtension> content) {
-		return new ItemExtension((EntryExtension)content.get(0));
+public class ItemProvider implements PacketExtensionProvider{
+	
+      public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
+		
+		String name = parser.getName();
+		
+		String title = null;
+		String summary = null;
+		String link = null;
+		String id = null;
+		Date published = null;
+		
+		int tag = parser.next();
+		
+		while (!name.equals(parser.getName())){
+			if (tag == XmlPullParser.START_TAG){
+				if ("title".equals(parser.getName())){
+					parser.next();
+					title = parser.getText();
+				}else if ("summary".equals(parser.getName())){
+					parser.next();
+					summary = parser.getText();
+				}else if ("link".equals(parser.getName())){
+					link = parser.getAttributeValue(null, "href");
+				}else if ("id".equals(parser.getName())){
+					parser.next();
+					id = parser.getText();
+				} else if ("published".equals(parser.getName())){
+					parser.next();
+					published = InteractiveServer.convertDate(parser.getText());
+				} 
+			}
+			tag = parser.next();
+		}
+		return new ItemExtension(title, summary, link, id,published);
 	}
+
 
 }

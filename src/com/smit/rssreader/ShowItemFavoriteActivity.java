@@ -37,7 +37,7 @@ public class ShowItemFavoriteActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.rss_show_item_favorite);
-		setTitle("收藏夹");
+		//setTitle("收藏夹");
 
 		listview = (ListView) findViewById(R.id.favoritelist);
 		initiaAdapter(); //为Adapter设置初始数据
@@ -94,7 +94,7 @@ public class ShowItemFavoriteActivity extends Activity {
     //为Adapter设置数据源
 	private void initiaAdapter(){
 		int i = 0;
-		Cursor cursor = historyOpenhelper.queryFavorite(1);
+		Cursor cursor = historyOpenhelper.queryFavorite(RssReaderConstant.INFAVORITE);
 		if (cursor.moveToFirst()) {
 			titles = new String[cursor.getCount()];
 			httpAddress = new String[cursor.getCount()];

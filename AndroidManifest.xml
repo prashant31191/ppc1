@@ -179,11 +179,34 @@
 		<activity android:name="com.openims.view.chat.widget.IMActivity"></activity>	
 		<activity android:name="com.openims.view.chat.UserSearchActivity"></activity>
 		<activity android:name="com.openims.view.chat.UserManageActivity"></activity>
-		<activity android:name="com.smit.rssreader.RSSReaderActivity"></activity>
-		<activity android:name="com.smit.rssreader.ShowDetailItemActivity"></activity>
-        <activity android:name="com.smit.rssreader.ShowItemFavoriteActivity"></activity>  
-        <activity android:name="com.smit.rssreader.ShowItemsActivity"></activity>
         <!-- end test -->
+        
+        <!-- Rss Reader -->
+        <activity android:name="com.smit.rssreader.RSSReaderActivity"
+		          android:label="@string/rss_app_name"
+		          android:theme="@style/titleTheme">
+        	<intent-filter>
+				  <action android:name="android.intent.action.MAIN" />
+				  <category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+        <activity android:name="com.smit.rssreader.ShowDetailItemActivity"
+		          android:label="@string/rss_app_name"
+		          android:theme="@style/titleTheme">
+		</activity>
+        <activity android:name="com.smit.rssreader.ShowItemFavoriteActivity"
+                  android:label="@string/rss_app_name"
+		          android:theme="@style/titleTheme">
+        </activity>  
+        <activity android:name="com.smit.rssreader.ShowItemsActivity"
+                  android:label="@string/rss_app_name"
+		          android:theme="@style/titleTheme">
+        </activity>
+        <activity android:name="com.smit.rssreader.ShowCommendActivity"
+                  android:label="@string/rss_app_name"
+		          android:theme="@style/titleTheme">
+        </activity>
+        <!-- end Rss Reader -->
     </application>
     
 </manifest>
