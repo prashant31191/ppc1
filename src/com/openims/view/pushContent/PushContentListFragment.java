@@ -163,6 +163,8 @@ public class PushContentListFragment extends BaseServiceFragment{
 		}
 		pushAdapter.initData();
 		if(cursor.moveToFirst() == false){
+			cursor.close();
+			pushAdapter.notifyDataSetChanged();
 			return;
 		}
 		while(cursor.isAfterLast() == false){

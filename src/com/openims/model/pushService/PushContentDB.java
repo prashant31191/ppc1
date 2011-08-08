@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.openims.utility.LogUtil;
+import com.openims.utility.PushServiceUtil;
 /**
  * 
  * @author Andrew Chan
@@ -70,6 +71,7 @@ public class PushContentDB {
 			Log.d(LOGTAG,TAG+"onCreate table:" + CREATE_TABLE);
 			try {
 				db.execSQL(CREATE_TABLE);
+				initDatabase(db);
 			} catch (SQLException e) {				
 				e.printStackTrace();
 				Log.e(LOGTAG,TAG+"create table fail:" + CREATE_TABLE);
@@ -78,6 +80,54 @@ public class PushContentDB {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		}
+		
+		private boolean insertItem(SQLiteDatabase db,PushContent pushContent){
+			
+			String sql = "insert into " + TABLE_NAME + " ("+
+			INDEX +","+SIZE +
+			","+TITLE +
+			","+CONTENT +
+			","+LOCAL_PATH+","+TIME+
+			","+TYPE +
+			","+STATUS +
+			","+FLAG+
+			") values(" +
+			null+",'"+ 
+			pushContent.getSize()+"','"+
+			pushContent.getTitle()+"','"+ 
+			pushContent.getContent()+ "','"+		
+			pushContent.getLocalPath()+ "','"+
+			pushContent.getTime()+ "','"+
+			pushContent.getType()+ "','"+
+			pushContent.getStatus()+ "','"+
+			pushContent.getFlag()+ "'"+
+			");";
+			Log.d(LOGTAG,TAG+sql);
+			try {
+				db.execSQL(sql);
+			} catch (SQLException e) {			
+				e.printStackTrace();
+				Log.d(LOGTAG,TAG+"execSQL error:"+e.getMessage());
+				return false;
+			}
+			return true;
+		}
+		private void initDatabase(SQLiteDatabase db){
+			
+			PushContent push = new PushContent(); 
+			push.setType(PushServiceUtil.DEFAULTID_TEXT);
+	    	push.setContent("欢迎使用Push平台");
+	    	push.setTitle("欢迎");
+			insertItem(db,push);
+			
+			push = new PushContent(); 
+			push.setType(PushServiceUtil.DEFAULTID_PICTURE);
+	    	push.setTitle("欢迎使用Push平台");
+	    	push.setContent("http://www.w3schools.com/images/w3schoolslogo.gif");
+			insertItem(db,push);
+			
+		}
+		
 	}
 	public boolean reCreateTable(){
 		Log.d(LOGTAG,TAG+"CreateTable:" + TABLE_NAME);
@@ -126,6 +176,8 @@ public class PushContentDB {
 		}
 		return true;
 	}
+
+	
 	/**
 	 *  delete one item
 	 *  @param index for the primary key
