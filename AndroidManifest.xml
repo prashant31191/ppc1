@@ -89,30 +89,18 @@
 	  android:label="@string/app_name">
      </activity>
      
-	<!-- add by chenyz -->
-      
-    	<activity android:name="com.openims.view.onlineHelper.ChatActivity"
-        		  android:label="@string/onlineHelper"
-        		  android:launchMode="singleInstance"
-        		  android:screenOrientation="behind">
-    	</activity>
+	<!-- add by chenyz -->      
+    	
     	<activity android:name="com.openims.view.pubsub.MainActivity"
         		  android:label="@string/topic"
         		  android:launchMode="singleInstance">
     	</activity>
     	<activity android:name="com.openims.view.setting.Setting"
                   android:label="@string/app_name">
-        </activity>
-        <activity android:name="com.openims.view.pcAssistant.AssistantActivity" 
-    			  android:label="@string/pcAssistant">        		  
-    	</activity>
-    	<activity android:name="com.openims.view.pushContent.PushActivity"
-    				android:label="@string/app_name" >				  
-		</activity>
+        </activity> 
 		<activity android:name="com.openims.view.chat.MultiChatActivity"
 					android:launchMode="singleInstance" >
-		</activity>
-		
+		</activity>		
         
         <!-- the core service -->
         <service android:enabled="true"
@@ -169,7 +157,7 @@
         </receiver>
         
         <!-- below is for test -->
-        <activity android:name="com.openims.demo.MainActivity" android:label="@string/app_name">
+        <activity android:name="com.openims.demo.MainActivity" android:label="Easy Launcher Test">
         		  <intent-filter>
         		  	<action android:name="android.intent.action.MAIN" /> 
         		  	<category android:name="android.intent.category.LAUNCHER" />
@@ -184,7 +172,8 @@
         <!-- Rss Reader -->
         <activity android:name="com.smit.rssreader.RSSReaderActivity"
 		          android:label="@string/rss_app_name"
-		          android:theme="@style/titleTheme">
+		          android:theme="@style/titleTheme"
+		          android:icon="@drawable/rss_icon">
         	<intent-filter>
 				  <action android:name="android.intent.action.MAIN" />
 				  <category android:name="android.intent.category.LAUNCHER" />
