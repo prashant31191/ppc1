@@ -878,13 +878,11 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
         mWaitingForResult = false;
-
         // The pattern used here is that a user PICKs a specific application,
         // which, depending on the target, might need to CREATE the actual target.
 
         // For example, the user would PICK_SHORTCUT for "Music playlist", and we
         // launch over to the Music app to actually CREATE_SHORTCUT.
-
         if (resultCode == RESULT_OK && mAddItemCellInfo != null) {
             switch (requestCode) {
                 case REQUEST_PICK_APPLICATION:
@@ -904,6 +902,7 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
                     break;
                 case REQUEST_PICK_APPWIDGET:
                     addAppWidget(data);
+
                     break;
                 case REQUEST_CREATE_APPWIDGET:
                     completeAddAppWidget(data, mAddItemCellInfo);
@@ -1434,7 +1433,9 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
         switch (item.getItemId()) {
             case MENU_ADD:
 //                addItems();
-//                addWidget();
+                mAddItemCellInfo = mMenuAddInfo;
+                mWaitingForResult = true;
+                addWidget();
                 return true;
 //            case MENU_MANAGE_APPS:
 //                manageApps();
@@ -2243,12 +2244,12 @@ public class EasyLauncher extends FragmentActivity implements View.OnClickListen
      *          - From another workspace
      */
     void closeAllApps(boolean animated) {
-//        if (mAllAppsGrid.isVisible()) {
-//            mWorkspace.setVisibility(View.VISIBLE);
-//            mAllAppsGrid.zoom(0.0f, animated);
-//            ((View)mAllAppsGrid).setFocusable(false);
-//            mWorkspace.getChildAt(mWorkspace.getCurrentScreen()).requestFocus();
-//        }
+/*        if (mAllAppsGrid.isVisible()) {
+            mWorkspace.setVisibility(View.VISIBLE);
+            mAllAppsGrid.zoom(0.0f, animated);
+            ((View)mAllAppsGrid).setFocusable(false);
+            mWorkspace.getChildAt(mWorkspace.getCurrentScreen()).requestFocus();
+        }*/
     }
 
     void lockAllApps() {

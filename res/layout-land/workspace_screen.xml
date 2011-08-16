@@ -29,7 +29,7 @@
 
     launcher:longAxisStartPadding="10dip"
     launcher:longAxisEndPadding="65dip"
-    launcher:shortAxisStartPadding="60dip"
+    launcher:shortAxisStartPadding="45dip"
     launcher:shortAxisEndPadding="0dip"
     launcher:shortAxisCells="4"
     launcher:longAxisCells="4" >

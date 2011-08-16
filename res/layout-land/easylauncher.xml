@@ -25,7 +25,7 @@
     android:id="@+id/drag_layer"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    launcher:defaultScreen="2">
+    >
 
    <ImageView android:id="@+id/bgimage"
         android:layout_width="fill_parent"
@@ -37,7 +37,8 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:scrollbars="horizontal"
-        android:fadeScrollbars="true">
+        android:fadeScrollbars="true"
+        launcher:defaultScreen="2">
         <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
         <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
         <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
