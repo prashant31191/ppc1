@@ -342,7 +342,7 @@ public class IMService extends Service  {
     }
 
     private void logout() {
-        
+        // TODO when openfire crash, here cann't logout when time out
         disconnect();
         try {
 			executorService.awaitTermination(1000, TimeUnit.MILLISECONDS);
