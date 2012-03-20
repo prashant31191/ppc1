@@ -956,8 +956,10 @@ public class XmppManager{
     		Log.e(LOGTAG,"get file manager listener error");
     		e.printStackTrace();    		
     	}    	
-    	String deviceName = android.os.Build.PRODUCT;
-    	if(deviceName.isEmpty()){
+    	String deviceName = DeviceFun.getRoomNum(imservice.getContentResolver());
+    	if(deviceName==null || deviceName.isEmpty()){
+    		deviceName = android.os.Build.PRODUCT;
+    	}else if(deviceName.isEmpty()){
     		deviceName = android.os.Build.DEVICE;
     	}
     	// send device information to server

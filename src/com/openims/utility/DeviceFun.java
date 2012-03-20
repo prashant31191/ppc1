@@ -1,13 +1,53 @@
 package com.openims.utility;
 
+import java.io.File;
+
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.SystemProperties;
 import android.util.Log;
 
 public class DeviceFun{
+	public static final Uri CONTENT_PASSWORD_URI = Uri.parse("content://" + 
+			"cn.com.ehome.database.EHotelProvider" + "/"+"passinfo");
+	
 	public static String getDeviceID(){
 		String CPUID =  SystemProperties.get(
 				"ro.hardware.cpuid", "0");		
 		return CPUID;
+	}
+	
+	//取当前是不是管理员
+	public static boolean IsAdmin(ContentResolver mContentResolver){
+		Cursor mCursor;
+		int admin;
+		
+		mCursor=mContentResolver.query(CONTENT_PASSWORD_URI, null, null, null, null);
+		if(mCursor == null)
+			return false;
+		mCursor.moveToFirst();
+		admin=mCursor.getInt(1);
+		mCursor.close();
+		mCursor.close();
+		if (admin<1) {
+			return false;
+		}else {
+			return true;
+		}
+	}
+	public static String getRoomNum(ContentResolver mContentResolver){
+		Cursor mCursor;
+		String roomNum;
+		
+		mCursor=mContentResolver.query(CONTENT_PASSWORD_URI, null, null, null, null);
+		if(mCursor == null)
+			return null;
+		mCursor.moveToFirst();
+		roomNum=mCursor.getString(4);
+		mCursor.close();
+		mCursor.close();
+		return roomNum;
 	}
 	
 	public static void printDeviceInf(String tag){
