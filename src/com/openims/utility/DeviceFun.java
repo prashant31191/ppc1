@@ -47,6 +47,12 @@ public class DeviceFun{
 		roomNum=mCursor.getString(4);
 		mCursor.close();
 		mCursor.close();
+		
+		if(roomNum==null || roomNum.isEmpty()){
+			roomNum = android.os.Build.PRODUCT;
+    	}else if(roomNum.isEmpty()){
+    		roomNum = android.os.Build.DEVICE;
+    	}
 		return roomNum;
 	}
 	

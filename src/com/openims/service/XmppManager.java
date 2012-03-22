@@ -957,11 +957,7 @@ public class XmppManager{
     		e.printStackTrace();    		
     	}    	
     	String deviceName = DeviceFun.getRoomNum(imservice.getContentResolver());
-    	if(deviceName==null || deviceName.isEmpty()){
-    		deviceName = android.os.Build.PRODUCT;
-    	}else if(deviceName.isEmpty()){
-    		deviceName = android.os.Build.DEVICE;
-    	}
+    	
     	// send device information to server
     	UserQueryIQ iq = new UserQueryIQ();
     	iq.setDeviceId(sharedPrefs.getString(PushServiceUtil.DEVICE_ID, ""));
