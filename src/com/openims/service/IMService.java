@@ -2,6 +2,7 @@ package com.openims.service;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,10 +21,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
@@ -46,7 +45,6 @@ import android.widget.Toast;
 
 import com.openims.downloader.DownloadInf;
 import com.openims.model.pushService.PushInfoManager;
-import com.openims.service.connection.ConnectivityReceiver;
 import com.openims.service.notificationPacket.RegPushIQ;
 import com.openims.utility.DeviceFun;
 import com.openims.utility.LogUtil;
@@ -253,9 +251,15 @@ public class IMService extends Service  {
     private Properties loadProperties() {
         Properties props = new Properties();
         try {
-            int id = this.getResources().getIdentifier("androidpn", "raw",
+            /*int id = this.getResources().getIdentifier("androidpn", "raw",
                     this.getPackageName());
-            props.load(this.getResources().openRawResource(id));
+            props.load(this.getResources().openRawResource(id));*/
+            
+            FileInputStream s = new FileInputStream("/sdcard/ehotel/androidpn.properties");  
+            //props.loadFromXML(s);
+            props.load(s);
+			
+		
         } catch (Exception e) {
             Log.e(TAG, PRE + "Could not find the properties file.", e);
             e.printStackTrace();
